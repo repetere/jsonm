@@ -1,3 +1,4 @@
+import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import { DateTime, DateTimeJSOptions, DateObject, } from 'luxon';
 import Outlier from 'outlier';
 
@@ -208,7 +209,11 @@ export const mockDateObject = generatedMockDateObject;
 export const dimensionDurations = ['years', 'months', 'weeks', 'days', 'hours', ];
 export const flattenDelimiter = '+=+';
 
-export function getOpenHour(options):BooleanAnswer {
+export function getOpenHour(options = {}): BooleanAnswer {
+  return 1;
+  /*
+  //TODO: fix this
+
   const { date, parsedDate, zone, } = options;
   const entity = this.entity || {};
   const dimension = this.dimension;
@@ -259,9 +264,13 @@ export function getOpenHour(options):BooleanAnswer {
   }
   
   return (openFromCustomClosed && opened) || openFromCustomOpened;
+  */
 }
 
-export function getIsOutlier({ outlier_property, }):BooleanAnswer {
+export function getIsOutlier(this: {
+  data: ModelXDataTypes.Data;
+  datum: ModelXDataTypes.Datum;
+}, { outlier_property, }: { outlier_property?: string; } = {}): BooleanAnswer {
   if (outlier_property) {
     const data = this.data;
     const outlier = Outlier(data.map(datum => datum[ outlier_property ]));
@@ -269,8 +278,6 @@ export function getIsOutlier({ outlier_property, }):BooleanAnswer {
     const dataPoint = datum[ outlier_property ];
     return outlier.testOutlier(dataPoint) ? 1 : -1;
   } else {
-    return function noOutlier() {
-      return 0; 
-    };
+    return 0; 
   }
 }

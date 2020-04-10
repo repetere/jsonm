@@ -17,7 +17,8 @@ import {
   durationToDimensionProperty,
   featureTimeProperty,
   performanceValues,
-
+  getIsOutlier,
+  getOpenHour,
   getLuxonDateTime,
 } from './constants';
 import { Info,DateTime } from 'luxon';
@@ -156,6 +157,38 @@ describe('constants', () => {
       expect(df2.format).toBe(options2.dateFormat);
       expect(df1.date).toBeInstanceOf(DateTime);
       expect(df2.date).toBeInstanceOf(DateTime);
+    });
+  });
+  
+  describe('getOpenHour', () => {
+    it('should return return 1 if opwn', () => {
+      expect(getOpenHour.call({})).toBe(1);
+    });
+  });
+  describe('getIsOutlier', () => {
+    it('should return 0 if no data to test', () => {
+      expect(getIsOutlier.call({})).toBe(0);
+    });
+    it('should return outliers', () => {
+      const outlierData = [{ field: 12 }, { field: 14 }, { field: 51 }, { field: 12 }, { field: 10 }, { field: 9 }, { field: 16 },];//).testOutlier(51); // true
+      expect(getIsOutlier.call({
+        datum: { field: 51 },
+        data:outlierData,
+      }, {
+        outlier_property:'field'
+      })).toBe(1);
+      expect(getIsOutlier.call({
+        datum: { field: 12 },
+        data:outlierData,
+      }, {
+        outlier_property:'field'
+      })).toBe(-1);
+      expect(getIsOutlier.call({
+        datum: { field: 12 },
+        data:outlierData,
+      }, {
+      })).toBe(0);
+      
     });
   });
 });

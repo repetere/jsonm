@@ -30,6 +30,7 @@ export type GetDataSetProperties = {
   nextValueIncludeLocalParsedDate?: boolean;
   nextValueIncludeForecastInputs?: boolean;
   dimension?: Dimensions;
+  DataSetData?: ModelXDataTypes.Data;
 };
 export type ModelStatus = {
   trained: boolean;

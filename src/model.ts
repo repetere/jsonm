@@ -1,7 +1,7 @@
 import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
-import { getParsedDate, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, } from './constants';
+import { getParsedDate, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, } from './constants';
 import { dimensionDates } from './features';
 import * as Luxon from 'luxon';
 
@@ -29,6 +29,7 @@ export type GetDataSetProperties = {
   nextValueIncludeParsedDate?: boolean;
   nextValueIncludeLocalParsedDate?: boolean;
   nextValueIncludeForecastInputs?: boolean;
+  dimension?: Dimensions;
 };
 export type ModelStatus = {
   trained: boolean;
@@ -47,6 +48,8 @@ export type ModelConfiguration = {
   prediction_timeseries_date_feature?: string;
   prediction_timeseries_date_format?: string;
   prediction_timeseries_dimension_feature?: string;
+  prediction_timeseries_start_date?: Date;
+  prediction_timeseries_end_date?: Date;
   dimension?: Dimensions;
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
@@ -220,9 +223,12 @@ export class Model implements ModelContext {
   prediction_timeseries_date_feature: string;
   prediction_timeseries_date_format?: string;
   prediction_timeseries_dimension_feature: string;
+  prediction_timeseries_start_date?: Date;
+  prediction_timeseries_end_date?: Date;
   dimension?: Dimensions;
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
+  forecastDates: Date[];
 
   constructor(configuration: ModelConfiguration, options:ModelOptions = {}) {
     this.config = {
@@ -280,12 +286,12 @@ export class Model implements ModelContext {
     // this.use_preprocessing_on_trainning_data = configuration.use_preprocessing_on_trainning_data || this.modelDocument.model_configuration.use_preprocessing_on_trainning_data;
     // this.use_mock_dates_to_fit_trainning_data = configuration.use_mock_dates_to_fit_trainning_data || this.modelDocument.model_options.use_mock_dates_to_fit_trainning_data;
     // this.use_next_value_functions_for_training_data = configuration.use_next_value_functions_for_training_data || this.modelDocument.model_options.use_next_value_functions_for_training_data;
-    // this.prediction_timeseries_start_date = configuration.prediction_timeseries_start_date;
-    // this.prediction_timeseries_end_date = configuration.prediction_timeseries_end_date;
+    this.prediction_timeseries_start_date = configuration.prediction_timeseries_start_date;
+    this.prediction_timeseries_end_date = configuration.prediction_timeseries_end_date;
     this.prediction_timeseries_dimension_feature = configuration.prediction_timeseries_dimension_feature || 'dimension';
     this.prediction_inputs_next_value_functions = configuration.prediction_inputs_next_value_functions || configuration.next_value_functions || [];
     // this.Model = configuration.Model || [];
-    // this.forecastDates = [];
+    this.forecastDates = [];
     // if (typeof options.use_tensorflow_cplusplus === 'boolean') {
     //   use_tensorflow_cplusplus = options.use_tensorflow_cplusplus;
     // }
@@ -308,7 +314,9 @@ export class Model implements ModelContext {
       };
     }
     if (typeof timeseriesForecastDimension !== 'string' && DataSetData && Array.isArray(DataSetData) && DataSetData.length) {
-      console.log({options,DataSetData})
+      // console.log({
+      //   options, DataSetData, durationToDimensionProperty,
+      // });
       if (DataSetData.length && DataSetData[0][this.prediction_timeseries_dimension_feature]) {
         timeseriesForecastDimension = DataSetData[0][this.prediction_timeseries_dimension_feature];
       } 
@@ -329,21 +337,41 @@ export class Model implements ModelContext {
         //@ts-ignore
         const durationDifference = test_end_date.diff(test_start_date, dimensionDurations).toObject(); 
         // timeseriesForecastDimension
-        const durationDimensions = Object.keys(durationDifference).filter(diffProp => durationDifference[ diffProp ] === 1);
-        // console.log({ test_start_date, test_end_date, durationDifference, durationDimensions, durationToDimensionProperty, });
+        const durationDimensions:string[] = Object.keys(durationDifference).filter(diffProp => durationDifference[ diffProp ] === 1);
+        // console.log({
+        //   // test_start_date, test_end_date,
+        //   durationDifference, durationDimensions,
+        // });
         if (durationDimensions.length === 1) {
-          timeseriesForecastDimension = durationToDimensionProperty[ durationDimensions[ 0 ]];
+          timeseriesForecastDimension = durationToDimensionProperty[ durationDimensions[0] as 'years'|'months'|'weeks'|'days'|'hours'] as Dimensions;
         }
       }
     }
     if (typeof timeseriesForecastDimension !== 'string' || Object.keys(dimensionDates).indexOf(timeseriesForecastDimension) === -1) throw new ReferenceError(`Invalid timeseries dimension (${timeseriesForecastDimension})`);
     this.prediction_timeseries_date_format = timeseriesDataSetDateFormat;
     this.dimension = timeseriesForecastDimension as Dimensions;
+    if (typeof timeseriesDataSetDateFormat === 'undefined') throw new ReferenceError('Invalid timeseries date format');
     return {
       dimension: timeseriesForecastDimension,
       dateFormat: timeseriesDataSetDateFormat,
     };
     // console.log({timeseriesForecastDimension})
+  }
+  getForecastDates(options = {}) {
+    const start:string = (this.prediction_timeseries_start_date instanceof Date)
+      ? luxon.DateTime.fromJSDate(this.prediction_timeseries_start_date).toISO(ISOOptions)
+      : this.prediction_timeseries_start_date;
+    const end:string = (this.prediction_timeseries_end_date instanceof Date)
+      ? luxon.DateTime.fromJSDate(this.prediction_timeseries_end_date).toISO(ISOOptions)
+      : this.prediction_timeseries_end_date;
+    if (!this.dimension) throw ReferenceError('Forecasts require a timeseries dimension');
+    
+    this.forecastDates = dimensionDates[ this.dimension ]({
+      start,
+      end,
+      time_zone: this.prediction_timeseries_time_zone,
+    });
+    return this.forecastDates;
   }
   async getDataSetProperties(options :GetDataSetProperties= {}) {
     const {
@@ -451,10 +479,10 @@ export class Model implements ModelContext {
         return nextValueObject;
       }, helperNextValueData);
     };
-    if (this.config.model_category === 'timeseries') {
+    if (this.config.model_category === ModelCategories.FORECAST) {
       this.dimension = this.getTimeseriesDimension(options).dimension;
     }
-    if (this.dimension && this.config.model_category === 'timeseries' && this.prediction_timeseries_start_date && this.prediction_timeseries_end_date) {
+    if (this.dimension && this.config.model_category === ModelCategories.FORECAST && this.prediction_timeseries_start_date && this.prediction_timeseries_end_date) {
       this.getForecastDates();
     }
   }

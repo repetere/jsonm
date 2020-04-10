@@ -1,11 +1,37 @@
 
 import { DateTime, } from 'luxon';
+import { Dimensions, } from './constants';
 
 export type UniqueDateOptions = {
   start: string;
   end: string;
   time_zone: string;
   weekday?: string | number;
+}
+
+/**
+ * Returns an array of JavaScript Dates by Month within a range of ISO dates 
+ * @example
+getUniqueYears({ start: '2018-01-01', end: '2018-03-01', time_zone: 'America/Los_Angeles', }) => [  
+  2017-01-01T08:00:00.000Z,
+  2018-01-01T08:00:00.000Z,
+  2019-01-01T08:00:00.000Z ]
+ * @param {String} options.start - start of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.end - end of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.time_zone - valid IANA time_zone e.g. America/Los_Angeles 
+ * @returns {Date[]} Array of JavaScript Dates
+ */
+export function getUniqueYears({ start, end, time_zone, }:UniqueDateOptions):Date[] {
+  if (!time_zone) throw new ReferenceError('Missing required timezone');
+  let startDate = DateTime.fromISO(start, { zone: time_zone, }).set({ month: 1, day: 1, hour:0, minute:0, second:0, millisecond:0, });
+  const endDate = DateTime.fromISO(end, { zone: time_zone, }).set({ month: 1, day: 1, hour:0, minute:0, second:0, millisecond:0, });
+  const uniqueDates = [];
+  do {
+    if (startDate.isValid === false) throw new SyntaxError('Date format is invalid, must be an ISO Date (ISO 8601 e.g. 2019-03-21T11:42:00 - YYYY-MM-DDTHH:mm:ss)');
+    uniqueDates.push(startDate.toJSDate());
+    startDate = startDate.plus({ years: 1, });
+  } while (startDate <= endDate);
+  return uniqueDates;
 }
 
 /**
@@ -122,7 +148,7 @@ export function getUniqueDays({ start, end, time_zone, }:UniqueDateOptions):Date
 /**
  * Returns an array of JavaScript Dates by Hours within a range of ISO dates 
  * @example
-getUniqueMonths({ start: '2018-01-01', end: '2018-01-31', weekday:'monday', time_zone: 'America/Los_Angeles', }) => [  
+getUniqueHours({ start: '2018-01-01', end: '2018-01-31', weekday:'monday', time_zone: 'America/Los_Angeles', }) => [  
   2018-01-01T00:08:00.000Z,
   2018-01-01T01:09:00.000Z,
   ...
@@ -148,6 +174,62 @@ export function getUniqueHours({ start, end, time_zone, }:UniqueDateOptions):Dat
 }
 
 /**
+ * Returns an array of JavaScript Dates by Hours within a range of ISO dates 
+ * @example
+getUniqueHours({ start: '2018-01-01', end: '2018-01-31', weekday:'monday', time_zone: 'America/Los_Angeles', }) => [  
+  2018-01-01T00:08:00.000Z,
+  2018-01-01T01:09:00.000Z,
+  ...
+  2018-01-01T21:00:00.000Z,
+  2018-01-01T22:00:00.000Z,
+  2018-01-01T23:00:00.000Z ]]
+ * @param {String} options.start - start of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.end - end of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.time_zone - valid IANA time_zone e.g. America/Los_Angeles 
+ * @returns {Date[]} Array of JavaScript Dates
+ */
+export function getUniqueMinutes({ start, end, time_zone, }:UniqueDateOptions):Date[] {
+  if (!time_zone) throw new ReferenceError('Missing required timezone');
+  let startDate = DateTime.fromISO(start, { zone: time_zone, }).set({ second: 0, millisecond: 0, });
+  const endDate = DateTime.fromISO(end, { zone: time_zone, }).set({ second: 0, millisecond: 0, });
+  const uniqueDates = [];
+  do {
+    if (startDate.isValid === false) throw new SyntaxError('Date format is invalid, must be an ISO Date (ISO 8601 e.g. 2019-03-21T11:42:00 - YYYY-MM-DDTHH:mm:ss)');
+    uniqueDates.push(startDate.toJSDate());
+    startDate = startDate.plus({ minutes: 1, });
+  } while (startDate <= endDate);
+  return uniqueDates;
+}
+
+/**
+ * Returns an array of JavaScript Dates by Hours within a range of ISO dates 
+ * @example
+getUniqueSeconds({ start: '2018-01-01', end: '2018-01-31', weekday:'monday', time_zone: 'America/Los_Angeles', }) => [  
+  2018-01-01T00:08:00.000Z,
+  2018-01-01T01:09:00.000Z,
+  ...
+  2018-01-01T21:00:00.000Z,
+  2018-01-01T22:00:00.000Z,
+  2018-01-01T23:00:00.000Z ]]
+ * @param {String} options.start - start of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.end - end of date range (ISO Date String) e.g. 2018-05-31
+ * @param {String} options.time_zone - valid IANA time_zone e.g. America/Los_Angeles 
+ * @returns {Date[]} Array of JavaScript Dates
+ */
+export function getUniqueSeconds({ start, end, time_zone, }:UniqueDateOptions):Date[] {
+  if (!time_zone) throw new ReferenceError('Missing required timezone');
+  let startDate = DateTime.fromISO(start, { zone: time_zone, }).set({ millisecond: 0, });
+  const endDate = DateTime.fromISO(end, { zone: time_zone, }).set({ millisecond: 0, });
+  const uniqueDates = [];
+  do {
+    if (startDate.isValid === false) throw new SyntaxError('Date format is invalid, must be an ISO Date (ISO 8601 e.g. 2019-03-21T11:42:00 - YYYY-MM-DDTHH:mm:ss)');
+    uniqueDates.push(startDate.toJSDate());
+    startDate = startDate.plus({ seconds: 1, });
+  } while (startDate <= endDate);
+  return uniqueDates;
+}
+
+/**
  * Returns an end date from a start date by dimension 
  * @example
 getEndDate({ start: '2018-01-01', dimension: 'monthly', time_zone: 'America/Los_Angeles', }) => 2018-02-01T00:08:00.000Z
@@ -167,6 +249,9 @@ export function getEndDate(options: { start_date: Date; dimension: string; time_
   let returnDate;
 
   switch (dimension) {
+    case 'yearly':
+      returnDate = start.plus({ years: 1, });
+      break;
     case 'monthly':
       returnDate = start.plus({ months: 1, });
       break;
@@ -179,6 +264,12 @@ export function getEndDate(options: { start_date: Date; dimension: string; time_
     case 'hourly':
       returnDate = start.plus({ hours: 1, });
       break;
+    case 'minutely':
+      returnDate = start.plus({ minutes: 1, });
+      break;
+    case 'secondly':
+      returnDate = start.plus({ seconds: 1, });
+      break;
     default:
       throw new ReferenceError('Invalid dimension');
   }
@@ -188,8 +279,11 @@ export function getEndDate(options: { start_date: Date; dimension: string; time_
 }
 
 export const dimensionDates = {
-  monthly: getUniqueMonths,
-  weekly: getUniqueWeeks,
-  daily: getUniqueDays,
-  hourly: getUniqueHours,
+  [Dimensions.YEARLY]: getUniqueYears,
+  [Dimensions.MONTHLY]: getUniqueMonths,
+  [Dimensions.WEEKLY]: getUniqueWeeks,
+  [Dimensions.DAILY]: getUniqueDays,
+  [Dimensions.HOURLY]: getUniqueHours,
+  [Dimensions.MINUTELY]: getUniqueMinutes,
+  [Dimensions.SECONDLY]: getUniqueSeconds,
 };

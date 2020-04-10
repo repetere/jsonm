@@ -100,11 +100,68 @@ describe('Model', () => {
         dimension: Dimensions.MONTHLY,
       });
       // console.log({m1})
-      expect(m1.getTimeseriesDimension({dimension:Dimensions.YEARLY})).to.eql({
-        dimension: Dimensions.YEARLY,
+      expect(() => {
+        m1.getTimeseriesDimension({ dimension: Dimensions.YEARLY })
+      }).to.throw(/Invalid timeseries dimension/);
+      expect(() => {
+        m2.getTimeseriesDimension({});
+      }).to.throw(/Invalid timeseries date format/);
+    });
+    it('should return dimension and format from dataset', () => {
+      const m1 = new Model({
+        model_type: ModelTypes.REGRESSION,
+        prediction_timeseries_date_format:'ff',
       });
-      expect(m2.getTimeseriesDimension({})).to.eql({
+      // console.log({ m1 })
+      const DataSetData = [{ dimension: 'monthly', }];
+      expect(m1.getTimeseriesDimension({
+        DataSetData,
+      })).to.eql({
         dimension: Dimensions.MONTHLY,
+        dateFormat: 'ff',
+      });
+    });
+    it('should calculate and return dimension and format from dataset', () => {
+      const m1 = new Model({
+        model_type: ModelTypes.REGRESSION,
+        prediction_timeseries_date_format:'iso',
+      });
+      const DataSetData = [
+        {
+          date:'2020-02-01',
+        },
+        {
+          date:'2020-03-01',
+        },
+        {
+          date:'2020-04-01',
+        },
+      ];
+      expect(m1.getTimeseriesDimension({
+        DataSetData,
+      })).to.eql({
+        dimension: Dimensions.MONTHLY,
+        dateFormat: 'iso',
+      });
+      const m2 = new Model({
+        model_type: ModelTypes.REGRESSION,
+      });
+      const DataSetData2 = [
+        {
+          date: new Date('2020-02-01'),
+        },
+        {
+          date: new Date('2020-02-02'),
+        },
+        {
+          date: new Date('2020-02-03'),
+        },
+      ];
+      expect(m2.getTimeseriesDimension({
+        DataSetData:DataSetData2,
+      })).to.eql({
+        dimension: Dimensions.DAILY,
+        dateFormat: 'js',
       });
     });
   });

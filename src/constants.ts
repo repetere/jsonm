@@ -7,6 +7,8 @@ export enum Dimensions {
   MONTHLY='monthly',
   HOURLY='hourly',
   DAILY='daily',
+  MINUTELY='minutely',
+  SECONDLY='secondly',
 }
 
 export enum BooleanAnswer {
@@ -161,11 +163,11 @@ export const timeProperty = {
 };
 
 export const durationToDimensionProperty = {
-  'years':'yearly',
-  'weeks':'weekly',
-  'months':'monthly',
-  'hours':'hourly',
-  'days':'daily',
+  'years':Dimensions.YEARLY,
+  'weeks':Dimensions.WEEKLY,
+  'months':Dimensions.MONTHLY,
+  'days':Dimensions.DAILY,
+  'hours': Dimensions.HOURLY,
 };
 
 export const featureTimeProperty = {

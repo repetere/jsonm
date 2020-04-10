@@ -101,7 +101,7 @@ describe('Model', () => {
       });
       // console.log({m1})
       expect(() => {
-        m1.getTimeseriesDimension({ dimension: Dimensions.YEARLY })
+        m1.getTimeseriesDimension({  })
       }).to.throw(/Invalid timeseries dimension/);
       expect(() => {
         m2.getTimeseriesDimension({});
@@ -163,6 +163,39 @@ describe('Model', () => {
         dimension: Dimensions.DAILY,
         dateFormat: 'js',
       });
+    });
+    describe('getForecastDates', () => {
+      it('should return range of dates', () => {
+        const m1 = new Model({
+          model_type: ModelTypes.REGRESSION,
+          prediction_timeseries_start_date: new Date('2020-04-01'),
+          prediction_timeseries_end_date: new Date('2020-04-03'),
+          dimension: Dimensions.DAILY,
+        });
+  
+        // console.log({m1})
+        const dates = m1.getForecastDates({ dimension: Dimensions.YEARLY });
+        expect(dates.length).to.eql(3);
+      });
+      it('should throw error with missing dimension', () => {
+        const m1 = new Model({
+          model_type: ModelTypes.REGRESSION,
+          prediction_timeseries_start_date: new Date('2020-04-01'),
+          prediction_timeseries_end_date: new Date('2020-04-03'),
+        });
+        expect(() => {
+          m1.getForecastDates({});
+        }).to.throw('Forecasts require a timeseries dimension');
+      });
+      it('should throw error with missing dimension', () => {
+        const m1 = new Model({
+          model_type: ModelTypes.REGRESSION,
+          dimension: Dimensions.DAILY,
+        });
+        expect(() => {
+          m1.getForecastDates({});
+        }).to.throw('Start and End Forecast Dates are required');
+      })
     });
   });
 });

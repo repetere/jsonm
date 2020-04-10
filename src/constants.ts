@@ -191,7 +191,11 @@ export const performanceValues = {
   hourly: 48,
 };
 
-
+export const ISOOptions = {
+  includeOffset: false,
+  // suppressSeconds:true,
+  suppressMilliseconds: true,
+};
 export const monthNumbers = generatedMonthNumbers;
 export const weekNumbers = generatedWeekNumbers;
 export const dayNumbers = generatedDayNumbers;

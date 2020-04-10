@@ -1,7 +1,7 @@
 import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
-import { getParsedDate, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, } from './constants';
+import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, } from './constants';
 import { dimensionDates } from './features';
 import * as Luxon from 'luxon';
 
@@ -223,8 +223,8 @@ export class Model implements ModelContext {
   prediction_timeseries_date_feature: string;
   prediction_timeseries_date_format?: string;
   prediction_timeseries_dimension_feature: string;
-  prediction_timeseries_start_date?: Date;
-  prediction_timeseries_end_date?: Date;
+  prediction_timeseries_start_date?: Date | string;
+  prediction_timeseries_end_date?: Date | string;
   dimension?: Dimensions;
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
@@ -358,13 +358,14 @@ export class Model implements ModelContext {
     // console.log({timeseriesForecastDimension})
   }
   getForecastDates(options = {}) {
-    const start:string = (this.prediction_timeseries_start_date instanceof Date)
-      ? luxon.DateTime.fromJSDate(this.prediction_timeseries_start_date).toISO(ISOOptions)
+    const start = (this.prediction_timeseries_start_date  && this.prediction_timeseries_start_date instanceof Date)
+      ? Luxon.DateTime.fromJSDate(this.prediction_timeseries_start_date).toISO(ISOOptions)
       : this.prediction_timeseries_start_date;
-    const end:string = (this.prediction_timeseries_end_date instanceof Date)
-      ? luxon.DateTime.fromJSDate(this.prediction_timeseries_end_date).toISO(ISOOptions)
+    const end = (this.prediction_timeseries_end_date instanceof Date)
+      ? Luxon.DateTime.fromJSDate(this.prediction_timeseries_end_date).toISO(ISOOptions)
       : this.prediction_timeseries_end_date;
     if (!this.dimension) throw ReferenceError('Forecasts require a timeseries dimension');
+    else if (!start || !end) throw ReferenceError('Start and End Forecast Dates are required');
     
     this.forecastDates = dimensionDates[ this.dimension ]({
       start,

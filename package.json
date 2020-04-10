@@ -1,0 +1,94 @@
+{
+  "name": "@modelx/modelx",
+  "version": "0.0.6",
+  "description": "Some module",
+  "main": "dist/index.cjs.js",
+  "module": "build/index.js",
+  "esm": "dist/index.esm.js",
+  "browser": "dist/index.umd.js",
+  "web": "dist/index.web.js",
+  "modules.root": "build",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/repetere/modelx.git"
+  },
+  "keywords": [
+    "regression",
+    "classification",
+    "supervised",
+    "learning",
+    "supervised learning",
+    "dl",
+    "deep learning",
+    "tensorflow",
+    "machine learning",
+    "ai"
+  ],
+  "author": {
+    "name": "Yaw Etse",
+    "email": "yaw.etse@email.com"
+  },
+  "bugs": {
+    "url": "https://github.com/repetere/modelx/issues"
+  },
+  "homepage": "https://github.com/repetere/modelx#readme",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "benchmark": "node -r esm  benchmark/main_bmrk.js",
+    "test": "jest --coverage",
+    "doc": "tsc && typedoc && sitedown manual/ -b docs/manual",
+    "compile": "tsc",
+    "build": "tsc && rollup -c && typedoc && sitedown manual/ -b docs/manual",
+    "coverage": "coveralls"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.0.1",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@rollup/plugin-replace": "^2.3.1",
+    "@rollup/plugin-sucrase": "^3.0.0",
+    "@rollup/plugin-typescript": "^3.1.1",
+    "@types/chai": "^4.2.11",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/jest": "^25.1.4",
+    "@types/luxon": "^1.22.0",
+    "@types/react": "^16.9.31",
+    "@types/react-dom": "^16.9.6",
+    "@types/sinon": "^9.0.0",
+    "chai": "^4.2.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "jest": "^25.2.6",
+    "rollup": "^2.3.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-terser-js": "^1.0.2",
+    "sinon": "^9.0.1",
+    "ts-jest": "^25.3.0",
+    "tslib": "^1.11.1",
+    "typedoc": "^0.17.3",
+    "typescript": "^3.8.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@modelx/data|@modelx/model)/)"
+    ]
+  },
+  "dependencies": {
+    "@modelx/data": "^1.0.3",
+    "@modelx/model": "^1.0.2",
+    "flat": "^5.0.0",
+    "luxon": "^1.23.0",
+    "outlier": "0.0.1",
+    "promisie": "^3.0.0"
+  }
+}

@@ -281,3 +281,15 @@ export function getIsOutlier(this: {
     return 0; 
   }
 }
+
+export function addMockDataToDataSet(DataSet: ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData: ModelXDataTypes.Data; includeConstants: boolean; }) {
+  const newMockData = new Array().concat(mockEncodedData, includeConstants ? CONSTANTS.mockDates : []);
+  DataSet.data = DataSet.data.concat(newMockData);
+  return DataSet;
+}
+
+export function removeMockDataToDataSet(DataSet:ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData: ModelXDataTypes.Data; includeConstants: boolean; }) {
+  const newMockData = new Array().concat(mockEncodedData, includeConstants ? CONSTANTS.mockDates : []);
+  DataSet.data.splice(DataSet.data.length - newMockData.length, newMockData.length);
+  return DataSet;
+}

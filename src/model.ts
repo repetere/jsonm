@@ -1,7 +1,7 @@
 import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
-import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, } from './constants';
+import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataToDataSet, } from './constants';
 import { dimensionDates } from './features';
 import * as Luxon from 'luxon';
 
@@ -37,14 +37,17 @@ export type ModelStatus = {
   lastTrained?: Date;
 };
 export type ModelConfiguration = {
+  preprocessing_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  trainning_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  use_preprocessing_on_trainning_data?: boolean;
   use_mock_dates_to_fit_trainning_data?: boolean;
   use_cache?: boolean;
   model_type: ModelTypes;
   model_category?: ModelCategories;
-  prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
   next_value_functions?: GeneratedFunctionDefinitionsList;
   training_data_filter_function_body?: string;
   training_data_filter_function?: DataFilterFunction;
+  prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
   prediction_timeseries_time_zone?: string;
   prediction_timeseries_date_feature?: string;
   prediction_timeseries_date_format?: string;
@@ -54,6 +57,8 @@ export type ModelConfiguration = {
   dimension?: Dimensions;
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
+  emptyObject?: ModelXDataTypes.Datum;
+  mockEncodedData?: ModelXDataTypes.Data;
 };
 export type ModelOptions = {
   trainingData?: ModelXDataTypes.Data;
@@ -128,15 +133,18 @@ export type SumPreviousRowContext = {
 export type ForecastPredictionNextValueState = {
   lastDataRow?: ModelXDataTypes.Datum;
   forecastDate?: Date;
+  forecastDates?: Date[];
+  forecastPredictionIndex?: number;
   sumPreviousRows?: sumPreviousRows;
   data: ModelXDataTypes.Data;
-  DataSet: ModelXData.DataSet;
+  DataSet: ModelXDataTypes.DataSet;
   existingDatasetObjectIndex: number;
   reverseTransform?: boolean;
   isOpen?: (...args:any[])=>BooleanAnswer;
   isOutlier?: (...args:any[])=>BooleanAnswer;
   parsedDate?: ParsedDate;
   rawInputPredictionObject?: ModelXDataTypes.Datum;
+  unscaledLastForecastedValue?: ModelXDataTypes.Datum;
 };
 export type ForecastHelperNextValueData = {
   date?: Date;
@@ -157,7 +165,7 @@ export type TimeseriesDimension = {
  * returns a Datum used in next forecast prediction input
  */
 export type ForecastPredictionInputNextValueFunction = (state: ForecastPredictionNextValueState) => ModelXDataTypes.Datum;
-export type DataFilterFunction = (this: { props:GeneratedStatefulFunctionProps,}, datum:ModelXDataTypes.Datum, datumIndex:number) => boolean;
+export type DataFilterFunction = (datum:ModelXDataTypes.Datum, datumIndex:number) => boolean;
 
 /**
  * Takes an object that describes a function to be created from a function body string
@@ -216,9 +224,15 @@ export class Model implements ModelContext {
   config: ModelConfiguration;
   status: ModelStatus;
   trainingData: ModelXDataTypes.Data;
-  prediction_inputs_next_value_functions: GeneratedFunctionDefinitionsList;
+  removedFilterdtrainingData: ModelXDataTypes.Data;
+  use_empty_objects: boolean;
+  use_preprocessing_on_trainning_data: boolean;
+  use_mock_encoded_data: boolean;
+  preprocessing_feature_column_options: ModelXDataTypes.DataSetTransform;
+  trainning_feature_column_options: ModelXDataTypes.DataSetTransform;
   training_data_filter_function_body?: string;
-  training_data_filter_function?: DataFilterFunction;
+  training_data_filter_function: DataFilterFunction;
+  prediction_inputs_next_value_functions: GeneratedFunctionDefinitionsList;
   prediction_inputs_next_value_function?: ForecastPredictionInputNextValueFunction;
   prediction_timeseries_time_zone: string;
   prediction_timeseries_date_feature: string;
@@ -230,6 +244,8 @@ export class Model implements ModelContext {
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
   forecastDates: Date[];
+  emptyObject: ModelXDataTypes.Datum;
+  mockEncodedData: ModelXDataTypes.Data;
 
   constructor(configuration: ModelConfiguration, options:ModelOptions = {}) {
     this.config = {
@@ -244,15 +260,15 @@ export class Model implements ModelContext {
     };
     // this.modelDocument = Object.assign({ model_options: {}, model_configuration: {}, }, configuration.modelDocument);
     this.entity = configuration.entity || {};
-    // this.emptyObject = configuration.emptyObject || {};
-    // this.mockEncodedData = configuration.mockEncodedData || {};
-    // this.use_empty_objects = Boolean(Object.keys(this.emptyObject).length);
-    // this.use_mock_encoded_data = Boolean(this.mockEncodedData.length);
+    this.emptyObject = configuration.emptyObject || {};
+    this.mockEncodedData = configuration.mockEncodedData || [];
+    this.use_empty_objects = Boolean(Object.keys(this.emptyObject).length);
+    this.use_mock_encoded_data = Boolean(this.mockEncodedData.length);
     this.dimension = configuration.dimension;
     this.training_data_filter_function_body = configuration.training_data_filter_function_body;
-    this.training_data_filter_function = configuration.training_data_filter_function;
+    this.training_data_filter_function = configuration.training_data_filter_function || function () { return false;};
     this.trainingData = options.trainingData || [];
-    // this.removedFilterdtrainingData = [];
+    this.removedFilterdtrainingData = [];
     this.DataSet = configuration.DataSet;
     // this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
     // this.testDataSet = configuration.testDataSet || {};
@@ -267,8 +283,8 @@ export class Model implements ModelContext {
     // this.y_raw_dependent_labels = configuration.y_raw_dependent_labels || [];
     // this.training_size_values = configuration.training_size_values;
     // this.cross_validation_options = Object.assign({ train_size: 0.7, }, configuration.cross_validation_options);
-    // this.preprocessing_feature_column_options = configuration.preprocessing_feature_column_options || {};
-    // this.trainning_feature_column_options = configuration.trainning_feature_column_options || {};
+    this.preprocessing_feature_column_options = configuration.preprocessing_feature_column_options || {};
+    this.trainning_feature_column_options = configuration.trainning_feature_column_options || {};
     // this.trainning_options = Object.assign({
     //   fit: {
     //     epochs: 100,
@@ -284,7 +300,9 @@ export class Model implements ModelContext {
     this.prediction_timeseries_date_format = configuration.prediction_timeseries_date_format;
     // this.validate_trainning_data = typeof configuration.validate_trainning_data === 'boolean' ? configuration.validate_trainning_data : true;
     // this.retrain_forecast_model_with_predictions = configuration.retrain_forecast_model_with_predictions || this.modelDocument.model_configuration.retrain_forecast_model_with_predictions;
-    // this.use_preprocessing_on_trainning_data = configuration.use_preprocessing_on_trainning_data || this.modelDocument.model_configuration.use_preprocessing_on_trainning_data;
+    this.use_preprocessing_on_trainning_data = typeof configuration.use_preprocessing_on_trainning_data !== 'undefined'
+      ? configuration.use_preprocessing_on_trainning_data
+      : true;
     // this.use_mock_dates_to_fit_trainning_data = configuration.use_mock_dates_to_fit_trainning_data || this.modelDocument.model_options.use_mock_dates_to_fit_trainning_data;
     // this.use_next_value_functions_for_training_data = configuration.use_next_value_functions_for_training_data || this.modelDocument.model_options.use_next_value_functions_for_training_data;
     this.prediction_timeseries_start_date = configuration.prediction_timeseries_start_date;
@@ -488,6 +506,16 @@ export class Model implements ModelContext {
       this.getForecastDates();
     }
   }
+  addMockData({ use_mock_dates = false, }) {
+    if (use_mock_dates && this.use_mock_encoded_data && this.DataSet) this.DataSet = addMockDataToDataSet(this.DataSet, { includeConstants: true, mockEncodedData: this.mockEncodedData, }); 
+    else if (use_mock_dates &&  this.DataSet) this.DataSet = addMockDataToDataSet(this.DataSet, {});
+    else if (this.use_mock_encoded_data &&  this.DataSet) this.DataSet = addMockDataToDataSet(this.DataSet, { includeConstants: false, mockEncodedData: this.mockEncodedData, });
+  }
+  removeMockData({ use_mock_dates = false, }) {
+    if (use_mock_dates && this.use_mock_encoded_data) this.DataSet = removeMockDataToDataSet(this.DataSet, { includeConstants: true, mockEncodedData: this.mockEncodedData, }); 
+    else if (use_mock_dates) this.DataSet = removeMockDataToDataSet(this.DataSet, {});
+    else if (this.use_mock_encoded_data) this.DataSet = removeMockDataToDataSet(this.DataSet, { includeConstants: false, mockEncodedData: this.mockEncodedData, });
+  }
   /**
    * 
    * @param options 
@@ -498,7 +526,7 @@ export class Model implements ModelContext {
     const use_mock_dates = use_mock_dates_to_fit_trainning_data || this.config.use_mock_dates_to_fit_trainning_data;
     let trainingData = options.trainingData || this.trainingData || [];
     // if (!Array.isArray(trainingData) || !trainingData.length) trainingData = [];
-    trainingData = new Array().concat(trainingData);
+    trainingData = new Array().concat(trainingData) as ModelXDataTypes.Data;
     // const use_next_val_functions = (typeof this.use_next_value_functions_for_training_data !== 'undefined')
     //   ? this.use_next_value_functions_for_training_data
     //   : use_next_value_functions_for_training_data
@@ -509,36 +537,41 @@ export class Model implements ModelContext {
       DataSetData: trainingData,
     });
     if (typeof this.training_data_filter_function === 'function' && use_next_value_functions_for_training_data === false) {
-      trainingData = trainingData.filter((datum, datumIndex) => this.training_data_filter_function(datum, datumIndex));
+      trainingData = trainingData.filter(this.training_data_filter_function);
     }
     // console.log({ trainingData });
     if (!use_next_value_functions_for_training_data && this.use_empty_objects) {
-      trainingData = trainingData.map(trainningDatum => Object.assign({}, this.emptyObject, trainningDatum));
+      trainingData = trainingData.map(trainningDatum => ({
+        ...this.emptyObject,
+        ...trainningDatum,
+      }));
     }
-    this.DataSet = new MS.DataSet(trainingData);
+    this.DataSet = new ModelXData.DataSet(trainingData);
     if (this.use_preprocessing_on_trainning_data && this.preprocessing_feature_column_options && Object.keys(this.preprocessing_feature_column_options).length) {
       this.DataSet.fitColumns(this.preprocessing_feature_column_options);
     }
     if (use_next_value_functions_for_training_data) {
-      const trainingDates = trainingData.map(tdata => tdata[ this.prediction_timeseries_date_feature ]);
+      const trainingDates:Date[] = trainingData.map(tdata => tdata[ this.prediction_timeseries_date_feature ]);
       trainingData = trainingData.map((trainingDatum, dataIndex) => {
         const forecastDate = trainingDatum[ this.prediction_timeseries_date_feature ];
         const forecastPredictionIndex = dataIndex;
         if (trainingDatum._id) trainingDatum._id = trainingDatum._id.toString();
         if (trainingDatum.feature_entity_id) trainingDatum.feature_entity_id = trainingDatum.feature_entity_id.toString();
-        const trainningNextValueData = this.prediction_inputs_next_value_function({
-          rawInputPredictionObject: trainingDatum,
-          forecastDate,
-          forecastDates: trainingDates,
-          forecastPredictionIndex,
-          existingDatasetObjectIndex: dataIndex,
-          unscaledLastForecastedValue: trainingData[ dataIndex - 1 ],
-          // data: this.DataSet.data.splice(forecastDateFirstDataSetDateIndex, 0, forecasts),
-          data: trainingData,
-          DataSet: this.DataSet,
-          lastDataRow: trainingData[ trainingData.length - 1 ],
-          reverseTransform: false,
-        });
+        const trainningNextValueData = this.prediction_inputs_next_value_function
+          ? this.prediction_inputs_next_value_function({
+            rawInputPredictionObject: trainingDatum,
+            forecastDate,
+            forecastDates: trainingDates,
+            forecastPredictionIndex,
+            existingDatasetObjectIndex: dataIndex,
+            unscaledLastForecastedValue: trainingData[dataIndex - 1],
+            // data: this.DataSet.data.splice(forecastDateFirstDataSetDateIndex, 0, forecasts),
+            data: trainingData,
+            DataSet: this.DataSet||new ModelXData.DataSet(),
+            lastDataRow: trainingData[trainingData.length - 1],
+            reverseTransform: false,
+          })
+          : {};
         // console.log({ forecastPredictionIndex, forecastDate, trainningNextValueData });
         const calculatedDatum = this.use_empty_objects
           ? Object.assign({},

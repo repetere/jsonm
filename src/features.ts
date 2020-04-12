@@ -1,7 +1,8 @@
 
 import { DateTime, } from 'luxon';
 import { Dimensions, } from './constants';
-
+import * as ModelXData from '@modelx/data/src/index';
+import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 export type UniqueDateOptions = {
   start: string;
   end: string;
@@ -287,3 +288,88 @@ export const dimensionDates = {
   [Dimensions.MINUTELY]: getUniqueMinutes,
   [Dimensions.SECONDLY]: getUniqueSeconds,
 };
+export function getEncodedFeatures({ DataSet, encoded, }: {DataSet:ModelXDataTypes.DataSet,encoded?:string[]}) {
+  try {
+    if (!encoded) {
+      return ([]);
+    } else {
+      const encodedFeatures = encoded.reduce((results, encode) => {
+        results.push(...DataSet.encoders.get(encode).labels.map(label => `${DataSet.encoders.get(encode).prefix}${label}`));
+        return results;
+      }, []);
+      return (encodedFeatures);
+    }
+  } catch (e) {
+    throw (e);
+  }
+}
+
+export enum AutoFeatureTypes{
+  TEXT = 'text-encoded',
+  LABEL = 'text-label',
+  BOOLEAN = 'boolean',
+  NUMBER = 'number',
+  AUTO = 'auto-detect',
+}
+export type AutoFeature = {
+  feature_field_type: AutoFeatureTypes;
+  feature_field_name: string;
+};
+export type AutoFeatureAutoAssignmentOptions = {
+  independentVariables?: string[];
+  dependentVariables?: string[];
+  datum?: ModelXDataTypes.Datum;
+  input_independent_features?: AutoFeature[];
+  output_dependent_features?: AutoFeature[];
+  training_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  preprocessing_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  features?: AutoFeature[];
+};
+
+export function getAutoFeatures({ variables, datum }: { variables: string[]; datum: ModelXDataTypes.Datum; }): AutoFeature[]{
+  return variables.map(variable => { 
+    const autofeature = {
+      feature_field_name: variable,
+      feature_field_type: AutoFeatureTypes.AUTO,
+    };
+    if (typeof datum[variable] === 'number') autofeature.feature_field_type= AutoFeatureTypes.NUMBER;
+    else if (typeof datum[variable] === 'boolean') autofeature.feature_field_type= AutoFeatureTypes.BOOLEAN;
+    else if (typeof datum[variable] === 'string') autofeature.feature_field_type= AutoFeatureTypes.TEXT;
+
+    return autofeature;
+  });
+}
+
+export function autoAssignFeatureColumns({ independentVariables, dependentVariables, datum, input_independent_features, output_dependent_features, training_feature_column_options = {}, preprocessing_feature_column_options = {}, }:AutoFeatureAutoAssignmentOptions) {
+  const input_auto_features = new Array().concat(
+    (independentVariables && independentVariables.length && datum)
+      ? getAutoFeatures({ variables: independentVariables, datum, })
+      : [],
+    input_independent_features || []);
+  const output_auto_features = new Array().concat(
+    (dependentVariables && dependentVariables.length && datum)
+      ? getAutoFeatures({ variables: dependentVariables, datum, })
+      : [],
+    output_dependent_features || []);
+  console.log('input_auto_features',input_auto_features)
+  console.log('output_auto_features',output_auto_features)
+  const model_auto_features = new Array().concat(input_auto_features, output_auto_features);
+  model_auto_features.forEach((auto_feature:AutoFeature) => {
+    if (auto_feature.feature_field_type === AutoFeatureTypes.TEXT) {
+      training_feature_column_options[auto_feature.feature_field_name] = ['onehot'];
+    } else if (auto_feature.feature_field_type === AutoFeatureTypes.LABEL) {
+      training_feature_column_options[auto_feature.feature_field_name] = ['label'];
+    } else if (auto_feature.feature_field_type === AutoFeatureTypes.BOOLEAN) {
+      training_feature_column_options[auto_feature.feature_field_name] = ['label', { binary: true, },];
+    } else if ([AutoFeatureTypes.NUMBER, AutoFeatureTypes.AUTO,].includes(auto_feature.feature_field_type)) {
+      training_feature_column_options[auto_feature.feature_field_name] = ['scale', 'standard',];
+      preprocessing_feature_column_options[auto_feature.feature_field_name] = ['median',];
+    }
+  });
+  return {
+    x_raw_independent_features: input_auto_features.map(af => af.feature_field_name),
+    y_raw_dependent_labels: output_auto_features.map(af => af.feature_field_name),
+    training_feature_column_options,
+    preprocessing_feature_column_options,
+  };
+}

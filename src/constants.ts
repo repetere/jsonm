@@ -121,6 +121,22 @@ for (let i = 0; i <= 366; i++){
   generatedMockDates.push(newMockDate);
 }
 
+export type TrainingProgressUpdate = {
+  completion_percentage: number;
+  loss: number;
+  epoch: number;
+  logs: {
+    loss: number
+  };
+  status: string;
+  defaultLog?: boolean;
+}
+export function training_on_progress({ completion_percentage, loss, epoch, status, logs, defaultLog=true }:TrainingProgressUpdate):void {
+  if(defaultLog) console.log({ completion_percentage, loss, epoch, status, logs });
+}
+export type TrainingProgressCallback =({ completion_percentage, loss, epoch, status, logs }:TrainingProgressUpdate)=> void;
+
+
 export const mockDates = generatedMockDates;
 
 export function getPartialHour(minute:number):number {
@@ -141,7 +157,7 @@ export function getQuarterHour(parsedDate: ParsedDate):number {
   return parsedDate.hour * 4 + getPartialHour(parsedDate.minute);
 }
 
-export function getParsedDate(date:Date, options:DateTimeJSOptions): ParsedDate {
+export function getParsedDate(date:Date, options?:DateTimeJSOptions): ParsedDate {
   const luxonDate = DateTime.fromJSDate(date, options);
   const parsedDate:ParsedDate = Object.assign({}, luxonDate.toObject());
   parsedDate.week = luxonDate.weekNumber;
@@ -282,14 +298,14 @@ export function getIsOutlier(this: {
   }
 }
 
-export function addMockDataToDataSet(DataSet: ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData: ModelXDataTypes.Data; includeConstants: boolean; }) {
-  const newMockData = new Array().concat(mockEncodedData, includeConstants ? CONSTANTS.mockDates : []);
+export function addMockDataToDataSet(DataSet: ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: ModelXDataTypes.Data; includeConstants?: boolean; }) {
+  const newMockData = new Array().concat(mockEncodedData, includeConstants ? mockDates : []);
   DataSet.data = DataSet.data.concat(newMockData);
   return DataSet;
 }
 
-export function removeMockDataToDataSet(DataSet:ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData: ModelXDataTypes.Data; includeConstants: boolean; }) {
-  const newMockData = new Array().concat(mockEncodedData, includeConstants ? CONSTANTS.mockDates : []);
+export function removeMockDataFromDataSet(DataSet:ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: ModelXDataTypes.Data; includeConstants?: boolean; }) {
+  const newMockData = new Array().concat(mockEncodedData, includeConstants ? mockDates : []);
   DataSet.data.splice(DataSet.data.length - newMockData.length, newMockData.length);
   return DataSet;
 }

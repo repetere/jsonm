@@ -11,29 +11,17 @@ import {
   getPartialHour,
   getQuarterHour,
   getParsedDate,
-  prettyTimeStringOutputFormat,
-  timeProperty,
-  dateTimeProperty,
-  durationToDimensionProperty,
-  featureTimeProperty,
-  performanceValues,
   getIsOutlier,
   getOpenHour,
   getLuxonDateTime,
+  addMockDataToDataSet,
+  removeMockDataFromDataSet,
 } from './constants';
-import { Info,DateTime } from 'luxon';
-// import chai from 'chai';
-// import path from 'path';
-// const expect = chai.expect;
+import { Info, DateTime, } from 'luxon';
+import { DataSet, } from '@modelx/data/src/index';
+import { getDatum, getData, generateNumberRange, } from './util';
 
-function generateNumberRange(start: number, end: number): number[]{
-  return [start].reduce((result:number[], val:number) => { 
-    for (let i=val; i < (end+1); i++){
-      result.push(i);
-    }
-    return result;
-  }, []);
-}
+
 // console.log({ mockDates });
 describe('constants', () => {
   describe('generated date objects', () => {
@@ -190,5 +178,45 @@ describe('constants', () => {
       })).toBe(0);
       
     });
+  });
+  describe('addMockDataToDataSet', () => {
+    it('should add mock data', () => {
+      const data = getData(2);
+      const mockEncodedData = getData(1);
+      // console.log({ mockDates });
+      // console.log('pre',{ data, mockEncodedData, });
+      const DS = new DataSet(data);
+      const newDS = addMockDataToDataSet(DS, { mockEncodedData, includeConstants:false, });
+      // console.log('post',{ data });
+      // console.log('post DS data', { data: newDS.data, });
+      expect(newDS.data.length).toBe(data.length + mockEncodedData.length);
+    });
+    it('should add mock dates as mock data', () => {
+      const data = getData(2);
+      const mockEncodedData = getData(1);
+      const DS_for_mock_dates = new DataSet(data);
+      const newDS_with_mock_dates = addMockDataToDataSet(DS_for_mock_dates, { mockEncodedData, includeConstants:true, });
+      expect(newDS_with_mock_dates.data.length).toBe(data.length + mockEncodedData.length + mockDates.length);
+    })
+  });
+  describe('removeMockDataFromDataSet', () => {
+    it('should remove mock data', () => {
+      const data = getData(2);
+      const mockEncodedData = getData(1);
+      // console.log({ mockDates });
+      // console.log('pre',{ data, mockEncodedData, });
+      const DS = new DataSet(data.concat(mockEncodedData));
+      const newDS = removeMockDataFromDataSet(DS, { mockEncodedData, includeConstants:false, });
+      // console.log('post',{ data });
+      // console.log('post DS data', { data: newDS.data, });
+      expect(newDS.data.length).toBe(data.length);
+    });
+    it('should remove mock dates and mock data', () => {
+      const data = getData(2);
+      const mockEncodedData = getData(1);
+      const DS_for_mock_dates = new DataSet(data.concat(mockEncodedData,mockDates));
+      const newDS_with_mock_dates = removeMockDataFromDataSet(DS_for_mock_dates, { mockEncodedData, includeConstants:true, });
+      expect(newDS_with_mock_dates.data.length).toBe(data.length);
+    })
   });
 });

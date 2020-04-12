@@ -512,7 +512,7 @@ export class ModelX implements ModelContext {
   getForecastDates(options = {}) {
     const start = (this.prediction_timeseries_start_date  && this.prediction_timeseries_start_date instanceof Date)
       ? Luxon.DateTime.fromJSDate(this.prediction_timeseries_start_date).toISO(ISOOptions)
-      : this.prediction_timeseries_start_date;
+      : this.prediction_timeseries_start_date as string;
     const end = (this.prediction_timeseries_end_date instanceof Date)
       ? Luxon.DateTime.fromJSDate(this.prediction_timeseries_end_date).toISO(ISOOptions)
       : this.prediction_timeseries_end_date;

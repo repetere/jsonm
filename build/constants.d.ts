@@ -86,17 +86,17 @@ export declare function getLocalParsedDate({ date, time_zone, dimension, }: {
 };
 export declare const prettyTimeStringOutputFormat = "ccc, dd LLL yyyy TTT";
 export declare const timeProperty: {
-    [Dimensions.MONTHLY]: string;
-    [Dimensions.WEEKLY]: string;
-    [Dimensions.DAILY]: string;
-    [Dimensions.HOURLY]: string;
+    monthly: string;
+    weekly: string;
+    daily: string;
+    hourly: string;
 };
 export declare const durationToDimensionProperty: {
-    'years': Dimensions;
-    'weeks': Dimensions;
-    'months': Dimensions;
-    'days': Dimensions;
-    'hours': Dimensions;
+    years: Dimensions;
+    weeks: Dimensions;
+    months: Dimensions;
+    days: Dimensions;
+    hours: Dimensions;
 };
 export declare const featureTimeProperty: {
     weekly: string;
@@ -120,14 +120,14 @@ export declare const ISOOptions: {
     includeOffset: boolean;
     suppressMilliseconds: boolean;
 };
-export declare const monthNumbers: number[];
-export declare const weekNumbers: number[];
-export declare const dayNumbers: number[];
-export declare const quarterhourNumbers: number[];
-export declare const ordinalDayNumbers: number[];
-export declare const hourNumbers: number[];
-export declare const minuteNumbers: number[];
-export declare const secondNumbers: number[];
+export declare const monthNumbers: any[];
+export declare const weekNumbers: any[];
+export declare const dayNumbers: any[];
+export declare const quarterhourNumbers: any[];
+export declare const ordinalDayNumbers: any[];
+export declare const hourNumbers: any[];
+export declare const minuteNumbers: any[];
+export declare const secondNumbers: any[];
 export declare const mockDateObject: {
     year: number;
     month: number;

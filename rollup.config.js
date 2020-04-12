@@ -8,13 +8,33 @@ import terser from 'rollup-plugin-terser-js';
 import sucrase from '@rollup/plugin-sucrase';
 import json from '@rollup/plugin-json';
 import pkg from "./package.json";
+import alias from '@rollup/plugin-alias';
 
 const name = 'ModelX';
 const external = [
+  // "react-dom",
+  'wordnet-db',
+  'webworker-threads',
+  'webworkerThreads',
 ];
-const externalServer = [
+const serverExternal = [
+  "@modelx/data",
+  "@modelx/model",
+  "flat",
+  "luxon",
+  "outlier",
+  "promisie",
+  "@tensorflow-models/universal-sentence-encoder",
+  "@tensorflow/tfjs",
+  "@tensorflow/tfjs-node",
+  "lodash.range",
 ];
 const windowGlobals = {
+  // react: "React",
+  // natural: "natural",
+  'webworker-threads':'webworkerThreads',
+  'wordnet-db': 'wordnetDb',
+  'global':'window',
 };
 
 function getOutput({ minify = false, server = false, }) {
@@ -64,32 +84,49 @@ function getOutput({ minify = false, server = false, }) {
 }
 
 function getPlugins({
-    minify = false,
+  minify = false,
+  browser = false,
+  server= false,
 }) {
-  const plugins = [
+  const plugins = [ ];
+  if (browser) {
+    plugins.push(
+      ...[
+        alias({
+          // resolve: ['.js', '.ts'],
+          entries: {
+            '@tensorflow/tfjs-node': '@tensorflow/tfjs',
+            'natural':'./node_modules/@modelx/data/src/stub.ts',
+          }
+        })
+      ]);
+  } 
+  
+  plugins.push(...[
     sucrase({
       // exclude: ['node_modules/**'],
-      transforms: ['jsx','typescript']
+      transforms: [ 'typescript' ]
     }),
     json(),
     // // external(),
     replace({
       'process.env.NODE_ENV': minify ?
         JSON.stringify('production') : JSON.stringify('development'),
-      'global.': '(typeof global!=="undefined" ? global : window).'
+      // 'global.': '(typeof global!=="undefined" ? global : window).'
     }),
 
-    typescript({
-      noEmitOnError: false,
-      declaration: false,
-      declarationDir: null,
-    }),
+    // typescript({
+    //   noEmitOnError: false,
+    //   declaration: false,
+    //   declarationDir: null,
+    // }),
     resolve({
+      extensions:['.ts', '.js', '.json', '.node'],
       preferBuiltins: true,
     }),
     builtins({}),
     commonjs({
-      extensions: [ '.js', '.ts','.jsx' ,'.tsx' ]
+      extensions: [ '.js', '.ts', '.jsx', '.tsx' ]
       // namedExports: {
       //     // 'node_modules/react-is/index.js': ['isValidElementType'],
       //     // 'node_modules/react/index.js': [
@@ -118,9 +155,10 @@ function getPlugins({
     }), // so Rollup can convert `ms` to an ES module
     globals({
       // react: 'React',
-      // 'react-dom': 'ReactDOM'
+      'webworker-threads':'webworkerThreads',
+      'wordnet-db':'wordnetDb'
     }),
-  ];
+  ]);
   if (minify) {
     const minifyPlugins = [
 
@@ -149,17 +187,7 @@ export default [
     external,
     plugins: getPlugins({
       minify: false,
-    }),
-  },
-  {
-    input: "src/index.ts",
-    output: getOutput({
-      minify: false,
-      server: true,
-    }),
-    external:externalServer,
-    plugins: getPlugins({
-      minify: false,
+      browser:true,
     }),
   },
   {
@@ -171,6 +199,19 @@ export default [
     external,
     plugins: getPlugins({
       minify: true,
+      browser:true,
+    }),
+  },
+  {
+    input: "src/index.ts",
+    output: getOutput({
+      minify: false,
+      server: true,
+    }),
+    external:serverExternal,
+    plugins: getPlugins({
+      minify: false,
+      server: true,
     }),
   },
   {
@@ -179,9 +220,10 @@ export default [
       minify: true,
       server: true,
     }),
-    external:externalServer,
+    external:serverExternal,
     plugins: getPlugins({
       minify: true,
+      server: true,
     }),
   },
 ];

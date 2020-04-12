@@ -62,19 +62,41 @@ export declare const mockDates: {
 export declare function getPartialHour(minute: number): number;
 export declare function getQuarterHour(parsedDate: ParsedDate): number;
 export declare function getParsedDate(date: Date, options?: DateTimeJSOptions): ParsedDate;
+export declare function getLocalParsedDate({ date, time_zone, dimension, }: {
+    date: Date;
+    time_zone: string;
+    dimension: Dimensions;
+}): {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+    days_in_month: number;
+    ordinal_day: number;
+    week: number;
+    weekday: number;
+    weekend: boolean;
+    origin_time_zone: string;
+    start_origin_date_string: string;
+    start_gmt_date_string: string;
+    end_origin_date_string: string;
+    end_gmt_date_string: string;
+};
 export declare const prettyTimeStringOutputFormat = "ccc, dd LLL yyyy TTT";
 export declare const timeProperty: {
-    weekly: string;
-    monthly: string;
-    hourly: string;
-    daily: string;
+    [Dimensions.MONTHLY]: string;
+    [Dimensions.WEEKLY]: string;
+    [Dimensions.DAILY]: string;
+    [Dimensions.HOURLY]: string;
 };
 export declare const durationToDimensionProperty: {
-    years: Dimensions;
-    weeks: Dimensions;
-    months: Dimensions;
-    days: Dimensions;
-    hours: Dimensions;
+    'years': Dimensions;
+    'weeks': Dimensions;
+    'months': Dimensions;
+    'days': Dimensions;
+    'hours': Dimensions;
 };
 export declare const featureTimeProperty: {
     weekly: string;
@@ -98,14 +120,14 @@ export declare const ISOOptions: {
     includeOffset: boolean;
     suppressMilliseconds: boolean;
 };
-export declare const monthNumbers: number[];
-export declare const weekNumbers: number[];
-export declare const dayNumbers: number[];
-export declare const quarterhourNumbers: number[];
-export declare const ordinalDayNumbers: number[];
-export declare const hourNumbers: number[];
-export declare const minuteNumbers: number[];
-export declare const secondNumbers: number[];
+export declare const monthNumbers: any[];
+export declare const weekNumbers: any[];
+export declare const dayNumbers: any[];
+export declare const quarterhourNumbers: any[];
+export declare const ordinalDayNumbers: any[];
+export declare const hourNumbers: any[];
+export declare const minuteNumbers: any[];
+export declare const secondNumbers: any[];
 export declare const mockDateObject: {
     year: number;
     month: number;

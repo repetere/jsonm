@@ -1,8 +1,9 @@
 import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXModel from '@modelx/model/src/index';
-import { ISOOptions, durationToDimensionProperty, getOpenHour, getIsOutlier, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, } from './constants';
+import { ISOOptions, durationToDimensionProperty, getOpenHour, getIsOutlier, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, getParsedDate, timeProperty, getLocalParsedDate, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, } from './features';
 import * as Luxon from 'luxon';
+import flatten from 'flat';
 export var ModelTypes;
 (function (ModelTypes) {
     ModelTypes["FAST_FORECAST"] = "ai-fast-forecast";
@@ -427,7 +428,7 @@ export class ModelX {
                     : lastDataRow.forecast_entity_id;
             }
             if (nextValueIncludeParsedDate && state.forecastDate) {
-                const parsedDate = CONSTANTS.getParsedDate(state.forecastDate, { zone, });
+                const parsedDate = getParsedDate(state.forecastDate, { zone, });
                 const isOpen = getOpenHour.bind({ entity: this.entity, dimension: this.dimension, }, { date, parsedDate, zone, });
                 const isOutlier = getIsOutlier.bind({ entity: this.entity, data: state.data, datum: helperNextValueData, });
                 state.parsedDate = parsedDate;
@@ -524,7 +525,10 @@ export class ModelX {
             if (forecastDateFirstDataSetDateIndex === -1) {
                 const lastDataSetDate = datasetDates[datasetDates.length - 1];
                 const firstForecastInputDate = forecastDates[0];
-                const firstForecastDateFromInput = Luxon.DateTime.fromJSDate(lastDataSetDate, { zone: this.prediction_timeseries_time_zone, }).plus({ [timeProperty[dimension]]: 1, });
+                const firstForecastDateFromInput = Luxon.DateTime.fromJSDate(lastDataSetDate, { zone: this.prediction_timeseries_time_zone, }).plus({
+                    //@ts-ignore
+                    [timeProperty[dimension]]: 1,
+                });
                 // console.log({ lastDataSetDate, firstForecastInputDate, firstForecastDateFromInput, dimension, });
                 // console.log('timeProperty[ dimension ]', timeProperty[ dimension ], 'lastDataSetDate.valueOf()', lastDataSetDate.valueOf(), 'firstForecastInputDate.valueOf()', firstForecastInputDate.valueOf(), 'firstForecastDateFromInput.valueOf()', firstForecastDateFromInput.valueOf());
                 if (firstForecastDateFromInput.valueOf() === firstForecastInputDate.valueOf()) {
@@ -733,7 +737,7 @@ export class ModelX {
         //   configurable: false,
         // });
         if (cross_validate_training_data) {
-            let crosstrainingData = this.getCrosstrainingData(options);
+            let crosstrainingData = this.getCrosstrainingData();
             test = crosstrainingData.test;
             train = crosstrainingData.train;
             this.original_data_test = crosstrainingData.test;

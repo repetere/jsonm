@@ -115,13 +115,13 @@ export declare const modelMap: {
     'ai-logistic-classification': typeof ModelXModel.LogisticRegression;
 };
 export declare const modelCategoryMap: {
-    "ai-fast-forecast": ModelCategories;
-    "ai-forecast": ModelCategories;
-    "ai-timeseries-regression-forecast": ModelCategories;
-    "ai-linear-regression": ModelCategories;
-    "ai-regression": ModelCategories;
-    "ai-classification": ModelCategories;
-    "ai-logistic-classification": ModelCategories;
+    [ModelTypes.FAST_FORECAST]: ModelCategories;
+    [ModelTypes.FORECAST]: ModelCategories;
+    [ModelTypes.TIMESERIES_REGRESSION_FORECAST]: ModelCategories;
+    [ModelTypes.LINEAR_REGRESSION]: ModelCategories;
+    [ModelTypes.REGRESSION]: ModelCategories;
+    [ModelTypes.CLASSIFICATION]: ModelCategories;
+    [ModelTypes.LOGISTIC_CLASSIFICATION]: ModelCategories;
 };
 export declare type CrossValidationOptions = {
     folds?: number;
@@ -279,14 +279,14 @@ export declare class ModelX implements ModelContext {
     }): TimeseriesDimension;
     getForecastDates(options?: {}): Date[];
     addMockData({ use_mock_dates, }?: {
-        use_mock_dates?: boolean | undefined;
+        use_mock_dates?: boolean;
     }): void;
     removeMockData({ use_mock_dates, }?: {
-        use_mock_dates?: boolean | undefined;
+        use_mock_dates?: boolean;
     }): void;
     getCrosstrainingData(): {
-        test: ModelXDataTypes.Data;
-        train: ModelXDataTypes.Data;
+        test: any;
+        train: any;
     };
     validateTrainingData({ cross_validate_training_data, inputMatrix, }?: {
         cross_validate_training_data?: boolean;
@@ -301,13 +301,13 @@ export declare class ModelX implements ModelContext {
         forecastDates: Date[];
         forecastDateFirstDataSetDateIndex: any;
         lastOriginalForecastDate: Date;
-        raw_prediction_inputs: ModelXDataTypes.Data;
+        raw_prediction_inputs: ModelXDataTypes.Datum[];
         dimension: Dimensions;
         datasetDates: any;
     }>;
     getPredictionData(options?: {
         getPredictionInputPromise?: GetPredicitonData;
-    }): Promise<ModelXDataTypes.Data | undefined>;
+    }): Promise<ModelXDataTypes.Datum[]>;
     /**
      *
      * @param options

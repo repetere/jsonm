@@ -135,12 +135,39 @@ export function getParsedDate(date, options) {
     parsedDate.quarter_hour = getQuarterHour(parsedDate);
     return parsedDate;
 }
+export function getLocalParsedDate({ date, time_zone, dimension, }) {
+    //modelDoc.dimension
+    const end_date = DateTime.fromJSDate(date).plus({
+        //@ts-ignore
+        [timeProperty[dimension]]: 1,
+    }).toJSDate();
+    const startOriginDate = DateTime.fromJSDate(date, { zone: time_zone, });
+    const endOriginDate = DateTime.fromJSDate(end_date, { zone: time_zone, });
+    const startDate = DateTime.fromJSDate(date);
+    const endDate = DateTime.fromJSDate(end_date);
+    const { year, month, day, ordinal, weekday, hour, minute, second, } = startOriginDate;
+    return {
+        year, month, day, hour, minute, second,
+        days_in_month: startOriginDate.daysInMonth,
+        ordinal_day: ordinal,
+        week: startOriginDate.weekNumber,
+        weekday: weekday,
+        weekend: (startOriginDate.weekday >= 6),
+        origin_time_zone: time_zone,
+        start_origin_date_string: startOriginDate.toFormat(prettyTimeStringOutputFormat),
+        // start_local_date_string,
+        start_gmt_date_string: startDate.toJSDate().toUTCString(),
+        end_origin_date_string: endOriginDate.toFormat(prettyTimeStringOutputFormat),
+        // end_local_date_string,
+        end_gmt_date_string: endDate.toJSDate().toUTCString(),
+    };
+}
 export const prettyTimeStringOutputFormat = 'ccc, dd LLL yyyy TTT';
 export const timeProperty = {
-    weekly: 'weeks',
-    monthly: 'months',
-    hourly: 'hours',
-    daily: 'days',
+    [Dimensions.MONTHLY]: 'months',
+    [Dimensions.WEEKLY]: 'weeks',
+    [Dimensions.DAILY]: 'days',
+    [Dimensions.HOURLY]: 'hours',
 };
 export const durationToDimensionProperty = {
     'years': Dimensions.YEARLY,

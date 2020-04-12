@@ -86,17 +86,17 @@ export declare function getLocalParsedDate({ date, time_zone, dimension, }: {
 };
 export declare const prettyTimeStringOutputFormat = "ccc, dd LLL yyyy TTT";
 export declare const timeProperty: {
-    [Dimensions.MONTHLY]: string;
-    [Dimensions.WEEKLY]: string;
-    [Dimensions.DAILY]: string;
-    [Dimensions.HOURLY]: string;
+    monthly: string;
+    weekly: string;
+    daily: string;
+    hourly: string;
 };
 export declare const durationToDimensionProperty: {
-    'years': Dimensions;
-    'weeks': Dimensions;
-    'months': Dimensions;
-    'days': Dimensions;
-    'hours': Dimensions;
+    years: Dimensions;
+    weeks: Dimensions;
+    months: Dimensions;
+    days: Dimensions;
+    hours: Dimensions;
 };
 export declare const featureTimeProperty: {
     weekly: string;

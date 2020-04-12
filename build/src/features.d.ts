@@ -130,13 +130,13 @@ export declare function getEndDate(options: {
     time_zone: string;
 }): Date;
 export declare const dimensionDates: {
-    [Dimensions.YEARLY]: typeof getUniqueYears;
-    [Dimensions.MONTHLY]: typeof getUniqueMonths;
-    [Dimensions.WEEKLY]: typeof getUniqueWeeks;
-    [Dimensions.DAILY]: typeof getUniqueDays;
-    [Dimensions.HOURLY]: typeof getUniqueHours;
-    [Dimensions.MINUTELY]: typeof getUniqueMinutes;
-    [Dimensions.SECONDLY]: typeof getUniqueSeconds;
+    yearly: typeof getUniqueYears;
+    monthly: typeof getUniqueMonths;
+    weekly: typeof getUniqueWeeks;
+    daily: typeof getUniqueDays;
+    hourly: typeof getUniqueHours;
+    minutely: typeof getUniqueMinutes;
+    secondly: typeof getUniqueSeconds;
 };
 export declare function getEncodedFeatures({ DataSet, features, }: {
     DataSet: ModelXDataTypes.DataSet;

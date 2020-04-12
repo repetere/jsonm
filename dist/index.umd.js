@@ -30700,13 +30700,11 @@
 
             var lodash_rangeright = rangeRight;
 
-            //@ts-nocheck
-
             const avg = array$1.mean;
             const mean = avg;
             const sum = array$1.sum;
             const scale = (a, d) => a.map(x => (x - avg(a)) / d);
-            const max = a => a.concat([]).sort((x, y) => x < y)[0];
+            const max = (a) => a.concat([]).sort((x, y) => x < y)[0];
             const min = a => a.concat([]).sort((x, y) => x > y)[0];
             const sd = array$1.standardDeviation; //(a, av) => Math.sqrt(avg(a.map(x => (x - av) * x)));
 
@@ -30826,7 +30824,9 @@
              * @param {Number} options.independentVariables - the number of independent variables in the regression equation
              * @returns {Number} adjusted r^2 for multiple linear regression
              */
-            function adjustedCoefficentOfDetermination(options = {}) {
+            function adjustedCoefficentOfDetermination(options
+
+            ) {
               const { actuals, estimates, rSquared, independentVariables, sampleSize, } = options;
               const r2 = rSquared || coefficientOfDetermination(actuals, estimates);
               const n = sampleSize || actuals.length;
@@ -30884,7 +30884,6 @@
             function rSquared(actuals = [], estimates=[]) {
               return Math.pow(coefficientOfCorrelation(actuals, estimates), 2);
             }
-
             /**
              * returns an array of vectors as an array of arrays
              * @example
@@ -30935,6 +30934,7 @@
                 })
                 : arrays;
             }
+            ////Vector, Matrix,
 
             /**
               * Standardize features by removing the mean and scaling to unit variance
@@ -30947,6 +30947,19 @@
               * @returns {number[]}
               */
             const StandardScaler = (z) => scale(z, sd(z));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             /** This function returns two functions that can standard scale new inputs and reverse scale new outputs
@@ -31273,7 +31286,7 @@
               MAPE: meanAbsolutePercentageError,
             };
 
-            //@ts-nocheck
+            // import { ml, } from './ml';
 
             const transformConfigMap = {
               scale: 'scaleOptions',
@@ -31339,6 +31352,23 @@
              * @memberOf preprocessing
              */
             class DataSet  {
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+
               /**
                * Allows for fit transform short hand notation
                * @example
@@ -31537,7 +31567,7 @@
                 const encodedData = config.data || this.oneHotColumnArray(name, config.oneHotColumnArrayOptions);
                 // console.log({ encodedData, encoderMap, prefix });
                 return encodedData.reduce((result, val) => {
-                  const columnNames = Object.keys(val).filter(prop => val[ prop ] === 1 && (labels.indexOf(prop.replace(prefix, '')) !== -1 || labels.map(label => String(label)).indexOf(prop.replace(prefix, '')) !== -1));
+                  const columnNames = Object.keys(val).filter(prop => val[ prop ] === 1 && (labels.indexOf(prop.replace(prefix, '')) !== -1 || labels.map((label) => String(label)).indexOf(prop.replace(prefix, '')) !== -1));
                   const columnName = columnNames[ 0 ] || '';
                   // console.log({ columnName, columnNames, labels, val},Object.keys(val));
                   const datum = {
@@ -31546,6 +31576,9 @@
                   result.push(datum);
                   return result;
                 }, []);
+              }
+              static oneHotColumnArray(name, oneHotColumnArrayOptions) {
+                throw new Error("Method not implemented.");
               }
               /**
                * returns a list of objects with only selected columns as properties
@@ -31566,7 +31599,7 @@
                 const data = config.data || this.data;
                 return data.reduce((result, val) => {
                   const selectedData = {};
-                  names.forEach(name => {
+                  names.forEach((name) => {
                     selectedData[ name ] = val[ name ];
                   });
                   result.push(selectedData);
@@ -31660,7 +31693,8 @@
                   ? vectors
                   : vectors.map(vector => [vector, options, ]);
                 const vectorArrays = columnVectors
-                  .map(vec => DataSet.columnArray.call(this, ...vec));
+                  //@ts-ignore
+                  .map((vec) => DataSet.columnArray.call(this, ...vec));
                     
                 return util$1.pivotArrays(vectorArrays);
               }
@@ -31715,21 +31749,6 @@
                   return 1;
                 }
               }
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
-
               /**
                * creates a new raw data instance for preprocessing data for machine learning
                * @example
@@ -31881,7 +31900,7 @@
                 let scaledData;
                 let transforms;
                   
-                scaleData = scaleData.filter(datum => typeof datum !== 'undefined')
+                scaleData = scaleData.filter((datum) => typeof datum !== 'undefined')
                   .map((datum, i) => {
                     if (typeof datum !== 'number') {
                       if (this.config.debug && config.forced_coercion===false) {
@@ -32004,7 +32023,7 @@
                 } else this.labels.set(name, labels);
                 const labeledData = (config.binary) ?
                   labelData.map(DataSet.getBinaryValue) :
-                  labelData.map(label => labels.get(label));
+                  labelData.map((label) => labels.get(label));
                 return labeledData;
               }
               /**
@@ -32013,10 +32032,10 @@
                  * @param options
                  * @returns {array}
                  */
-              labelDecode(name, options) {
+              labelDecode(name, options= {}) {
                 const config = Object.assign({}, options);
                 const labelData = config.data || this.columnArray(name, config.columnArrayOptions);
-                return labelData.map(val => this.labels.get(name).get(val));
+                return labelData.map((val) => this.labels.get(name).get(val));
               }
               /**
                * Return one hot encoded data
@@ -32060,7 +32079,7 @@
                 }, options);
                 const labels = config.labels || this.encoders.get(name).labels;
                 const prefix = config.prefix || this.encoders.get(name).prefix;
-                return this.selectColumns(labels.map(label => `${prefix}${label}`));
+                return this.selectColumns(labels.map((label) => `${prefix}${label}`));
               }
               /**
              * it returns a new column that reduces a column into a new column object, this is used in data prep to create new calculated columns for aggregrate statistics
@@ -32148,7 +32167,7 @@
                     // console.log({encoded})
                     encodedObject = Object.assign({}, encodedObject, encoded[ 0 ]);
                     if (config.removeValues) {
-                      removedColumns.push(...this.encoders.get(columnName).labels.map(label=>`${this.encoders.get(columnName).prefix}${label}`));
+                      removedColumns.push(...this.encoders.get(columnName).labels.map((label)=>`${this.encoders.get(columnName).prefix}${label}`));
                     }
                   }
                   return encodedObject;
@@ -32193,9 +32212,9 @@
                 }, options);
                 const removedColumns = [];
                 // if (Array.isArray(data)) return data.map(datum => this.transformObject);
-                const encodedColumns = [].concat(...Array.from(this.encoders.keys())
+                const encodedColumns = new Array().concat(...Array.from(this.encoders.keys())
                   .map(encodedColumn => this.encoders.get(encodedColumn).labels
-                    .map(label=>`${this.encoders.get(encodedColumn).prefix}${label}`)
+                    .map((label)=>`${this.encoders.get(encodedColumn).prefix}${label}`)
                   )
                 );
                 const currentColumns = (this.data.length)
@@ -32262,13 +32281,13 @@
                   empty: true,
                   arrayOptions: {
                     parseFloat: true,
-                    filter: val => val,
+                    filter: (val) => val,
                   },
                   labelOptions: {},
                 }, options);
-                let replaceVal;
+                let replaceVal;// { [x: string]: any;[x: number]: any; } | undefined;
                 let replace = {
-                  test: val => !val,
+                  test: (val) => !val,
                   value: replaceVal,
                 };
                 switch (config.strategy) {
@@ -32322,7 +32341,7 @@
                   replaceVal = this.columnMerge(name, config.mergeData); 
                   return replaceVal; 
                 case 'parseNumber':
-                  replaceVal = this.columnArray(name).map(num => Number(num)); 
+                  replaceVal = this.columnArray(name).map((num) => Number(num)); 
                   return replaceVal; 
                 default:
                   replaceVal = array$1[config.strategy](this.columnArray(name, config.arrayOptions));
@@ -32377,7 +32396,7 @@
                       result[val.name] = replacedColumn;
                     } else {
                       Object.keys(replacedColumn).forEach(repColName => {
-                        result[repColName] = replacedColumn[repColName].map(columnVal => ({
+                        result[repColName] = replacedColumn[repColName].map((columnVal) => ({
                           [repColName]: columnVal,
                         }));
                       });
@@ -32475,7 +32494,11 @@
               }
             }
 
-            //@ts-nocheck
+            // import { ml, } from './ml';
+
+
+
+
             // console.log({ natural });
             // export const nat = natural;
             /**
@@ -32484,6 +32507,16 @@
              * @memberOf nlp
              */
             class ColumnVectorizer {
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
               /**
                * creates a new instance for classifying text data for machine learning
                * @example
@@ -32554,7 +32587,7 @@
                */
               fit_transform(options = {}) {
                 const data = options.data || this.data;
-                data.forEach(datum => {
+                data.forEach((datum) => {
                   const datums = {};
                   this.replacer(datum)
                     .split(' ')
@@ -32577,8 +32610,9 @@
                 this.sortedWordCount = Object.keys(this.wordCountMap)
                   .sort((a, b) => this.wordCountMap[ b ] - this.wordCountMap[ a ]);
                 this.vectors = this.vectors.map(vector => Object.assign({}, this.wordMap, vector));
+
                 const vectorData = new DataSet(this.vectors);
-                this.limitedFeatures = this.get_limited_features(options);
+                this.limitedFeatures = this.get_limited_features(options) ;
                 this.matrix = vectorData.columnMatrix(this.limitedFeatures);
                 return this.matrix;
               }
@@ -32631,7 +32665,11 @@
                   }
                   return result;
                 }, {});
-                return Object.assign({}, this.wordMap, evalStringWordMap);
+                return {
+                  ...this.wordMap,
+                  ...evalStringWordMap,
+                };
+                // return Object.assign({}, this.wordMap, evalStringWordMap);
               }
               /**
                * returns new matrix of words with counts in columns
@@ -36726,7 +36764,12 @@ ${indent}columns: ${this.columns}
               const folds = options.folds || 3;
               const dataset_split = [];
               const dataset_copy = [].concat(dataset);
-              const foldsize = parseInt(dataset.length / (folds || 3), 10);
+              const foldLength = dataset.length / (folds || 3);
+              // const foldsize = parseInt(foldLength.toString(), 10);
+              // const foldsizeRounded = Math.floor(foldLength);
+              const foldsize = Math.floor(foldLength);
+
+              // console.log({ foldsize, foldsizeRounded, foldLength });
               for (let i in lodash_range(folds)) {
                 const fold = [];
                 while (fold.length < foldsize) {
@@ -36748,7 +36791,7 @@ ${indent}columns: ${this.columns}
              * @return {number[]} Array of accucracy calculations 
              */
             function cross_validate_score(options = {}) {
-              const config = Object.assign({}, {
+              const config =  {
                 // classifier,
                 // regression,
                 // dataset,
@@ -36762,7 +36805,8 @@ ${indent}columns: ${this.columns}
                 use_train_y_matrix: false,
                 use_train_y_vector: false,
                 use_estimates_y_vector: false,
-              }, options);
+                ...options
+              };
               const classifier = config.classifier;
               const regression = config.regression;
               const folds = cross_validation_split(config.dataset, {
@@ -36834,12 +36878,13 @@ ${indent}columns: ${this.columns}
              * @return {number[]} Array of accucracy calculations 
              */
             function grid_search$1(options = {}) {
-              const config = Object.assign({}, {
+              const config = {
                 return_parameters: false,
                 compare_score:'mean',
                 sortAccuracyScore:'desc',
                 parameters: {},
-              }, options);
+                ...options
+              };
               const regressor = config.regression;
               const classification = config.classifier;
               const sortAccuracyScore = (!options.sortAccuracyScore && config.regression)
@@ -36857,6 +36902,7 @@ ${indent}columns: ${this.columns}
                   }
                   const score = cross_validate_score(config);
                   return (config.compare_score)
+                    //@ts-ignore
                     ? util$1[config.compare_score](score)
                     : score;
                 },
@@ -37415,7 +37461,6 @@ ${indent}columns: ${this.columns}
                         FPGrowth: fpgrowth_1
             });
 
-            //@ts-nocheck
             const { FPGrowth, } = fpg;
             // import { default as ObjectValues, } from 'object.values';
             // if (!Object.values) {
@@ -37437,7 +37482,7 @@ ${indent}columns: ${this.columns}
               const values = new Set();
               const valuesMap = new Map();
               const transactions = data
-                .map(csvRow => {
+                .map((csvRow) => {
                   [
                     ...Object.values(csvRow),
                   ].forEach(csvVal => {
@@ -37447,7 +37492,7 @@ ${indent}columns: ${this.columns}
                     if (!valuesMap.get(val)) {
                       const index = (valuesMap.size < 0)
                         ? 0
-                        : parseInt(valuesMap.size / 2, 10);
+                        : Math.round(valuesMap.size / 2);
                       valuesMap.set(val, index.toString());
                       valuesMap.set(index.toString(), val);
                     }
@@ -37461,7 +37506,7 @@ ${indent}columns: ${this.columns}
                 values,
                 valuesMap,
                 transactions: (config.exludeEmptyTranscations)
-                  ? transactions.filter(csvRow => csvRow.length)
+                  ? transactions.filter((csvRow) => csvRow.length)
                   : transactions,
               };
             }
@@ -37488,18 +37533,18 @@ ${indent}columns: ${this.columns}
                   }, options);
                   const fpgrowth = new FPGrowth(config.support);
                   fpgrowth.exec(transactions)
-                    .then(results => {
+                    .then((results) => {
                       const itemsets = (results.itemsets) ? results.itemsets : results;
                       // console.log('itemsets', itemsets)
                       if (config.summary) {
                         resolve(itemsets
-                          .map(itemset => ({
-                            items_labels: itemset.items.map(item => config.valuesMap.get(item)),
+                          .map((itemset) => ({
+                            items_labels: itemset.items.map((item) => config.valuesMap.get(item)),
                             items: itemset.items,
                             support: itemset.support,
                             support_percent: itemset.support / transactions.length,
                           }))
-                          .filter(itemset => itemset.items.length > 1)
+                          .filter((itemset) => itemset.items.length > 1)
                           .sort((a, b) => b.support - a.support));
                       } else {
                         resolve(results);

@@ -115,13 +115,13 @@ export declare const modelMap: {
     'ai-logistic-classification': typeof ModelXModel.LogisticRegression;
 };
 export declare const modelCategoryMap: {
-    [ModelTypes.FAST_FORECAST]: ModelCategories;
-    [ModelTypes.FORECAST]: ModelCategories;
-    [ModelTypes.TIMESERIES_REGRESSION_FORECAST]: ModelCategories;
-    [ModelTypes.LINEAR_REGRESSION]: ModelCategories;
-    [ModelTypes.REGRESSION]: ModelCategories;
-    [ModelTypes.CLASSIFICATION]: ModelCategories;
-    [ModelTypes.LOGISTIC_CLASSIFICATION]: ModelCategories;
+    "ai-fast-forecast": ModelCategories;
+    "ai-forecast": ModelCategories;
+    "ai-timeseries-regression-forecast": ModelCategories;
+    "ai-linear-regression": ModelCategories;
+    "ai-regression": ModelCategories;
+    "ai-classification": ModelCategories;
+    "ai-logistic-classification": ModelCategories;
 };
 export declare type CrossValidationOptions = {
     folds?: number;
@@ -301,13 +301,13 @@ export declare class ModelX implements ModelContext {
         forecastDates: Date[];
         forecastDateFirstDataSetDateIndex: any;
         lastOriginalForecastDate: Date;
-        raw_prediction_inputs: ModelXDataTypes.Datum[];
+        raw_prediction_inputs: ModelXDataTypes.Data;
         dimension: Dimensions;
         datasetDates: any;
     }>;
     getPredictionData(options?: {
         getPredictionInputPromise?: GetPredicitonData;
-    }): Promise<ModelXDataTypes.Datum[]>;
+    }): Promise<ModelXDataTypes.Data>;
     /**
      *
      * @param options

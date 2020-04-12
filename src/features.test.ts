@@ -12,22 +12,26 @@ const expect = chai.expect;
 // chai.use(require('chai-as-promised'));
 describe('auto features', () => {
   const timeseriesData = [
-    getDatum(new Date('2020-04-04T00:00:00.000Z')),
-    getDatum(new Date('2020-04-05T00:00:00.000Z')),
-    getDatum(new Date('2020-04-06T00:00:00.000Z')),
-    getDatum(new Date('2020-04-07T00:00:00.000Z')),
-    getDatum(new Date('2020-04-08T00:00:00.000Z')),
-    getDatum(new Date('2020-04-09T00:00:00.000Z')),
-    getDatum(new Date('2020-04-10T00:00:00.000Z')),
-    getDatum(new Date('2020-04-11T00:00:00.000Z')),
+    getDatum(new Date('2020-04-04T00:00:00.000Z'),{late_payments:true}),
+    getDatum(new Date('2020-04-05T00:00:00.000Z'),{late_payments:true}),
+    getDatum(new Date('2020-04-06T00:00:00.000Z'),{late_payments:false}),
+    getDatum(new Date('2020-04-07T00:00:00.000Z'),{late_payments:true}),
+    getDatum(new Date('2020-04-08T00:00:00.000Z'),{late_payments:false}),
+    getDatum(new Date('2020-04-09T00:00:00.000Z'),{late_payments:false}),
+    getDatum(new Date('2020-04-10T00:00:00.000Z'),{late_payments:true}),
+    getDatum(new Date('2020-04-11T00:00:00.000Z'),{late_payments:true}),
   ].sort(timeseriesSort);
-  console.log({ timeseriesData });
+  // console.log({ timeseriesData });
   describe('getEncodedFeatures', () => {
     it('should return encoded features', () => { 
       const DS = new ModelXData.DataSet(timeseriesData);
-      const independentVariables = ['type', 'late_payments', 'month','day'];
-      const dependentVariables = ['amount'];
+      const independent_variables = ['type', 'late_payments', 'month','day'];
+      const dependent_variables = ['amount'];
       const input_independent_features = [
+        {
+          feature_field_name: 'late_payments',
+          feature_field_type: features.AutoFeatureTypes.TEXT,
+        },
         {
           feature_field_name: 'type',
           feature_field_type: features.AutoFeatureTypes.TEXT,
@@ -42,17 +46,26 @@ describe('auto features', () => {
         },
       ];
       const autoFeatures = features.autoAssignFeatureColumns({
-        independentVariables,
-        dependentVariables,
+        independent_variables,
+        dependent_variables,
         input_independent_features,
         datum:timeseriesData[0]
       });
-      console.log({ autoFeatures });
-      console.log('autoFeatures.training_feature_column_options', autoFeatures.training_feature_column_options);
-      console.log('autoFeatures.preprocessing_feature_column_options', autoFeatures.preprocessing_feature_column_options);
+
+      DS.fitColumns(autoFeatures.preprocessing_feature_column_options);
+      DS.fitColumns(autoFeatures.training_feature_column_options);
+      const calculatedFeatures = features.getEncodedFeatures({ DataSet: DS, features: ['late_payments', ] });
+      expect(calculatedFeatures).to.eql([
+        'late_payments_true',
+        'late_payments_false']);
+
+      // console.log('autoFeatures.training_feature_column_options', autoFeatures.training_feature_column_options);
+      // console.log('autoFeatures.preprocessing_feature_column_options', autoFeatures.preprocessing_feature_column_options);
+      // console.log('DS', DS);
+      // console.log('features.getEncodedFeatures({DataSet:DS})', );
+      // // console.log({ autoFeatures,DS });
     });
   });
-  /*
   describe('autoAssignFeatureColumns', () => {
     it('should create auto features from inputs and output', () => {
       const autoFeatures = features.autoAssignFeatureColumns({
@@ -86,8 +99,8 @@ describe('auto features', () => {
     });
     it('should auto create features from datum', () => {
       const autoFeatures = features.autoAssignFeatureColumns({
-        independentVariables: ['rise', 'is_new'],
-        dependentVariables: ['run'],
+        independent_variables: ['rise', 'is_new'],
+        dependent_variables: ['run'],
         datum: {
           rise: 10,
           is_new: false,
@@ -112,8 +125,8 @@ describe('auto features', () => {
             feature_field_type: features.AutoFeatureTypes.TEXT,
           },
         ],
-        independentVariables: ['rise', 'is_new'],
-        dependentVariables: ['run'],
+        independent_variables: ['rise', 'is_new'],
+        dependent_variables: ['run'],
         datum: {
           rise: 10,
           is_new: false,
@@ -133,7 +146,6 @@ describe('auto features', () => {
       });
     });
   });
-  */
 });
 describe('features', () => {
   describe('getUniqueYears', () => {

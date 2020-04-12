@@ -2,9 +2,10 @@ import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
 import * as ModelXModelTypes from '@modelx/model/src/model_interface';
-import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, } from './constants';
-import { dimensionDates } from './features';
+import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, } from './constants';
+import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
 import * as Luxon from 'luxon';
+import flatten from 'flat';
 
 export enum ModelTypes {
   FAST_FORECAST = 'ai-fast-forecast',
@@ -38,6 +39,12 @@ export type ModelStatus = {
   lastTrained?: Date;
 };
 export type ModelConfiguration = {
+  auto_assign_features?: boolean;
+  independent_variables?: string[];
+  dependent_variables?: string[];
+  input_independent_features?: AutoFeature[];
+  output_dependent_features?: AutoFeature[];
+
   preprocessing_feature_column_options?: ModelXDataTypes.DataSetTransform;
   training_feature_column_options?: ModelXDataTypes.DataSetTransform;
   use_preprocessing_on_trainning_data?: boolean;
@@ -309,6 +316,12 @@ export class ModelX implements ModelContext {
   mockEncodedData: ModelXDataTypes.Data;
   debug: boolean;
 
+  auto_assign_features?: boolean;
+  independent_variables?: string[];
+  dependent_variables?: string[];
+  input_independent_features?: AutoFeature[];
+  output_dependent_features?: AutoFeature[];
+
   constructor(configuration: ModelConfiguration, options: ModelOptions = {}) {
     this.debug = typeof configuration.debug === 'boolean' ? configuration.debug : true;
     this.config = {
@@ -344,6 +357,15 @@ export class ModelX implements ModelContext {
     this.x_raw_independent_features = configuration.x_raw_independent_features || [];
     this.y_dependent_labels = configuration.y_dependent_labels || [];
     this.y_raw_dependent_labels = configuration.y_raw_dependent_labels || [];
+
+
+    this.auto_assign_features = typeof configuration.auto_assign_features === 'boolean' ? configuration.auto_assign_features : true;
+    this.independent_variables = configuration.independent_variables;
+    this.dependent_variables = configuration.dependent_variables;
+    this.input_independent_features = configuration.input_independent_features;
+    this.output_dependent_features = configuration.output_dependent_features;
+
+
     this.training_size_values = configuration.training_size_values;
     this.cross_validation_options = {
       train_size: 0.7,
@@ -648,7 +670,7 @@ export class ModelX implements ModelContext {
           : lastDataRow.forecast_entity_id;
       }
       if (nextValueIncludeParsedDate && state.forecastDate) {
-        const parsedDate = CONSTANTS.getParsedDate(state.forecastDate, { zone, });
+        const parsedDate = getParsedDate(state.forecastDate, { zone, });
         const isOpen = getOpenHour.bind({ entity: this.entity,  dimension: this.dimension, }, { date, parsedDate, zone, });
         const isOutlier = getIsOutlier.bind({ entity: this.entity, data: state.data, datum:helperNextValueData, });
         state.parsedDate = parsedDate;
@@ -658,7 +680,7 @@ export class ModelX implements ModelContext {
         // console.log({parsedDate,date,state})
       }
       if (nextValueIncludeLocalParsedDate) {
-        Object.assign(helperNextValueData, getLocalParsedDate({ date: state.forecastDate, time_zone: zone, dimension: this.dimension, }));
+        Object.assign(helperNextValueData, getLocalParsedDate({ date: state.forecastDate as Date, time_zone: zone, dimension: this.dimension as Dimensions, }));
       }
       if (nextValueIncludeForecastInputs) {
         Object.assign(helperNextValueData, state.rawInputPredictionObject);//inputs
@@ -747,7 +769,10 @@ export class ModelX implements ModelContext {
       if(forecastDateFirstDataSetDateIndex === -1){
         const lastDataSetDate = datasetDates[ datasetDates.length - 1 ];
         const firstForecastInputDate = forecastDates[ 0 ];
-        const firstForecastDateFromInput = Luxon.DateTime.fromJSDate(lastDataSetDate, { zone:this.prediction_timeseries_time_zone, }).plus({ [ timeProperty[ dimension ] ]: 1, });
+        const firstForecastDateFromInput = Luxon.DateTime.fromJSDate(lastDataSetDate, { zone: this.prediction_timeseries_time_zone, }).plus({
+          //@ts-ignore
+          [timeProperty[dimension]]: 1,
+        });
         // console.log({ lastDataSetDate, firstForecastInputDate, firstForecastDateFromInput, dimension, });
         // console.log('timeProperty[ dimension ]', timeProperty[ dimension ], 'lastDataSetDate.valueOf()', lastDataSetDate.valueOf(), 'firstForecastInputDate.valueOf()', firstForecastInputDate.valueOf(), 'firstForecastDateFromInput.valueOf()', firstForecastDateFromInput.valueOf());
         if (firstForecastDateFromInput.valueOf() === firstForecastInputDate.valueOf()) {
@@ -828,7 +853,7 @@ export class ModelX implements ModelContext {
     // console.log('after getDataSetProperties',{ trainingData });
 
     if (typeof this.training_data_filter_function === 'function' && use_next_value_functions_for_training_data === false) {
-      console.log('this.training_data_filter_function',this.training_data_filter_function)
+      // console.log('this.training_data_filter_function',this.training_data_filter_function)
       trainingData = trainingData.filter(this.training_data_filter_function);
     } 
     if (!use_next_value_functions_for_training_data && this.use_empty_objects) {
@@ -840,7 +865,40 @@ export class ModelX implements ModelContext {
     // console.log('after',{ trainingData });
     this.DataSet = new ModelXData.DataSet(trainingData);
 
+    // console.log('this.auto_assign_features', this.auto_assign_features);
+    // console.log('before this.x_raw_independent_features', this.x_raw_independent_features);
+    // console.log('before this.y_raw_dependent_labels', this.y_raw_dependent_labels);
+    // console.log('before this.preprocessing_feature_column_options', this.preprocessing_feature_column_options);
+    // console.log('before this.training_feature_column_options', this.training_feature_column_options);
+    if (this.auto_assign_features && (!this.x_independent_features || !this.x_independent_features.length) && !this.y_dependent_labels || !this.y_dependent_labels.length) {
+      const autoFeatures = autoAssignFeatureColumns({
+        input_independent_features: this.input_independent_features,
+        output_dependent_features: this.output_dependent_features,
+        independent_variables: this.independent_variables,
+        dependent_variables: this.dependent_variables,
+        training_feature_column_options: this.training_feature_column_options,
+        preprocessing_feature_column_options: this.preprocessing_feature_column_options,
+        datum: trainingData[0],
+      });
+      this.x_raw_independent_features = Array.from(new Set(new Array().concat(this.x_raw_independent_features, autoFeatures.x_raw_independent_features)));
+      this.y_raw_dependent_labels = Array.from(new Set(new Array().concat(this.y_raw_dependent_labels,autoFeatures.y_raw_dependent_labels)));
+      this.preprocessing_feature_column_options = {
+        ...autoFeatures.preprocessing_feature_column_options,
+        ...this.preprocessing_feature_column_options
+      };
+
+      this.training_feature_column_options = {
+        ...autoFeatures.training_feature_column_options,
+        ...this.training_feature_column_options
+      };
+    }
+    // console.log('after this.x_raw_independent_features', this.x_raw_independent_features);
+    // console.log('after this.y_raw_dependent_labels', this.y_raw_dependent_labels);
+    // console.log('after this.preprocessing_feature_column_options', this.preprocessing_feature_column_options);
+    // console.log('after this.training_feature_column_options', this.training_feature_column_options);
+    
     // console.log('this.DataSet', this.DataSet);
+    
     if (this.use_preprocessing_on_trainning_data && this.preprocessing_feature_column_options && Object.keys(this.preprocessing_feature_column_options).length) {
       this.DataSet.fitColumns(this.preprocessing_feature_column_options);
     }
@@ -902,13 +960,23 @@ export class ModelX implements ModelContext {
     });
     // console.log('AFTER this.training_feature_column_options', this.training_feature_column_options);
 
-
+  
     this.addMockData({ use_mock_dates, });
     this.DataSet.fitColumns(this.training_feature_column_options);
     this.removeMockData({ use_mock_dates, });
+    // console.log('this.auto_assign_features', this.auto_assign_features);
+    // console.log('before this.x_independent_features', this.x_independent_features);
+    // console.log('before this.y_dependent_labels', this.y_dependent_labels);
+    if (this.auto_assign_features && (!this.x_independent_features || !this.x_independent_features.length) && (!this.y_dependent_labels || !this.y_dependent_labels.length)) {
+      this.x_independent_features = new Array().concat(this.x_independent_features, getEncodedFeatures({ DataSet: this.DataSet, features: this.x_raw_independent_features }));
+      this.y_dependent_labels = new Array().concat(this.y_dependent_labels, getEncodedFeatures({ DataSet: this.DataSet, features: this.y_raw_dependent_labels }));
+    }
+    // console.log('after this.x_independent_features', this.x_independent_features);
+    // console.log('after this.y_dependent_labels', this.y_dependent_labels);
     // console.log('this.DataSet', this.DataSet);
     // console.log('this.use_preprocessing_on_trainning_data', this.use_preprocessing_on_trainning_data);
     // console.log('this.preprocessing_feature_column_options', this.preprocessing_feature_column_options);
+
     if (!this.x_independent_features || !this.x_independent_features.length) throw new ReferenceError('Missing Inputs (x_independent_features)');
     if (!this.y_dependent_labels || !this.y_dependent_labels.length) throw new ReferenceError('Missing Outputs (y_dependent_labels)');
     this.x_independent_features = Array.from(new Set(this.x_independent_features));
@@ -925,7 +993,7 @@ export class ModelX implements ModelContext {
     // });
 
     if (cross_validate_training_data) {
-      let crosstrainingData = this.getCrosstrainingData(options);
+      let crosstrainingData = this.getCrosstrainingData();
       test = crosstrainingData.test;
       train = crosstrainingData.train;
       this.original_data_test = crosstrainingData.test;
@@ -964,17 +1032,17 @@ export class ModelX implements ModelContext {
       // console.log('this.validate_training_data',this.validate_training_data)
       await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
     } else {
-      console.log('this.DataSet.data',this.DataSet.data)
-      console.log('this.x_indep_matrix_train',this.x_indep_matrix_train)
-      console.log('this.x_indep_matrix_train[0]', this.x_indep_matrix_train[ 0 ]);
-      console.log('this.x_indep_matrix_train[this.x_indep_matrix_train.length-1]', this.x_indep_matrix_train[this.x_indep_matrix_train.length-1 ]);
-      console.log('this.y_dep_matrix_train[0]', this.y_dep_matrix_train[ 0 ]);
-      console.log('this.y_dep_matrix_train[this.y_dep_matrix_train.length-1]', this.y_dep_matrix_train[this.y_dep_matrix_train.length-1 ]);
-      console.log('this.y_dep_matrix_train',this.y_dep_matrix_train)
-      console.log('this.x_independent_features',this.x_independent_features)
-      console.log('this.y_dependent_labels',this.y_dependent_labels)
-      console.log('this.training_feature_column_options',this.training_feature_column_options)
-      console.log('this.validate_training_data',this.validate_training_data)
+      // console.log('this.DataSet.data',this.DataSet.data)
+      // console.log('this.x_indep_matrix_train',this.x_indep_matrix_train)
+      // console.log('this.x_indep_matrix_train[0]', this.x_indep_matrix_train[ 0 ]);
+      // console.log('this.x_indep_matrix_train[this.x_indep_matrix_train.length-1]', this.x_indep_matrix_train[this.x_indep_matrix_train.length-1 ]);
+      // console.log('this.y_dep_matrix_train[0]', this.y_dep_matrix_train[ 0 ]);
+      // console.log('this.y_dep_matrix_train[this.y_dep_matrix_train.length-1]', this.y_dep_matrix_train[this.y_dep_matrix_train.length-1 ]);
+      // console.log('this.y_dep_matrix_train',this.y_dep_matrix_train)
+      // console.log('this.x_independent_features',this.x_independent_features)
+      // console.log('this.y_dependent_labels',this.y_dependent_labels)
+      // console.log('this.training_feature_column_options',this.training_feature_column_options)
+      // console.log('this.validate_training_data',this.validate_training_data)
       await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
     }
     this.status.trained = true;

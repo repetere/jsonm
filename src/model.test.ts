@@ -9,7 +9,6 @@ import { Faker, getData, getDatum, timeseriesSort, } from './util';
 // const expect = chai.expect;
 // chai.use(chaiPromises);
 
-/*
 describe('Generated Functions', () => {
   describe('getGeneratedStatefulFunction', () => {
     it('should be a function', () => {
@@ -58,13 +57,11 @@ describe('Generated Functions', () => {
     });
   });
 });
-*/
 
 describe('ModelX', () => {
   // beforeAll(async function () {
   //   return true;
   // },5000);
-  /*
   describe('constructor', () => {
     it('should export a named module class', () => {
       const m1 = new ModelX({
@@ -546,7 +543,6 @@ describe('ModelX', () => {
       // console.log({ m1 });
     });
   });
-  */
   describe('async trainModel', () => {
     const timeseriesData = [
       getDatum(new Date('2020-04-04T00:00:00.000Z'),{amount:407}),
@@ -596,7 +592,6 @@ describe('ModelX', () => {
         result[ val ] = ['scale', 'standard', ];
         return result;
       }, {});
-    /*
     it('should throw an error if missing inputs and outputs', async () => {
       const m1 = new ModelX({
         model_type: ModelTypes.REGRESSION,
@@ -631,37 +626,49 @@ describe('ModelX', () => {
       expect(m1.Model.trained).toBe(true);
       expect(m1.Model.compiled).toBe(true);
     }, 120000);
-    */
     it('should train a forecast model', async () => {
-      const independentVariables = [
+      const independent_variables = [
         'year',
         'month',
         'day',
         'late_payments',
       ];
-      const dependentVariables = [
+      const dependent_variables = [
         'amount',
       ];
-      const featureColumns = [].concat(independentVariables, dependentVariables);
       const training_feature_column_options = {
-        amount: ['scale', 'standard',],
+        // amount: ['scale', 'standard',],
         year: ['onehot',],
         month: ['onehot',],
         day: ['onehot',],
       };
       const m1 = new ModelX({
-        debug: true,
-        use_mock_dates_to_fit_trainning_data:true,
+        debug: false,
+        use_mock_dates_to_fit_trainning_data: true,
         model_type: ModelTypes.TIMESERIES_REGRESSION_FORECAST,
         trainingData: timeseriesData,
         training_feature_column_options,
-        x_independent_features: independentVariables,
-        y_dependent_labels: dependentVariables,
+        independent_variables,
+        dependent_variables,
+        // x_independent_features: independentVariables,
+        // y_dependent_labels: dependentVariables,
       });
       await m1.trainModel();
-      console.log({ m1 });
+      // console.log({ m1 });
       expect(m1.Model.trained).toBe(true);
       expect(m1.Model.compiled).toBe(true);
-    },120000);
+      expect(m1.x_raw_independent_features).toMatchObject(['year', 'month', 'day', 'late_payments']);
+      expect(m1.y_raw_dependent_labels).toMatchObject(['amount']);
+      expect(m1.preprocessing_feature_column_options).toMatchObject({ amount: ['median'] });
+      expect(m1.training_feature_column_options).toMatchObject({
+        year: ['onehot'],
+        month: ['onehot'],
+        day: ['onehot'],
+        late_payments: ['label', { binary: true }],
+        amount: ['scale', 'standard']
+      });
+      expect(m1.y_dependent_labels).toMatchObject(['amount']);
+      expect(m1.x_independent_features).toMatchObject(['year_2020', 'month_4', 'month_1', 'month_2', 'month_3', 'month_5', 'month_6', 'month_7', 'month_8', 'month_9', 'month_10', 'month_11', 'month_12', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7', 'day_8', 'day_9', 'day_10', 'day_11', 'day_12', 'day_13', 'day_14', 'day_15', 'day_16', 'day_17', 'day_18', 'day_19', 'day_20', 'day_21', 'day_22', 'day_1', 'day_2', 'day_23', 'day_24', 'day_25', 'day_26', 'day_27', 'day_28', 'day_29', 'day_30', 'day_31', 'late_payments']);
+    }, 120000);
   });
 });

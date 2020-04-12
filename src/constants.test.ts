@@ -19,10 +19,20 @@ import {
 } from './constants';
 import { Info, DateTime, } from 'luxon';
 import { DataSet, } from '@modelx/data/src/index';
-import { getDatum, getData, generateNumberRange, } from './util';
+import { getDatum, getData, generateNumberRange,randomNumber, } from './util';
 
 
 // console.log({ mockDates });
+describe('util', () => {
+  describe('randomNumber', () => {
+    it('should generate a random number in range', () => { 
+      const one_to_ten = randomNumber(1, 10);
+      expect(one_to_ten).toBeLessThanOrEqual(10);
+      expect(one_to_ten).toBeGreaterThanOrEqual(1);
+
+    });
+  });
+});
 describe('constants', () => {
   describe('generated date objects', () => {
     it('should include all month numbers', () => {

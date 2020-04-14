@@ -16,6 +16,7 @@ import {
   getLuxonDateTime,
   addMockDataToDataSet,
   removeMockDataFromDataSet,
+  removeEvaluationData,
 } from './constants';
 import { Info, DateTime, } from 'luxon';
 import { DataSet, } from '@modelx/data/src/index';
@@ -228,5 +229,18 @@ describe('constants', () => {
       const newDS_with_mock_dates = removeMockDataFromDataSet(DS_for_mock_dates, { mockEncodedData, includeConstants:true, });
       expect(newDS_with_mock_dates.data.length).toBe(data.length);
     })
+  });
+  describe('removeEvaluationData', () => {
+    it('should remove evaluation data', () => {
+      const evaluation = {
+        actuals: [[1]],
+        estimates: [[1]],
+        otherval: 'dummy',
+      };
+      removeEvaluationData(evaluation);
+      expect(evaluation).not.toHaveProperty('actuals');
+      expect(evaluation).not.toHaveProperty('estimates');
+      expect(evaluation).toHaveProperty('otherval');
+    });
   });
 });

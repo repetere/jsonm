@@ -2,10 +2,11 @@ import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
 import * as ModelXModelTypes from '@modelx/model/src/model_interface';
-import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, } from './constants';
+import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
 import * as Luxon from 'luxon';
 import flatten from 'flat';
+import { default as ConfusionMatrix, }from 'ml-confusion-matrix';
 
 export enum ModelTypes {
   FAST_FORECAST = 'ai-fast-forecast',
@@ -59,6 +60,7 @@ export type ModelConfiguration = {
   training_size_values?: number;
   training_progress_callback?: TrainingProgressCallback;
 
+  prediction_options?: PredictModelConfig;
   prediction_inputs?: ModelXDataTypes.Data;
   trainingData?: ModelXDataTypes.Data;
 
@@ -89,6 +91,8 @@ export type ModelConfiguration = {
   validate_training_data?: boolean;
   cross_validation_options?: CrossValidationOptions;
   debug?: boolean;
+
+  max_evaluation_outputs?: number;
 };
 export type ModelOptions = {
   trainingData?: ModelXDataTypes.Data;
@@ -111,6 +115,7 @@ export type ModelTrainningOptions = {
   fixPredictionDates?: boolean;
   prediction_inputs?: ModelXDataTypes.Data;
   getPredictionInputPromise?: GetPredicitonData;
+  retrain?: boolean;
 };
 export const modelMap = {
   'ai-fast-forecast': ModelXModel.LSTMTimeSeries,
@@ -202,6 +207,30 @@ export type TimeseriesDimension = {
   dimension: Dimensions;
   dateFormat?: string;
 }
+export type PredictModelOptions = {
+  descalePredictions?: boolean; 
+  includeInputs?: boolean;
+  includeEvaluation?: boolean;
+  predictionOptions?: { [index: string]: any; };
+  prediction_inputs?: ModelXDataTypes.Data;
+  retrain?: boolean;
+  getPredictionInputPromise?: GetPredicitonData;
+};
+export type EvaluateModelOptions = {
+  x_indep_matrix_test?: ModelXDataTypes.Matrix;
+  y_dep_matrix_test?: ModelXDataTypes.Matrix;
+  predictionOptions?: { [index: string]: any; };
+  retrain?: boolean;
+};
+export type EvaluationAccuracyOptions = {
+  dependent_feature_label?: string;
+  estimatesDescaled?: ModelXDataTypes.Vector;
+  actualsDescaled?: ModelXDataTypes.Vector;
+}
+
+export type PredictModelConfig = {
+  probability?: boolean;
+};
 
 export interface GetPredicitonData{
   ({ }): Promise<ModelXDataTypes.Data>;
@@ -284,6 +313,7 @@ export class ModelX implements ModelContext {
   trainDataSet: ModelXData.DataSet; 
 
   prediction_inputs?: ModelXDataTypes.Data;
+  prediction_options?: PredictModelConfig;
 
   x_indep_matrix_train: ModelXDataTypes.Matrix;
   x_indep_matrix_test: ModelXDataTypes.Matrix;
@@ -321,6 +351,7 @@ export class ModelX implements ModelContext {
   dependent_variables?: string[];
   input_independent_features?: AutoFeature[];
   output_dependent_features?: AutoFeature[];
+  max_evaluation_outputs: number;
 
   constructor(configuration: ModelConfiguration, options: ModelOptions = {}) {
     this.debug = typeof configuration.debug === 'boolean' ? configuration.debug : true;
@@ -346,7 +377,7 @@ export class ModelX implements ModelContext {
     this.trainingData = configuration.trainingData || [];
     this.removedFilterdtrainingData = [];
     this.DataSet = configuration.DataSet || new ModelXData.DataSet();
-    // this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
+    this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
     this.testDataSet = configuration.testDataSet || new ModelXData.DataSet();
     this.trainDataSet = configuration.trainDataSet || new ModelXData.DataSet();
     this.x_indep_matrix_train = configuration.x_indep_matrix_train || [];
@@ -427,7 +458,7 @@ export class ModelX implements ModelContext {
         this.training_progress_callback({ completion_percentage, loss: logs.loss, epoch:totalEpochs, logs, status:'initializing', defaultLog: this.debug, });
       }
     }
-    // this.prediction_options = configuration.prediction_options || [];
+    this.prediction_options = configuration.prediction_options || {};
     this.prediction_inputs = configuration.prediction_inputs || [];
     this.prediction_timeseries_time_zone = configuration.prediction_timeseries_time_zone || 'utc';
     this.prediction_timeseries_date_feature = configuration.prediction_timeseries_date_feature || 'date';
@@ -597,6 +628,24 @@ export class ModelX implements ModelContext {
     return true;
   }
   
+  async getTrainingData(options: {
+    trainingData?: ModelXDataTypes.Data;
+    retrain?: boolean;
+    getDataPromise?: GetPredicitonData;
+  } = {}) {
+    if (options.trainingData) {
+      this.trainingData = options.trainingData;
+    } else if (typeof options.getDataPromise === 'function') {
+      this.trainingData = await options.getDataPromise({});
+    }
+  }
+  async checkTrainingStatus(options: { retrain?: boolean; } = {}) {
+    if (options.retrain || this.status.trained===false) {
+      await this.getTrainingData(options);
+      await this.trainModel(options);
+    }
+    return true;
+  }
   async getDataSetProperties(options :GetDataSetProperties= {}) {
     const {
       nextValueIncludeForecastDate = true,
@@ -1015,7 +1064,8 @@ export class ModelX implements ModelContext {
       this.x_indep_matrix_train = this.DataSet.columnMatrix(this.x_independent_features);
       this.y_dep_matrix_train = this.DataSet.columnMatrix(this.y_dependent_labels);
     }
-    this.Model = new modelObject(this.training_options, { });
+    this.Model = new modelObject(this.training_options, {});
+    this.Model.tf.set
     if (this.config.model_category === 'timeseries') {
       const validationData = await this.validateTimeseriesData(options);
     }
@@ -1046,6 +1096,248 @@ export class ModelX implements ModelContext {
       await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
     }
     this.status.trained = true;
+    this.status.lastTrained = new Date();
     return this;
+  }
+  async predictModel(options:PredictModelOptions = {}) {
+    const { descalePredictions = true, includeInputs = false, includeEvaluation = true, } = options;
+    const predictionOptions = {
+      probability: this.config.model_category === ModelCategories.DECISION
+        ? false
+        : true,
+      ...this.prediction_options,
+      ...options.predictionOptions,
+    };
+    let predictions;
+    let newTransformedPredictions;
+    let unscaledInputs;
+    let __evaluation;
+    let [trainingstatus, raw_prediction_inputs, ] = await Promise.all([
+      this.checkTrainingStatus(options),
+      options.prediction_inputs || await this.getPredictionData(options),
+    ]);
+    if (includeEvaluation) {
+      let { test, train, } = this.getCrosstrainingData();
+      const testDataSet = new ModelXDataTypes.DataSet(test);
+      const x_indep_matrix_test = testDataSet.columnMatrix(this.x_independent_features);
+      const y_dep_matrix_test = testDataSet.columnMatrix(this.y_dependent_labels);
+      const evaluationOptions = Object.assign({}, options, {
+        x_indep_matrix_test,
+        y_dep_matrix_test,
+      });
+      const primaryLabel = this.y_dependent_labels[ 0 ];
+      const evaluation = await this.evaluateModel(evaluationOptions);
+      __evaluation = Object.keys(evaluation).reduce((result, evaluationDependentLabel) => {
+        const evalItem = removeEvaluationData(evaluation[ evaluationDependentLabel ]);
+        if (evaluationDependentLabel === primaryLabel) {
+          result = Object.assign({}, result, evalItem);
+          if (this.y_dependent_labels.length > 1) result.data[ evaluationDependentLabel ] = evalItem;
+        } else {
+          result.data[ evaluationDependentLabel ] = evalItem;
+        }
+        return result;
+      }, { data: {}, });
+    }
+    if (this.config.model_category === 'timeseries') {
+      predictions = await this.timeseriesForecast(options);
+    } else {
+      // console.log({ raw_prediction_inputs, options });
+      unscaledInputs = raw_prediction_inputs;
+      /*
+      unscaledRawInputObject = this.use_empty_objects
+        ? Object.assign({},
+          this.emptyObject,
+          flatten(datasetUnscaledObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(unscaledNextValueFunctionObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(rawInputPredictionObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(unscaledLastForecastedValue, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(parsedLocalDate, { maxDepth: 2, delimiter: flattenDelimiter, }),
+        )
+        : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
+      */
+      this.prediction_inputs = raw_prediction_inputs.map(prediction_value => { 
+        const pred_val = this.use_empty_objects
+          ? Object.assign({},
+            this.emptyObject,
+            flatten(prediction_value, { maxDepth: 2, delimiter: flattenDelimiter, })
+          )
+          : prediction_value;
+        return this.DataSet.transformObject(pred_val, { checkColumnLength: false, });
+      });
+      const inputMatrix = this.DataSet.columnMatrix(this.x_independent_features, this.prediction_inputs);
+      if (this.validate_training_data) {
+        this.validateTrainingData({ cross_validate_training_data: false, inputMatrix, });
+      }
+      newTransformedPredictions = await this.Model.predict(inputMatrix, predictionOptions);
+      predictions = this.DataSet.reverseColumnMatrix({ vectors: newTransformedPredictions, labels: this.y_dependent_labels, });
+    }
+    if (descalePredictions) {
+      const emptyPrediction = this.y_dependent_labels.reduce((result, label) => {
+        result[ label ] = 0;
+        return result;
+      }, {});
+      const dimension = this.dimension;
+
+      predictions = predictions.map((val, i) => {
+        const transformed = this.DataSet.inverseTransformObject(val);
+        const is_location_open = transformed.is_location_open;
+        let empty = {};
+        if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
+          console.info(`Manually fixing prediction on closed - ${dimension} ${transformed.date}`);
+          empty = Object.assign({}, emptyPrediction);
+        }
+        // console.log({ val, transformed, empty });
+        const descaled = Object.assign(
+          {},
+          transformed,
+          empty,
+          (includeInputs && this.config.model_category !== 'timeseries') ? unscaledInputs[ i ] : {},
+          { __evaluation, },
+        );
+        return descaled;
+      });
+    } else if (includeInputs && this.config.model_category !== 'timeseries') {
+      predictions = predictions.map((val, i) => Object.assign(
+        {},
+        this.DataSet.inverseTransformObject(val),
+        includeInputs ? this.prediction_inputs[ i ] : {},
+        { __evaluation, },
+      ));
+    }
+    if (this.use_empty_objects) {
+      predictions = predictions.map(pred => flatten.unflatten(pred, { delimiter: flattenDelimiter, }));
+    }
+    // console.log({ predictions });
+    return predictions;
+  }
+  evaluateClassificationAccuracy(options:EvaluationAccuracyOptions = {}) {
+    const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
+    const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+    const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+    const CM = ConfusionMatrix.fromLabels(actuals, estimates);
+    const accuracy = CM.getAccuracy();
+    return {
+      accuracy,
+      matrix: CM.matrix,
+      labels: CM.labels,
+      actuals, estimates,
+    };
+  }
+  evaluateRegressionAccuracy(options:EvaluationAccuracyOptions = {}) {
+    const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
+    const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+    const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+    const standardError = ModelXData.util.standardError(actuals, estimates);
+    const rSquared = ModelXData.util.rSquared(actuals, estimates);
+    const adjustedRSquared = ModelXData.util.adjustedRSquared({
+      actuals,
+      estimates,
+      rSquared,
+      sampleSize: actuals.length,
+      independentVariables: this.x_independent_features.length,
+    });
+    const hasZeroActual = Boolean(actuals.filter(a => a === 0 || isNaN(a)).length);
+    const originalMeanAbsolutePercentageError = ModelXData.util.meanAbsolutePercentageError(actuals, estimates);
+    const MAD = ModelXData.util.meanAbsoluteDeviation(actuals, estimates);
+    const MEAN = ModelXData.util.mean(actuals);
+    let metric = 'meanAbsolutePercentageError';
+    let reason = 'Actuals do not contain Zero values';
+    if (hasZeroActual) {
+      metric = 'MAD over MEAN ratio';
+      reason = 'Actuals contain Zero values';
+    }
+    let errorPercentage = (hasZeroActual) ? (MAD / MEAN) : originalMeanAbsolutePercentageError;
+    if (errorPercentage < 0) errorPercentage = 0;
+    if (errorPercentage > 1) errorPercentage = 1;
+    const accuracyPercentage = 1 - errorPercentage;
+
+    return {
+      standardError, rSquared, adjustedRSquared, actuals, estimates,
+      meanForecastError: ModelXData.util.meanForecastError(actuals, estimates),
+      meanAbsoluteDeviation: ModelXData.util.meanAbsoluteDeviation(actuals, estimates),
+      trackingSignal: ModelXData.util.trackingSignal(actuals, estimates),
+      meanSquaredError: ModelXData.util.meanSquaredError(actuals, estimates),
+      meanAbsolutePercentageError: errorPercentage,
+      accuracyPercentage,
+      metric,
+      reason,
+      originalMeanAbsolutePercentageError,
+    };
+  }
+  async evaluateModel(options:EvaluateModelOptions = {}) {
+    await this.checkTrainingStatus(options);
+    const x_indep_matrix_test = options.x_indep_matrix_test || this.x_indep_matrix_test;
+    const y_dep_matrix_test = options.y_dep_matrix_test || this.y_dep_matrix_test;
+    const predictionOptions = Object.assign({
+      probability: this.config.model_category === 'classification'
+        ? false
+        : true,
+    }, this.prediction_options, options.predictionOptions);
+    const estimatesPredictions = await this.Model.predict(x_indep_matrix_test, predictionOptions);
+    const estimatedValues = this.DataSet.reverseColumnMatrix({ vectors: estimatesPredictions, labels: this.y_dependent_labels, });
+    const actualValues = this.DataSet.reverseColumnMatrix({ vectors: y_dep_matrix_test, labels: this.y_dependent_labels, });
+    const dimension = this.dimension;
+    const emptyPrediction = this.y_dependent_labels.reduce((result, label) => {
+      result[ label ] = 0;
+      return result;
+    }, {});
+    const estimatesDescaled = estimatedValues.map((val, i) => {
+      let inverseTransformedObject = this.DataSet.inverseTransformObject(val);
+      if (this.config.model_category === 'timeseries') {
+        const scaledInput = x_indep_matrix_test[ i ];
+        const [inputObject,] = this.DataSet.reverseColumnMatrix({ vectors: [scaledInput,], labels: this.x_independent_features, }); 
+        // console.log({ scaledInput, inputObject });
+        const inverseInputObject = this.DataSet.inverseTransformObject(inputObject);
+        // console.log({ inverseInputObject });
+        const is_location_open = inputObject.is_location_open;
+        const { year, month, day, hour, } = inverseInputObject;
+        // console.log({
+        //   'inverseInputObject.is_location_open':inverseInputObject.is_location_open,
+        //   'inputObject.is_location_open':inputObject.is_location_open,
+        //   year, month, day, hour,
+        //   is_location_open,
+        // });
+        
+        if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
+          // console.log('before predictionMatrix', predictionMatrix);
+          console.info(`Manually fixing prediction on closed - ${dimension} ${year}-${month}-${day}T${hour}`);
+          inverseTransformedObject = emptyPrediction;
+          // inverseTransformedObject = Object.keys(inverseInputObject).reduce((result, prop) => {
+          //   result[ prop ] = (inverseTransformedObject[prop]<0)?0:inverseTransformedObject[prop];
+          //   return result;
+          // }, {});
+          //   console.log('after predictionMatrix', predictionMatrix);
+    
+        }
+      }
+
+
+      const formattedInverse =  this.use_empty_objects
+        ? flatten.unflatten(inverseTransformedObject, { delimiter:flattenDelimiter, })
+        : inverseTransformedObject;
+      return formattedInverse;
+    });
+    const actualsDescaled = actualValues.map(val => {
+      const inverseTransformedObject = this.DataSet.inverseTransformObject(val);
+      return this.use_empty_objects
+        ? flatten.unflatten(inverseTransformedObject, { delimiter:flattenDelimiter, })
+        : inverseTransformedObject;
+    });
+
+    const evaluationDependentLabels = Array.isArray(this.y_raw_dependent_labels) && this.y_raw_dependent_labels.length
+      ? this.y_raw_dependent_labels
+      : this.y_dependent_labels;
+    evaluationDependentLabels.splice(this.max_evaluation_outputs);
+    if (this.config.model_category === 'classification') {
+      return evaluationDependentLabels.reduce((evaluation, dependent_feature_label)=>{
+        evaluation[ dependent_feature_label ] = this.evaluateClassificationAccuracy({ dependent_feature_label, estimatesDescaled, actualsDescaled, });
+        return evaluation;
+      }, {});
+    } else {
+      return evaluationDependentLabels.reduce((evaluation, dependent_feature_label)=>{
+        evaluation[ dependent_feature_label ] = this.evaluateRegressionAccuracy({ dependent_feature_label, estimatesDescaled, actualsDescaled, });
+        return evaluation;
+      }, {});
+    }
   }
 }

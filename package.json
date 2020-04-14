@@ -92,6 +92,7 @@
     "@modelx/model": "^1.0.3",
     "flat": "^5.0.0",
     "luxon": "^1.23.0",
+    "ml-confusion-matrix": "^0.4.0",
     "outlier": "0.0.1",
     "promisie": "^3.0.0",
     "stemmer": "^1.0.5"

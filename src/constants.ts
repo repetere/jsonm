@@ -338,3 +338,11 @@ export function removeMockDataFromDataSet(DataSet:ModelXDataTypes.DataSet, { moc
   DataSet.data.splice(DataSet.data.length - newMockData.length, newMockData.length);
   return DataSet;
 }
+
+export function removeEvaluationData(evaluation:ModelXDataTypes.Datum) {
+  evaluation.actuals = undefined;
+  delete evaluation.actuals;
+  evaluation.estimates = undefined;
+  delete evaluation.estimates;
+  return evaluation;
+}

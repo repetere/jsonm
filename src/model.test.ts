@@ -5,7 +5,7 @@ import chai from 'chai';
 // import chaiPromises from 'chai-as-promised';
 // import path from 'path';
 import { DataSet, } from '@modelx/data/src/index';
-import { Faker, getData, getDatum, timeseriesSort, } from './util';
+import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
 // const expect = chai.expect;
 // chai.use(chaiPromises);
 
@@ -670,5 +670,79 @@ describe('ModelX', () => {
       expect(m1.y_dependent_labels).toMatchObject(['amount']);
       // expect(m1.x_independent_features).toMatchObject(['year_2020', 'month_4', 'month_1', 'month_2', 'month_3', 'month_5', 'month_6', 'month_7', 'month_8', 'month_9', 'month_10', 'month_11', 'month_12', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7', 'day_8', 'day_9', 'day_10', 'day_11', 'day_12', 'day_13', 'day_14', 'day_15', 'day_16', 'day_17', 'day_18', 'day_19', 'day_20', 'day_21', 'day_22', 'day_1', 'day_2', 'day_23', 'day_24', 'day_25', 'day_26', 'day_27', 'day_28', 'day_29', 'day_30', 'day_31', 'late_payments']);
     }, 120000);
+  });
+  describe('async getTrainingData', () => {
+    it('should do nothing if no training data is passed', async () => {
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      expect(m1.trainingData.length).toBe(0);
+      await m1.getTrainingData();
+      expect(m1.trainingData.length).toBe(0);
+    });
+    it('should accept traningData via options', async () => {
+      const {data, }=getMockRegression();
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      expect(m1.trainingData.length).toBe(0);
+      await m1.getTrainingData({trainingData:data});
+      expect(m1.trainingData.length).toBe(data.length);
+    });
+    it('should get trainingData via a getDataPromise function', async () => { 
+      const {data, }=getMockRegression();
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      expect(m1.trainingData.length).toBe(0);
+      async function getDataPromise() {
+        return data;
+      }
+      await m1.getTrainingData({getDataPromise,});
+      expect(m1.trainingData.length).toBe(data.length);
+    }); 
+  });
+  describe('async checkTrainingStatus', () => {
+    it('should return true if model is already trained', async () => {
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      m1.status.trained = true;
+      m1.getTrainingData = jest.fn();
+      m1.trainModel = jest.fn();
+      const trainingStatus = await m1.checkTrainingStatus();
+      expect(trainingStatus).toBe(true);
+      expect(m1.getTrainingData).toBeCalledTimes(0);
+      expect(m1.trainModel).toBeCalledTimes(0);
+    });
+    it('should retrain on demand if model is not trained', async () => {
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      // m1.status.trained = true;
+      m1.getTrainingData = jest.fn();
+      m1.trainModel = jest.fn();
+      
+      const trainingStatus = await m1.checkTrainingStatus();
+      expect(trainingStatus).toBe(true);
+      expect(m1.getTrainingData).toBeCalledTimes(1);
+      expect(m1.trainModel).toBeCalledTimes(1);
+      m1.status.trained = true;
+
+      const trainingStatus2 = await m1.checkTrainingStatus();
+      expect(trainingStatus2).toBe(true);
+      expect(m1.getTrainingData).toBeCalledTimes(1);
+      expect(m1.trainModel).toBeCalledTimes(1);
+
+      const trainingStatus3 = await m1.checkTrainingStatus({ retrain: true });
+      expect(trainingStatus3).toBe(true);
+      expect(m1.getTrainingData).toBeCalledTimes(2);
+      expect(m1.trainModel).toBeCalledTimes(2);
+    });
   });
 });

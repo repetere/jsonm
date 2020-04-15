@@ -2,6 +2,7 @@ import * as ModelXData from '@modelx/data/src/index';
 import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
 import * as ModelXModelTypes from '@modelx/model/src/model_interface';
+import Promisie from 'promisie';
 import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
 import * as Luxon from 'luxon';
@@ -64,6 +65,7 @@ export type ModelConfiguration = {
   prediction_inputs?: ModelXDataTypes.Data;
   trainingData?: ModelXDataTypes.Data;
 
+  retrain_forecast_model_with_predictions?: boolean;
   prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
   prediction_timeseries_time_zone?: string;
   prediction_timeseries_date_feature?: string;
@@ -116,6 +118,11 @@ export type ModelTrainningOptions = {
   prediction_inputs?: ModelXDataTypes.Data;
   getPredictionInputPromise?: GetPredicitonData;
   retrain?: boolean;
+};
+export type retrainTimeseriesModel = {
+  inputMatrix?: ModelXModelTypes.Matrix;
+  predictionMatrix?: ModelXModelTypes.Matrix;
+  fitOptions?: { [index: string]: any; };
 };
 export const modelMap = {
   'ai-fast-forecast': ModelXModel.LSTMTimeSeries,
@@ -211,7 +218,7 @@ export type PredictModelOptions = {
   descalePredictions?: boolean; 
   includeInputs?: boolean;
   includeEvaluation?: boolean;
-  predictionOptions?: { [index: string]: any; };
+  predictionOptions?: PredictionOptions;
   prediction_inputs?: ModelXDataTypes.Data;
   retrain?: boolean;
   getPredictionInputPromise?: GetPredicitonData;
@@ -219,18 +226,60 @@ export type PredictModelOptions = {
 export type EvaluateModelOptions = {
   x_indep_matrix_test?: ModelXDataTypes.Matrix;
   y_dep_matrix_test?: ModelXDataTypes.Matrix;
-  predictionOptions?: { [index: string]: any; };
+  predictionOptions?: PredictionOptions;
   retrain?: boolean;
 };
 export type EvaluationAccuracyOptions = {
   dependent_feature_label?: string;
-  estimatesDescaled?: ModelXDataTypes.Vector;
-  actualsDescaled?: ModelXDataTypes.Vector;
+  estimatesDescaled?: ModelXDataTypes.Data;
+  actualsDescaled?: ModelXDataTypes.Data;
 }
 
 export type PredictModelConfig = {
   probability?: boolean;
 };
+
+export type ClassificationEvaluation = {
+  accuracy: number;
+  matrix: ModelXDataTypes.Matrix;
+  labels: string[];
+  actuals: ModelXDataTypes.Vector;
+  estimates: ModelXDataTypes.Vector;
+}
+export type RegressionEvaluation = {
+  standardError: number;
+  rSquared: number;
+  adjustedRSquared: number;
+  actuals: ModelXDataTypes.Vector;
+  estimates: ModelXDataTypes.Vector;
+  meanForecastError: number;
+  meanAbsoluteDeviation: number;
+  trackingSignal: number;
+  meanSquaredError: number;
+  meanAbsolutePercentageError: number;
+  accuracyPercentage: number;
+  metric: string;
+  reason: string;
+  originalMeanAbsolutePercentageError: number;
+}
+
+export type EvaluateClassificationModel = {
+  [index: string]: ClassificationEvaluation;
+}
+export type EvaluateRegressionModel = {
+  [index: string]: RegressionEvaluation;
+}
+
+export type ValidateTimeseriesDataOptions = {
+  fixPredictionDates?: boolean;
+  prediction_inputs?: ModelXDataTypes.Data;
+  getPredictionInputPromise?: GetPredicitonData;
+  predictionOptions?: PredictionOptions;
+}
+
+export type PredictionOptions = {
+  [index: string]: any; 
+}
 
 export interface GetPredicitonData{
   ({ }): Promise<ModelXDataTypes.Data>;
@@ -319,7 +368,7 @@ export class ModelX implements ModelContext {
   x_indep_matrix_test: ModelXDataTypes.Matrix;
   y_dep_matrix_train: ModelXDataTypes.Matrix;
   y_dep_matrix_test: ModelXDataTypes.Matrix;
-  Model: ModelXModel.TensorScriptModelInterface;
+  Model: ModelXModel.TensorScriptModelInterface | ModelXModel.LSTMTimeSeries;
   training_options: ModelXModelTypes.TensorScriptOptions;
   cross_validation_options: CrossValidationOptions;
   training_size_values?: number;
@@ -335,6 +384,7 @@ export class ModelX implements ModelContext {
   prediction_timeseries_time_zone: string;
   prediction_timeseries_date_feature: string;
   prediction_timeseries_date_format?: string;
+  retrain_forecast_model_with_predictions?: boolean;
   prediction_timeseries_dimension_feature: string;
   prediction_timeseries_start_date?: Date | string;
   prediction_timeseries_end_date?: Date | string;
@@ -464,7 +514,7 @@ export class ModelX implements ModelContext {
     this.prediction_timeseries_date_feature = configuration.prediction_timeseries_date_feature || 'date';
     this.prediction_timeseries_date_format = configuration.prediction_timeseries_date_format;
     this.validate_training_data = typeof configuration.validate_training_data === 'boolean' ? configuration.validate_training_data : true;
-    // this.retrain_forecast_model_with_predictions = configuration.retrain_forecast_model_with_predictions || this.modelDocument.model_configuration.retrain_forecast_model_with_predictions;
+    this.retrain_forecast_model_with_predictions = configuration.retrain_forecast_model_with_predictions;
     this.use_preprocessing_on_trainning_data = typeof configuration.use_preprocessing_on_trainning_data !== 'undefined'
       ? configuration.use_preprocessing_on_trainning_data
       : true;
@@ -772,11 +822,7 @@ export class ModelX implements ModelContext {
       this.getForecastDates();
     }
   }
-  async validateTimeseriesData(options: {
-    fixPredictionDates?: boolean;
-    prediction_inputs?: ModelXDataTypes.Data;
-    getPredictionInputPromise?: GetPredicitonData;
-  } = {}) {
+  async validateTimeseriesData(options: ValidateTimeseriesDataOptions = {}) {
     const { fixPredictionDates = true, } = options;
     const dimension = this.dimension as Dimensions;
     let raw_prediction_inputs = options.prediction_inputs || await this.getPredictionData(options) || [];
@@ -1210,12 +1256,154 @@ export class ModelX implements ModelContext {
     // console.log({ predictions });
     return predictions;
   }
+  async retrainTimeseriesModel(options:retrainTimeseriesModel = {}) {
+    const { inputMatrix, predictionMatrix, fitOptions, } = options;
+    const fit = {
+      ...this.Model.settings.fit,
+      ...fitOptions
+    };
+    // const look_back
+    const x_timeseries = inputMatrix;
+    const y_timeseries = predictionMatrix;
+    const x_matrix = x_timeseries;
+    const y_matrix = y_timeseries;
+    let yShape;
+    this.Model as ModelXModel.LSTMTimeSeries;
+    //_samples, _timeSteps, _features
+    const timeseriesShape = (typeof this.Model.getTimeseriesShape === 'function')
+      ? this.Model.getTimeseriesShape(x_matrix)
+      : undefined;
+    const x_matrix_timeseries = (typeof timeseriesShape !== 'undefined')
+      ? this.Model.reshape(x_matrix, timeseriesShape)
+      : x_matrix;
+    const xs = this.Model.tf.tensor(x_matrix_timeseries, timeseriesShape);
+    const ys = this.Model.tf.tensor(y_matrix, yShape);
+    // this.Model.model.reset_states();
+    await this.Model.model.fit(xs, ys, fit);
+    // this.model.summary();
+    xs.dispose();
+    ys.dispose();
+    return this;
+  }
+  async timeseriesForecast(options: ValidateTimeseriesDataOptions = {}) {
+    // const { validateSequentialDataSet, } = options;
+    const retrain_forecast_model_with_predictions = this.retrain_forecast_model_with_predictions;
+    const predictionOptions = Object.assign({ probability: this.config.model_category === 'classification'
+      ? false
+      : true,
+    }, this.prediction_options, options.predictionOptions);
+    
+    const { forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, } = await this.validateTimeseriesData(options);
+
+    const forecasts = [];
+    let forecastPredictionIndex = 0;
+    const lastDatasetDate = datasetDates[ datasetDates.length - 1 ];
+
+    //checkt dataset data for sequential
+    await Promisie.each(forecastDates, 1, async (forecastDate) => {
+      const existingDatasetObjectIndex = forecastDateFirstDataSetDateIndex + forecastPredictionIndex;
+      const rawInputPredictionObject = raw_prediction_inputs[ forecastPredictionIndex ];
+      let predictionMatrix;
+      let predictionInput;
+      let datasetScaledObject;
+      let datasetUnscaledObject;
+      let unscaledRawInputObject;
+      let scaledRawInputObject;
+      if (forecastDate <= lastOriginalForecastDate) {
+        datasetScaledObject = this.DataSet.data[ existingDatasetObjectIndex ];
+        datasetUnscaledObject = this.DataSet.inverseTransformObject(datasetScaledObject);
+        predictionInput = [
+          datasetScaledObject,
+        ];
+      }
+      const lastForecastedValue = (forecasts.length)
+        ? forecasts[ forecasts.length - 1 ]
+        : {};
+      let unscaledLastForecastedValue = (Object.keys(lastForecastedValue).length)
+        ? this.DataSet.inverseTransformObject(lastForecastedValue)
+        : {};
+      unscaledLastForecastedValue = this.y_dependent_labels.reduce((result, feature) => {
+        if (typeof unscaledLastForecastedValue[ feature ] !== 'undefined') {
+          result[ feature ] = unscaledLastForecastedValue[ feature ];
+        }
+        return result;
+      }, {});
+      const unscaledDatasetData = [].concat(this.removedFilterdtrainingData, this.DataSet.data.map(scaledDatum => {
+        const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum);
+        // console.log({ unscaledDatum });
+        return unscaledDatum;
+      }));
+      const unscaledNextValueFunctionObject = (Object.keys(this.prediction_inputs_next_value_functions).length > 0)
+        ? this.prediction_inputs_next_value_function({
+          rawInputPredictionObject,
+          forecastDate,
+          forecastDates,
+          forecastPredictionIndex,
+          existingDatasetObjectIndex:existingDatasetObjectIndex+this.removedFilterdtrainingData.length,
+          unscaledLastForecastedValue,
+          // data: this.DataSet.data.splice(forecastDateFirstDataSetDateIndex, 0, forecasts),
+          data: unscaledDatasetData, //this.DataSet.data,
+          DataSet: this.DataSet,
+          lastDataRow: Object.assign({}, this.DataSet.data[ this.DataSet.data.length - 1 ], datasetUnscaledObject, rawInputPredictionObject, unscaledLastForecastedValue),
+        })
+        : {};
+      const parsedLocalDate = getLocalParsedDate({ date: forecastDate, time_zone: this.prediction_timeseries_time_zone, dimension, });
+
+      unscaledRawInputObject = this.use_empty_objects
+        ? Object.assign({},
+          this.emptyObject,
+          flatten(datasetUnscaledObject || {}, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(unscaledNextValueFunctionObject || {}, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(rawInputPredictionObject || {}, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(unscaledLastForecastedValue, { maxDepth: 2, delimiter:flattenDelimiter, }),
+          flatten(parsedLocalDate, { maxDepth: 2, delimiter: flattenDelimiter, }),
+        )
+        : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
+
+      scaledRawInputObject = this.DataSet.transformObject(unscaledRawInputObject, { checkColumnLength: false, });
+      
+      predictionInput = [
+        scaledRawInputObject,
+      ];
+      
+      if (predictionInput) {
+        const inputMatrix = this.DataSet.columnMatrix(this.x_independent_features, predictionInput);
+        if (this.validate_training_data) {
+          this.validateTrainingData({ cross_validate_training_data: false, inputMatrix, });
+        }
+        predictionMatrix = await this.Model.predict(inputMatrix, predictionOptions);
+        if (retrain_forecast_model_with_predictions && forecastDate > lastDatasetDate) {
+          await this.retrainTimeseriesModel({
+            inputMatrix,
+            predictionMatrix,
+            // fitOptions,
+          });
+        }
+        
+        const newPredictionObject = this.DataSet.reverseColumnMatrix({ vectors: predictionMatrix, labels: this.y_dependent_labels, })[ 0 ];
+        const forecast = Object.assign({}, datasetScaledObject, scaledRawInputObject, newPredictionObject,
+          parsedLocalDate,
+          {
+            [ this.prediction_timeseries_date_feature ]: forecastDate,
+          });
+
+        if (forecastDate > lastOriginalForecastDate) {
+          this.DataSet.data.splice(existingDatasetObjectIndex, 0, forecast);
+        }
+        forecasts.push(forecast);
+      }
+      forecastPredictionIndex++;
+      return predictionMatrix;
+    });
+    return forecasts;
+  }
   evaluateClassificationAccuracy(options:EvaluationAccuracyOptions = {}) {
     const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
     const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
     const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
     const CM = ConfusionMatrix.fromLabels(actuals, estimates);
     const accuracy = CM.getAccuracy();
+
     return {
       accuracy,
       matrix: CM.matrix,
@@ -1223,7 +1411,7 @@ export class ModelX implements ModelContext {
       actuals, estimates,
     };
   }
-  evaluateRegressionAccuracy(options:EvaluationAccuracyOptions = {}) {
+  evaluateRegressionAccuracy(options:EvaluationAccuracyOptions = {}):RegressionEvaluation {
     const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
     const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
     const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
@@ -1264,7 +1452,7 @@ export class ModelX implements ModelContext {
       originalMeanAbsolutePercentageError,
     };
   }
-  async evaluateModel(options:EvaluateModelOptions = {}) {
+  async evaluateModel(options:EvaluateModelOptions = {}):Promise<EvaluateClassificationModel|EvaluateRegressionModel> {
     await this.checkTrainingStatus(options);
     const x_indep_matrix_test = options.x_indep_matrix_test || this.x_indep_matrix_test;
     const y_dep_matrix_test = options.y_dep_matrix_test || this.y_dep_matrix_test;

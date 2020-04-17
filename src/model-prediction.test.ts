@@ -4,7 +4,6 @@ import { DataSet, } from '@modelx/data/src/index';
 import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
 
 describe('ModelX', () => {
-  /*
   describe('evaluateClassificationAccuracy', () => {
     it('should return classification accuracy', () => {
       const testClassification = {
@@ -36,12 +35,10 @@ describe('ModelX', () => {
       // console.log('evaluation', evaluation);
     });
   });
-  */
   describe('async predictModel', () => {
     const regressionData = getMockRegression();
     const classificationData = getMockClassification();
     const timeseriesData = getMockTimeseries();
-    /*
     it('should handle regression predictions', async () => {
       const { prediction_inputs, independent_variables, dependent_variables, data, } = regressionData;
       const m1 = new ModelX({
@@ -68,7 +65,6 @@ describe('ModelX', () => {
       expect(predictions[0].output_1).toBeLessThanOrEqual(predictions[predictions.length - 1].output_1);
       // console.log('data.length',data.length)
     }, 15000);
-    */
     it('should handle timeseries predictions', async () => {
       const { prediction_inputs, independent_variables, dependent_variables,timeseriesData:data, } = timeseriesData;
       const m1 = new ModelX({
@@ -96,7 +92,6 @@ describe('ModelX', () => {
       // expect(predictions[0].output_1).toBeLessThanOrEqual(predictions[predictions.length - 1].output_1);
       // console.log('data.length',data.length)
     }, 15000);
-    /*
     it('should handle classification predictions', async () => {
       const { prediction_inputs, independent_variables, dependent_variables, data, } = classificationData;
       const m1 = new ModelX({
@@ -148,9 +143,7 @@ describe('ModelX', () => {
       await m1.getTrainingData({getDataPromise,});
       expect(m1.trainingData.length).toBe(data.length);
     }); 
-    */
   });
-  /*
   describe('async evaluateModel', () => {
     const regressionData = getMockRegression();
     const classificationData = getMockClassification();
@@ -211,29 +204,28 @@ describe('ModelX', () => {
       // expect(predictions[0].output_1).toBeLessThan(predictions[predictions.length - 1].output_1);
       // console.log('data.length',data.length)
     },15000);
-    // it('should accept traningData via options', async () => {
-    //   const {data, }=getMockRegression();
-    //   const m1 = new ModelX({
-    //     debug:false,
-    //     model_type: ModelTypes.REGRESSION,
-    //   });
-    //   expect(m1.trainingData.length).toBe(0);
-    //   await m1.getTrainingData({trainingData:data});
-    //   expect(m1.trainingData.length).toBe(data.length);
-    // });
-    // it('should get trainingData via a getDataPromise function', async () => { 
-    //   const {data, }=getMockRegression();
-    //   const m1 = new ModelX({
-    //     debug:false,
-    //     model_type: ModelTypes.REGRESSION,
-    //   });
-    //   expect(m1.trainingData.length).toBe(0);
-    //   async function getDataPromise() {
-    //     return data;
-    //   }
-    //   await m1.getTrainingData({getDataPromise,});
-    //   expect(m1.trainingData.length).toBe(data.length);
-    // }); 
+    it('should accept traningData via options', async () => {
+      const {data, }=getMockRegression();
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      expect(m1.trainingData.length).toBe(0);
+      await m1.getTrainingData({trainingData:data});
+      expect(m1.trainingData.length).toBe(data.length);
+    });
+    it('should get trainingData via a getDataPromise function', async () => { 
+      const {data, }=getMockRegression();
+      const m1 = new ModelX({
+        debug:false,
+        model_type: ModelTypes.REGRESSION,
+      });
+      expect(m1.trainingData.length).toBe(0);
+      async function getDataPromise() {
+        return data;
+      }
+      await m1.getTrainingData({getDataPromise,});
+      expect(m1.trainingData.length).toBe(data.length);
+    }); 
   });
-  */
 });

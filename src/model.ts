@@ -1294,6 +1294,8 @@ export class ModelX implements ModelContext {
     }, this.prediction_options, options.predictionOptions);
     
     const { forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, } = await this.validateTimeseriesData(options);
+    
+    console.log({ forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, });
 
     const forecasts = [];
     let forecastPredictionIndex = 0;
@@ -1330,7 +1332,7 @@ export class ModelX implements ModelContext {
       }, {});
       const unscaledDatasetData = [].concat(this.removedFilterdtrainingData, this.DataSet.data.map(scaledDatum => {
         const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum);
-        // console.log({ unscaledDatum });
+        console.log({ unscaledDatum });
         return unscaledDatum;
       }));
       const unscaledNextValueFunctionObject = (Object.keys(this.prediction_inputs_next_value_functions).length > 0)

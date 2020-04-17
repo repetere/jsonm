@@ -1,13 +1,7 @@
 import { ModelX, ModelTypes, getGeneratedStatefulFunction, sumPreviousRows, } from './model';
 import  { Dimensions, getIsOutlier, mockDates } from './constants';
-
-import chai from 'chai';
-// import chaiPromises from 'chai-as-promised';
-// import path from 'path';
 import { DataSet, } from '@modelx/data/src/index';
 import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
-// const expect = chai.expect;
-// chai.use(chaiPromises);
 
 describe('Generated Functions', () => {
   describe('getGeneratedStatefulFunction', () => {

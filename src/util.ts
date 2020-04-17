@@ -3,10 +3,11 @@ import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as features from './features';
 import { getParsedDate, } from './constants';
 import faker from 'faker';
+faker.seed(0);
 export type Fake = {
   [index: string]: any;
 }
-export const Faker:Fake = {...faker};
+export const Faker: Fake = { ...faker };
 
 export function randomNumber(min:number, max:number) {  
   return Math.random() * (max - min) + min; 

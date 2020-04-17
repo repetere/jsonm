@@ -4,9 +4,7 @@ import * as luxon from 'luxon';
 import * as features from './features';
 import * as ModelXData from '@modelx/data/src/index';
 
-import chai from 'chai';
 import { getDatum, getData, generateNumberRange,timeseriesSort, } from './util';
-const expect = chai.expect;
 // const validMongoId = '5b1eca428d021f08885edbf5';
 // chai.use(require('sinon-chai'));
 // chai.use(require('chai-as-promised'));
@@ -55,7 +53,7 @@ describe('auto features', () => {
       DS.fitColumns(autoFeatures.preprocessing_feature_column_options);
       DS.fitColumns(autoFeatures.training_feature_column_options);
       const calculatedFeatures = features.getEncodedFeatures({ DataSet: DS, features: ['late_payments', ] });
-      expect(calculatedFeatures).to.eql([
+      expect(calculatedFeatures).toMatchObject([
         'late_payments_true',
         'late_payments_false']);
 
@@ -86,10 +84,10 @@ describe('auto features', () => {
           },
         ],
       });
-      expect(autoFeatures.x_raw_independent_features).to.eql(['rise', 'is_new']);
-      expect(autoFeatures.y_raw_dependent_labels).to.eql(['run']);
-      expect(autoFeatures.preprocessing_feature_column_options).to.eql({ rise: ['median'], run: ['median'] });
-      expect(autoFeatures.training_feature_column_options).to.eql({
+      expect(autoFeatures.x_raw_independent_features).toMatchObject(['rise', 'is_new']);
+      expect(autoFeatures.y_raw_dependent_labels).toMatchObject(['run']);
+      expect(autoFeatures.preprocessing_feature_column_options).toMatchObject({ rise: ['median'], run: ['median'] });
+      expect(autoFeatures.training_feature_column_options).toMatchObject({
         rise: ['scale', 'standard'],
         is_new: ['label', { binary: true }],
         run: ['scale', 'standard']
@@ -108,10 +106,10 @@ describe('auto features', () => {
         },
       });
       
-      expect(autoFeatures.x_raw_independent_features).to.eql(['rise', 'is_new']);
-      expect(autoFeatures.y_raw_dependent_labels).to.eql(['run']);
-      expect(autoFeatures.preprocessing_feature_column_options).to.eql({ rise: ['median'], run: ['median'] });
-      expect(autoFeatures.training_feature_column_options).to.eql({
+      expect(autoFeatures.x_raw_independent_features).toMatchObject(['rise', 'is_new']);
+      expect(autoFeatures.y_raw_dependent_labels).toMatchObject(['run']);
+      expect(autoFeatures.preprocessing_feature_column_options).toMatchObject({ rise: ['median'], run: ['median'] });
+      expect(autoFeatures.training_feature_column_options).toMatchObject({
         rise: ['scale', 'standard'],
         is_new: ['label', { binary: true }],
         run: ['scale', 'standard']
@@ -135,10 +133,10 @@ describe('auto features', () => {
         },
       });
       
-      expect(autoFeatures.x_raw_independent_features).to.eql(['rise', 'is_new', 'desc_label',]);
-      expect(autoFeatures.y_raw_dependent_labels).to.eql(['run']);
-      expect(autoFeatures.preprocessing_feature_column_options).to.eql({ rise: ['median'], run: ['median'] });
-      expect(autoFeatures.training_feature_column_options).to.eql({
+      expect(autoFeatures.x_raw_independent_features).toMatchObject(['rise', 'is_new', 'desc_label',]);
+      expect(autoFeatures.y_raw_dependent_labels).toMatchObject(['run']);
+      expect(autoFeatures.preprocessing_feature_column_options).toMatchObject({ rise: ['median'], run: ['median'] });
+      expect(autoFeatures.training_feature_column_options).toMatchObject({
         rise: ['scale', 'standard'],
         is_new: ['label', { binary: true }],
         run: ['scale', 'standard'],
@@ -158,18 +156,18 @@ describe('features', () => {
       const test6years = features.getUniqueYears({ start: y2014, end: y2020, time_zone, });
       const testy2014 = luxon.DateTime.fromISO(y2014,{zone:time_zone}).toJSDate();
       const testy2020 = luxon.DateTime.fromISO(y2020, { zone:time_zone }).toJSDate();
-      expect(test6years[ 0 ]).to.eql(testy2014);
-      expect(test6years[ 6 ]).to.eql(testy2020);
+      expect(test6years[ 0 ]).toEqual(testy2014);
+      expect(test6years[ 6 ]).toEqual(testy2020);
 
-      expect(features.getUniqueYears({ start: y2014, end: y2020, time_zone, })).to.have.lengthOf(7);
-      expect(features.getUniqueYears({ start: y2018, end: y2020, time_zone, })).to.have.lengthOf(3);
-      expect(features.getUniqueYears({ start: y2014, end: y2020, time_zone:time_zone_NYC, })).to.have.lengthOf(7);
-      expect(features.getUniqueYears({ start: y2014, end: y2014, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
-      expect(features.getUniqueYears({ start: y2020, end: y2014, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
+      expect(features.getUniqueYears({ start: y2014, end: y2020, time_zone, })).toHaveLength(7);
+      expect(features.getUniqueYears({ start: y2018, end: y2020, time_zone, })).toHaveLength(3);
+      expect(features.getUniqueYears({ start: y2014, end: y2020, time_zone:time_zone_NYC, })).toHaveLength(7);
+      expect(features.getUniqueYears({ start: y2014, end: y2014, time_zone:time_zone_NYC, })).toHaveLength(1);
+      expect(features.getUniqueYears({ start: y2020, end: y2014, time_zone:time_zone_NYC, })).toHaveLength(1);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueYears.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueYears.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueYears.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueYears.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueMonths', () => {
@@ -182,18 +180,18 @@ describe('features', () => {
       const test2018Months = features.getUniqueMonths({ start: jan, end: jun, time_zone, });
       const test2018firstMonth = luxon.DateTime.fromISO(jan,{zone:time_zone}).toJSDate();
       const test2018lastMonth = luxon.DateTime.fromISO(jun, { zone:time_zone }).toJSDate();
-      expect(test2018Months[ 0 ]).to.eql(test2018firstMonth);
-      expect(test2018Months[ 6 ]).to.eql(test2018lastMonth);
+      expect(test2018Months[ 0 ]).toEqual(test2018firstMonth);
+      expect(test2018Months[ 6 ]).toEqual(test2018lastMonth);
 
-      expect(features.getUniqueMonths({ start: jan, end: jun, time_zone, })).to.have.lengthOf(7);
-      expect(features.getUniqueMonths({ start: janMiddle, end: jun, time_zone, })).to.have.lengthOf(7);
-      expect(features.getUniqueMonths({ start: jan, end: jun, time_zone:time_zone_NYC, })).to.have.lengthOf(7);
-      expect(features.getUniqueMonths({ start: jan, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
-      expect(features.getUniqueMonths({ start: jun, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
+      expect(features.getUniqueMonths({ start: jan, end: jun, time_zone, })).toHaveLength(7);
+      expect(features.getUniqueMonths({ start: janMiddle, end: jun, time_zone, })).toHaveLength(7);
+      expect(features.getUniqueMonths({ start: jan, end: jun, time_zone:time_zone_NYC, })).toHaveLength(7);
+      expect(features.getUniqueMonths({ start: jan, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
+      expect(features.getUniqueMonths({ start: jun, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueMonths.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueMonths.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueMonths.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueMonths.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueWeeks', () => {
@@ -205,23 +203,25 @@ describe('features', () => {
     const weekdaySunday = 'sunday';
     it('should return range of weeks', () => {
       const jan2018Weeks = features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: weekdayMonday, });
-      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: weekdayMonday, })).to.have.lengthOf(5);
-      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: weekdaySunday, })).to.have.lengthOf(5);
-      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 1, })).to.have.lengthOf(5);
+      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: weekdayMonday, })).toHaveLength(5);
+      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: weekdaySunday, })).toHaveLength(5);
+      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 1, })).toHaveLength(5);
       const jan2018firstWeek = luxon.DateTime.fromISO('2018-01-01',{zone:time_zone}).toJSDate();
       const jan2018lastWeek = luxon.DateTime.fromISO('2018-01-29', { zone:time_zone }).toJSDate();
-      expect(jan2018Weeks[ 0 ]).to.eql(jan2018firstWeek);
-      expect(jan2018Weeks[ 4 ]).to.eql(jan2018lastWeek);
+      expect(jan2018Weeks[ 0 ]).toEqual(jan2018firstWeek);
+      expect(jan2018Weeks[ 4 ]).toEqual(jan2018lastWeek);
     });
     it('should allow for both weekdays as strings and numbers', () => {
-      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 'monday', })).to.eql(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 1, }));
+      expect(features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 'monday', })).toMatchObject(
+        features.getUniqueWeeks({ start: jan, end: janEnd, time_zone, weekday: 1, })
+      );
     });
     it('should throw an error with an invalid weekday', () => {
-      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone, weekday:999 })).to.throw(/Invalid weekday/);
+      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone, weekday:999 })).toThrowError(/Invalid weekday/);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueWeeks.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueDays', () => {
@@ -235,18 +235,18 @@ describe('features', () => {
       const test2018Days = features.getUniqueDays({ start: jan, end: janEnd, time_zone, });
       const test2018firstDay = luxon.DateTime.fromISO('2018-01-01T00:00',{zone:time_zone}).toJSDate();
       const test2018lastDay = luxon.DateTime.fromISO('2018-01-31T00:00', { zone:time_zone }).toJSDate();
-      expect(test2018Days[ 0 ]).to.eql(test2018firstDay);
-      expect(test2018Days[ 30 ]).to.eql(test2018lastDay);
+      expect(test2018Days[ 0 ]).toEqual(test2018firstDay);
+      expect(test2018Days[ 30 ]).toEqual(test2018lastDay);
 
-      expect(features.getUniqueDays({ start: jan, end: janEnd, time_zone, })).to.have.lengthOf(31);
-      expect(features.getUniqueDays({ start: janMiddle, end: janEnd, time_zone, })).to.have.lengthOf(17);
-      expect(features.getUniqueDays({ start: jan, end: janEnd, time_zone:time_zone_NYC, })).to.have.lengthOf(31);
-      expect(features.getUniqueDays({ start: jan, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
-      expect(features.getUniqueDays({ start: jun, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
+      expect(features.getUniqueDays({ start: jan, end: janEnd, time_zone, })).toHaveLength(31);
+      expect(features.getUniqueDays({ start: janMiddle, end: janEnd, time_zone, })).toHaveLength(17);
+      expect(features.getUniqueDays({ start: jan, end: janEnd, time_zone:time_zone_NYC, })).toHaveLength(31);
+      expect(features.getUniqueDays({ start: jan, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
+      expect(features.getUniqueDays({ start: jun, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueDays.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueDays.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueDays.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueDays.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueHours', () => {
@@ -260,18 +260,18 @@ describe('features', () => {
       const test2018Hours = features.getUniqueHours({ start: jan, end: janEnd, time_zone, });
       const test2018firstHour = luxon.DateTime.fromISO('2018-01-01T01:00', { zone: time_zone }).toJSDate();
       const test2018lastHour = luxon.DateTime.fromISO('2018-01-02T00:00', { zone: time_zone }).toJSDate();
-      expect(test2018Hours[ 0 ]).to.eql(test2018firstHour);
-      expect(test2018Hours[ 23 ]).to.eql(test2018lastHour);
+      expect(test2018Hours[ 0 ]).toEqual(test2018firstHour);
+      expect(test2018Hours[ 23 ]).toEqual(test2018lastHour);
 
-      expect(features.getUniqueHours({ start: jan, end: janEnd, time_zone, })).to.have.lengthOf(24);
-      expect(features.getUniqueHours({ start: janStartDayTwo, end: janEndDayTwo, time_zone, })).to.have.lengthOf(49);
-      expect(features.getUniqueHours({ start: jan, end: janEnd, time_zone:time_zone_NYC, })).to.have.lengthOf(24);
-      expect(features.getUniqueHours({ start: jan, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
-      expect(features.getUniqueHours({ start: janEnd, end: jan, time_zone:time_zone_NYC, })).to.have.lengthOf(1);
+      expect(features.getUniqueHours({ start: jan, end: janEnd, time_zone, })).toHaveLength(24);
+      expect(features.getUniqueHours({ start: janStartDayTwo, end: janEndDayTwo, time_zone, })).toHaveLength(49);
+      expect(features.getUniqueHours({ start: jan, end: janEnd, time_zone:time_zone_NYC, })).toHaveLength(24);
+      expect(features.getUniqueHours({ start: jan, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
+      expect(features.getUniqueHours({ start: janEnd, end: jan, time_zone:time_zone_NYC, })).toHaveLength(1);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueHours.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueHours.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueHours.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueHours.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueMinutes', () => {
@@ -283,14 +283,14 @@ describe('features', () => {
       const test2018Minutes = features.getUniqueMinutes({ start: jan, end: janEnd, time_zone, });
       const test2018firstMinute = luxon.DateTime.fromISO('2018-01-01T01:32', { zone: time_zone }).toJSDate();
       const test20186thMinute = luxon.DateTime.fromISO('2018-01-01T01:37', { zone: time_zone }).toJSDate();
-      expect(test2018Minutes[ 0 ]).to.eql(test2018firstMinute);
-      expect(test2018Minutes[ 5 ]).to.eql(test20186thMinute);
+      expect(test2018Minutes[ 0 ]).toEqual(test2018firstMinute);
+      expect(test2018Minutes[ 5 ]).toEqual(test20186thMinute);
 
-      expect(features.getUniqueMinutes({ start: jan, end: janEnd, time_zone, })).to.have.lengthOf(12);
+      expect(features.getUniqueMinutes({ start: jan, end: janEnd, time_zone, })).toHaveLength(12);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueMinutes.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueMinutes.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueMinutes.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueMinutes.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getUniqueSeconds', () => {
@@ -301,14 +301,14 @@ describe('features', () => {
       const test2018Seconds = features.getUniqueSeconds({ start: jan, end: janEnd, time_zone, });
       const test2018firstSecond = luxon.DateTime.fromISO('2018-01-01T01:32:11', { zone: time_zone }).toJSDate();
       const test20186thSecond = luxon.DateTime.fromISO('2018-01-01T01:32:16', { zone: time_zone }).toJSDate();
-      expect(test2018Seconds[ 0 ]).to.eql(test2018firstSecond);
-      expect(test2018Seconds[ 5 ]).to.eql(test20186thSecond);
+      expect(test2018Seconds[ 0 ]).toEqual(test2018firstSecond);
+      expect(test2018Seconds[ 5 ]).toEqual(test20186thSecond);
 
-      expect(features.getUniqueSeconds({ start: jan, end: janEnd, time_zone, })).to.have.lengthOf(8);
+      expect(features.getUniqueSeconds({ start: jan, end: janEnd, time_zone, })).toHaveLength(8);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getUniqueSeconds.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).to.throw(/Date format is invalid/);
-      expect(features.getUniqueSeconds.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
+      expect(features.getUniqueSeconds.bind({}, { start: '2018-01-01', end: '2018-03-01', time_zone: 'invalid', })).toThrowError(/Date format is invalid/);
+      expect(features.getUniqueSeconds.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
     });
   });
   describe('getEndDate', () => {
@@ -320,15 +320,15 @@ describe('features', () => {
       const endDaily = luxon.DateTime.fromISO('2018-03-16T00:00', { zone: time_zone }).toJSDate();
       const endHourly = luxon.DateTime.fromISO('2018-03-15T01:00', { zone: time_zone }).toJSDate();
 
-      expect(features.getEndDate({ start_date, time_zone, dimension: 'monthly' })).to.eql(endMonthly);
-      expect(features.getEndDate({ start_date, time_zone, dimension: 'weekly' })).to.eql(endWeekly);
-      expect(features.getEndDate({ start_date, time_zone, dimension: 'daily' })).to.eql(endDaily);
-      expect(features.getEndDate({ start_date, time_zone, dimension: 'hourly' })).to.eql(endHourly);
+      expect(features.getEndDate({ start_date, time_zone, dimension: 'monthly' })).toMatchObject(endMonthly);
+      expect(features.getEndDate({ start_date, time_zone, dimension: 'weekly' })).toMatchObject(endWeekly);
+      expect(features.getEndDate({ start_date, time_zone, dimension: 'daily' })).toMatchObject(endDaily);
+      expect(features.getEndDate({ start_date, time_zone, dimension: 'hourly' })).toMatchObject(endHourly);
     });
     it('should throw an error with an invalid timezone', () => {
-      expect(features.getEndDate.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).to.throw(/Missing required timezone/);
-      expect(features.getEndDate.bind({}, {  time_zone, dimension:'monthly', })).to.throw(/Date format or time_zone is invalid/);
-      expect(features.getEndDate.bind({}, { start_date, time_zone,  })).to.throw(/Invalid dimension/);
+      expect(features.getEndDate.bind({}, { start: '2018-01-01', end: '2018-03-01',  })).toThrowError(/Missing required timezone/);
+      expect(features.getEndDate.bind({}, {  time_zone, dimension:'monthly', })).toThrowError(/Date format or time_zone is invalid/);
+      expect(features.getEndDate.bind({}, { start_date, time_zone,  })).toThrowError(/Invalid dimension/);
     });
   });
 });

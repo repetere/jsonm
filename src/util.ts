@@ -61,17 +61,22 @@ export function getMockTimeseries() {
     getDatum(new Date('2020-04-22T00:00:00.000Z'),{amount:325, late_payments:false}),
     getDatum(new Date('2020-04-23T00:00:00.000Z'),{amount:426, late_payments:true}),
   ].sort(timeseriesSort);
-  const independent_variables = ['type', 'late_payments', 'month','day'];
+  const independent_variables = [
+    // 'type',
+    'late_payments',
+    'month',
+    'day'
+  ];
   const dependent_variables = ['amount'];
   const input_independent_features = [
     {
       feature_field_name: 'late_payments',
       feature_field_type: features.AutoFeatureTypes.TEXT,
     },
-    {
-      feature_field_name: 'type',
-      feature_field_type: features.AutoFeatureTypes.TEXT,
-    },
+    // {
+    //   feature_field_name: 'type',
+    //   feature_field_type: features.AutoFeatureTypes.TEXT,
+    // },
     {
       feature_field_name: 'month',
       feature_field_type: features.AutoFeatureTypes.TEXT,

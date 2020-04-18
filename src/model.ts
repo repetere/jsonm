@@ -696,7 +696,7 @@ export class ModelX implements ModelContext {
     }
     return true;
   }
-  async getDataSetProperties(options :GetDataSetProperties= {}) {
+  async getDataSetProperties(options: GetDataSetProperties = {}) {
     const {
       nextValueIncludeForecastDate = true,
       nextValueIncludeForecastTimezone = true,
@@ -1223,20 +1223,20 @@ export class ModelX implements ModelContext {
         return result;
       }, {});
       const dimension = this.dimension;
-
+      // console.log({ descalePredictions, dimension });
       predictions = predictions.map((val, i) => {
         const transformed = this.DataSet.inverseTransformObject(val);
         const is_location_open = transformed.is_location_open;
         let empty = {};
         if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
-          console.info(`Manually fixing prediction on closed - ${dimension} ${transformed.date}`);
+          if(this.debug) console.info(`Manually fixing prediction on closed - ${dimension} ${transformed.date}`);
           empty = Object.assign({}, emptyPrediction);
         }
         // console.log({ val, transformed, empty });
         const descaled = Object.assign(
           {},
-          transformed,
           empty,
+          transformed,
           (includeInputs && this.config.model_category !== 'timeseries') ? unscaledInputs[ i ] : {},
           { __evaluation, },
         );
@@ -1294,8 +1294,8 @@ export class ModelX implements ModelContext {
     }, this.prediction_options, options.predictionOptions);
     
     const { forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, } = await this.validateTimeseriesData(options);
-    
-    console.log({ forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, });
+
+    // console.log({ forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, });
 
     const forecasts = [];
     let forecastPredictionIndex = 0;
@@ -1332,7 +1332,7 @@ export class ModelX implements ModelContext {
       }, {});
       const unscaledDatasetData = [].concat(this.removedFilterdtrainingData, this.DataSet.data.map(scaledDatum => {
         const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum);
-        console.log({ unscaledDatum });
+        // console.log({ unscaledDatum });
         return unscaledDatum;
       }));
       const unscaledNextValueFunctionObject = (Object.keys(this.prediction_inputs_next_value_functions).length > 0)
@@ -1350,6 +1350,7 @@ export class ModelX implements ModelContext {
         })
         : {};
       const parsedLocalDate = getLocalParsedDate({ date: forecastDate, time_zone: this.prediction_timeseries_time_zone, dimension, });
+      // console.log({ unscaledNextValueFunctionObject });
 
       unscaledRawInputObject = this.use_empty_objects
         ? Object.assign({},
@@ -1361,6 +1362,7 @@ export class ModelX implements ModelContext {
           flatten(parsedLocalDate, { maxDepth: 2, delimiter: flattenDelimiter, }),
         )
         : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
+      // console.log({ unscaledRawInputObject });
 
       scaledRawInputObject = this.DataSet.transformObject(unscaledRawInputObject, { checkColumnLength: false, });
       
@@ -1382,12 +1384,14 @@ export class ModelX implements ModelContext {
           });
         }
         
-        const newPredictionObject = this.DataSet.reverseColumnMatrix({ vectors: predictionMatrix, labels: this.y_dependent_labels, })[ 0 ];
+        const newPredictionObject = this.DataSet.reverseColumnMatrix({ vectors: predictionMatrix, labels: this.y_dependent_labels, })[0];
+        // console.log({ newPredictionObject });
         const forecast = Object.assign({}, datasetScaledObject, scaledRawInputObject, newPredictionObject,
           parsedLocalDate,
           {
             [ this.prediction_timeseries_date_feature ]: forecastDate,
           });
+        // console.log({forecast})
 
         if (forecastDate > lastOriginalForecastDate) {
           this.DataSet.data.splice(existingDatasetObjectIndex, 0, forecast);

@@ -53,15 +53,17 @@ export declare type ModelConfiguration = {
     training_data_filter_function?: DataFilterFunction;
     training_size_values?: number;
     training_progress_callback?: TrainingProgressCallback;
+    prediction_options?: PredictModelConfig;
     prediction_inputs?: ModelXDataTypes.Data;
     trainingData?: ModelXDataTypes.Data;
+    retrain_forecast_model_with_predictions?: boolean;
     prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
     prediction_timeseries_time_zone?: string;
     prediction_timeseries_date_feature?: string;
     prediction_timeseries_date_format?: string;
     prediction_timeseries_dimension_feature?: string;
-    prediction_timeseries_start_date?: Date;
-    prediction_timeseries_end_date?: Date;
+    prediction_timeseries_start_date?: Date | string;
+    prediction_timeseries_end_date?: Date | string;
     dimension?: Dimensions;
     entity?: Entity;
     DataSet?: ModelXData.DataSet;
@@ -82,6 +84,7 @@ export declare type ModelConfiguration = {
     validate_training_data?: boolean;
     cross_validation_options?: CrossValidationOptions;
     debug?: boolean;
+    max_evaluation_outputs?: number;
 };
 export declare type ModelOptions = {
     trainingData?: ModelXDataTypes.Data;
@@ -104,6 +107,14 @@ export declare type ModelTrainningOptions = {
     fixPredictionDates?: boolean;
     prediction_inputs?: ModelXDataTypes.Data;
     getPredictionInputPromise?: GetPredicitonData;
+    retrain?: boolean;
+};
+export declare type retrainTimeseriesModel = {
+    inputMatrix?: ModelXModelTypes.Matrix;
+    predictionMatrix?: ModelXModelTypes.Matrix;
+    fitOptions?: {
+        [index: string]: any;
+    };
 };
 export declare const modelMap: {
     'ai-fast-forecast': typeof ModelXModel.LSTMTimeSeries;
@@ -195,6 +206,67 @@ export declare type TimeseriesDimension = {
     dimension: Dimensions;
     dateFormat?: string;
 };
+export declare type PredictModelOptions = {
+    descalePredictions?: boolean;
+    includeInputs?: boolean;
+    includeEvaluation?: boolean;
+    predictionOptions?: PredictionOptions;
+    prediction_inputs?: ModelXDataTypes.Data;
+    retrain?: boolean;
+    getPredictionInputPromise?: GetPredicitonData;
+};
+export declare type EvaluateModelOptions = {
+    x_indep_matrix_test?: ModelXDataTypes.Matrix;
+    y_dep_matrix_test?: ModelXDataTypes.Matrix;
+    predictionOptions?: PredictionOptions;
+    retrain?: boolean;
+};
+export declare type EvaluationAccuracyOptions = {
+    dependent_feature_label?: string;
+    estimatesDescaled?: ModelXDataTypes.Data;
+    actualsDescaled?: ModelXDataTypes.Data;
+};
+export declare type PredictModelConfig = {
+    probability?: boolean;
+};
+export declare type ClassificationEvaluation = {
+    accuracy: number;
+    matrix: ModelXDataTypes.Matrix;
+    labels: string[];
+    actuals: ModelXDataTypes.Vector;
+    estimates: ModelXDataTypes.Vector;
+};
+export declare type RegressionEvaluation = {
+    standardError: number;
+    rSquared: number;
+    adjustedRSquared: number;
+    actuals: ModelXDataTypes.Vector;
+    estimates: ModelXDataTypes.Vector;
+    meanForecastError: number;
+    meanAbsoluteDeviation: number;
+    trackingSignal: number;
+    meanSquaredError: number;
+    meanAbsolutePercentageError: number;
+    accuracyPercentage: number;
+    metric: string;
+    reason: string;
+    originalMeanAbsolutePercentageError: number;
+};
+export declare type EvaluateClassificationModel = {
+    [index: string]: ClassificationEvaluation;
+};
+export declare type EvaluateRegressionModel = {
+    [index: string]: RegressionEvaluation;
+};
+export declare type ValidateTimeseriesDataOptions = {
+    fixPredictionDates?: boolean;
+    prediction_inputs?: ModelXDataTypes.Data;
+    getPredictionInputPromise?: GetPredicitonData;
+    predictionOptions?: PredictionOptions;
+};
+export declare type PredictionOptions = {
+    [index: string]: any;
+};
 export interface GetPredicitonData {
     ({}: {}): Promise<ModelXDataTypes.Data>;
 }
@@ -235,11 +307,12 @@ export declare class ModelX implements ModelContext {
     testDataSet: ModelXData.DataSet;
     trainDataSet: ModelXData.DataSet;
     prediction_inputs?: ModelXDataTypes.Data;
+    prediction_options?: PredictModelConfig;
     x_indep_matrix_train: ModelXDataTypes.Matrix;
     x_indep_matrix_test: ModelXDataTypes.Matrix;
     y_dep_matrix_train: ModelXDataTypes.Matrix;
     y_dep_matrix_test: ModelXDataTypes.Matrix;
-    Model: ModelXModel.TensorScriptModelInterface;
+    Model: ModelXModel.TensorScriptModelInterface | ModelXModel.LSTMTimeSeries;
     training_options: ModelXModelTypes.TensorScriptOptions;
     cross_validation_options: CrossValidationOptions;
     training_size_values?: number;
@@ -254,6 +327,7 @@ export declare class ModelX implements ModelContext {
     prediction_timeseries_time_zone: string;
     prediction_timeseries_date_feature: string;
     prediction_timeseries_date_format?: string;
+    retrain_forecast_model_with_predictions?: boolean;
     prediction_timeseries_dimension_feature: string;
     prediction_timeseries_start_date?: Date | string;
     prediction_timeseries_end_date?: Date | string;
@@ -269,6 +343,7 @@ export declare class ModelX implements ModelContext {
     dependent_variables?: string[];
     input_independent_features?: AutoFeature[];
     output_dependent_features?: AutoFeature[];
+    max_evaluation_outputs: number;
     constructor(configuration: ModelConfiguration, options?: ModelOptions);
     /**
      * Attempts to automatically figure out the time dimension of each date feature (hourly, daily, etc) and the format of the date property (e.g. JS Date Object, or ISO String, etc) from the dataset data
@@ -292,12 +367,16 @@ export declare class ModelX implements ModelContext {
         cross_validate_training_data?: boolean;
         inputMatrix?: ModelXDataTypes.Matrix;
     }): boolean;
+    getTrainingData(options?: {
+        trainingData?: ModelXDataTypes.Data;
+        retrain?: boolean;
+        getDataPromise?: GetPredicitonData;
+    }): Promise<void>;
+    checkTrainingStatus(options?: {
+        retrain?: boolean;
+    }): Promise<boolean>;
     getDataSetProperties(options?: GetDataSetProperties): Promise<void>;
-    validateTimeseriesData(options?: {
-        fixPredictionDates?: boolean;
-        prediction_inputs?: ModelXDataTypes.Data;
-        getPredictionInputPromise?: GetPredicitonData;
-    }): Promise<{
+    validateTimeseriesData(options?: ValidateTimeseriesDataOptions): Promise<{
         forecastDates: Date[];
         forecastDateFirstDataSetDateIndex: any;
         lastOriginalForecastDate: Date;
@@ -313,4 +392,16 @@ export declare class ModelX implements ModelContext {
      * @param options
      */
     trainModel(options?: ModelTrainningOptions): Promise<this>;
+    predictModel(options?: PredictModelOptions): Promise<any>;
+    retrainTimeseriesModel(options?: retrainTimeseriesModel): Promise<this>;
+    timeseriesForecast(options?: ValidateTimeseriesDataOptions): Promise<any[]>;
+    evaluateClassificationAccuracy(options?: EvaluationAccuracyOptions): {
+        accuracy: any;
+        matrix: any;
+        labels: any;
+        actuals: any;
+        estimates: any;
+    };
+    evaluateRegressionAccuracy(options?: EvaluationAccuracyOptions): RegressionEvaluation;
+    evaluateModel(options?: EvaluateModelOptions): Promise<EvaluateClassificationModel | EvaluateRegressionModel>;
 }

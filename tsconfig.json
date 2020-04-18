@@ -24,9 +24,10 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
     "node_modules/@modelx/model/**/*.ts",
     "node_modules/@modelx/data/**/*.ts", 
+
+    // "src/**/*.tsx",
     // "manual/media/legacy/model-backup-test.ts", 
     // "manual/media/legacy/model-backup.ts",
   ],

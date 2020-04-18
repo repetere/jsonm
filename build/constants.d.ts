@@ -86,17 +86,17 @@ export declare function getLocalParsedDate({ date, time_zone, dimension, }: {
 };
 export declare const prettyTimeStringOutputFormat = "ccc, dd LLL yyyy TTT";
 export declare const timeProperty: {
-    monthly: string;
-    weekly: string;
-    daily: string;
-    hourly: string;
+    [Dimensions.MONTHLY]: string;
+    [Dimensions.WEEKLY]: string;
+    [Dimensions.DAILY]: string;
+    [Dimensions.HOURLY]: string;
 };
 export declare const durationToDimensionProperty: {
-    years: Dimensions;
-    weeks: Dimensions;
-    months: Dimensions;
-    days: Dimensions;
-    hours: Dimensions;
+    'years': Dimensions;
+    'weeks': Dimensions;
+    'months': Dimensions;
+    'days': Dimensions;
+    'hours': Dimensions;
 };
 export declare const featureTimeProperty: {
     weekly: string;
@@ -157,3 +157,4 @@ export declare function removeMockDataFromDataSet(DataSet: ModelXDataTypes.DataS
     mockEncodedData?: ModelXDataTypes.Data;
     includeConstants?: boolean;
 }): ModelXDataTypes.DataSet;
+export declare function removeEvaluationData(evaluation: ModelXDataTypes.Datum): ModelXDataTypes.Datum;

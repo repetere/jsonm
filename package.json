@@ -1,7 +1,7 @@
 {
   "name": "@modelx/modelx",
-  "version": "0.0.6",
-  "description": "Some module",
+  "version": "1.0.0",
+  "description": "Construct AI & ML models with JSON using Tensorflow",
   "main": "dist/index.cjs.js",
   "module": "build/index.js",
   "esm": "dist/index.esm.js",
@@ -68,7 +68,7 @@
     "rollup-plugin-terser-js": "^1.0.2",
     "ts-jest": "^25.3.0",
     "tslib": "^1.11.1",
-    "typedoc": "^0.17.3",
+    "typedoc": "^0.17.4",
     "typescript": "^3.8.3"
   },
   "jest": {
@@ -84,7 +84,7 @@
   },
   "dependencies": {
     "@modelx/data": "^1.0.7",
-    "@modelx/model": "^1.0.5",
+    "@modelx/model": "^1.0.7",
     "flat": "^5.0.0",
     "luxon": "^1.23.0",
     "ml-confusion-matrix": "^0.4.0",

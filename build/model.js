@@ -1,9 +1,12 @@
 import * as ModelXData from '@modelx/data/src/index';
+import * as ModelXDataTypes from '@modelx/data/src/DataSet';
 import * as ModelXModel from '@modelx/model/src/index';
-import { ISOOptions, durationToDimensionProperty, getOpenHour, getIsOutlier, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, getParsedDate, timeProperty, getLocalParsedDate, } from './constants';
+import Promisie from 'promisie';
+import { ISOOptions, durationToDimensionProperty, getOpenHour, getIsOutlier, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, } from './features';
 import * as Luxon from 'luxon';
 import flatten from 'flat';
+import { default as ConfusionMatrix, } from 'ml-confusion-matrix';
 export var ModelTypes;
 (function (ModelTypes) {
     ModelTypes["FAST_FORECAST"] = "ai-fast-forecast";
@@ -58,6 +61,7 @@ export function getGeneratedStatefulFunction({ variable_name = '', function_body
     return func;
 }
 export function sumPreviousRows(options) {
+    console.log('sumPreviousRows', { options });
     const { property, rows, offset = 1, } = options;
     const reverseTransform = Boolean(this.reverseTransform);
     const OFFSET = (typeof this.offset === 'number') ? this.offset : offset;
@@ -81,9 +85,9 @@ export function sumPreviousRows(options) {
         result = result + value[property];
         return result;
     }, 0);
-    // const sumSet = this.data
-    //   .slice(begin, end).map(ss => ss[ property ]);
-    // console.log('this.data.length', this.data.length,'this.data.map(d=>d[property])',this.data.map(d=>d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
+    const sumSet = this.data
+        .slice(begin, end).map(ss => ss[property]);
+    console.log('this.data.length', this.data.length, 'this.data.map(d=>d[property])', this.data.map(d => d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
     return sum;
 }
 export class ModelX {
@@ -111,7 +115,7 @@ export class ModelX {
         this.trainingData = configuration.trainingData || [];
         this.removedFilterdtrainingData = [];
         this.DataSet = configuration.DataSet || new ModelXData.DataSet();
-        // this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
+        this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
         this.testDataSet = configuration.testDataSet || new ModelXData.DataSet();
         this.trainDataSet = configuration.trainDataSet || new ModelXData.DataSet();
         this.x_indep_matrix_train = configuration.x_indep_matrix_train || [];
@@ -188,13 +192,13 @@ export class ModelX {
                 this.training_progress_callback({ completion_percentage, loss: logs.loss, epoch: totalEpochs, logs, status: 'initializing', defaultLog: this.debug, });
             };
         }
-        // this.prediction_options = configuration.prediction_options || [];
+        this.prediction_options = configuration.prediction_options || {};
         this.prediction_inputs = configuration.prediction_inputs || [];
         this.prediction_timeseries_time_zone = configuration.prediction_timeseries_time_zone || 'utc';
         this.prediction_timeseries_date_feature = configuration.prediction_timeseries_date_feature || 'date';
         this.prediction_timeseries_date_format = configuration.prediction_timeseries_date_format;
         this.validate_training_data = typeof configuration.validate_training_data === 'boolean' ? configuration.validate_training_data : true;
-        // this.retrain_forecast_model_with_predictions = configuration.retrain_forecast_model_with_predictions || this.modelDocument.model_configuration.retrain_forecast_model_with_predictions;
+        this.retrain_forecast_model_with_predictions = configuration.retrain_forecast_model_with_predictions;
         this.use_preprocessing_on_trainning_data = typeof configuration.use_preprocessing_on_trainning_data !== 'undefined'
             ? configuration.use_preprocessing_on_trainning_data
             : true;
@@ -362,6 +366,21 @@ export class ModelX {
                 }
             });
         });
+        return true;
+    }
+    async getTrainingData(options = {}) {
+        if (options.trainingData) {
+            this.trainingData = options.trainingData;
+        }
+        else if (typeof options.getDataPromise === 'function') {
+            this.trainingData = await options.getDataPromise({});
+        }
+    }
+    async checkTrainingStatus(options = {}) {
+        if (options.retrain || this.status.trained === false) {
+            await this.getTrainingData(options);
+            await this.trainModel(options);
+        }
         return true;
     }
     async getDataSetProperties(options = {}) {
@@ -760,6 +779,7 @@ export class ModelX {
             this.y_dep_matrix_train = this.DataSet.columnMatrix(this.y_dependent_labels);
         }
         this.Model = new modelObject(this.training_options, {});
+        this.Model.tf.set;
         if (this.config.model_category === 'timeseries') {
             const validationData = await this.validateTimeseriesData(options);
         }
@@ -774,7 +794,7 @@ export class ModelX {
             // console.log('this.x_independent_features',this.x_independent_features)
             // console.log('this.training_feature_column_options',this.training_feature_column_options)
             // console.log('this.validate_training_data',this.validate_training_data)
-            await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
+            await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train, undefined, undefined, undefined);
         }
         else {
             // console.log('this.DataSet.data',this.DataSet.data)
@@ -788,9 +808,366 @@ export class ModelX {
             // console.log('this.y_dependent_labels',this.y_dependent_labels)
             // console.log('this.training_feature_column_options',this.training_feature_column_options)
             // console.log('this.validate_training_data',this.validate_training_data)
-            await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
+            await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train, undefined, undefined, undefined);
         }
         this.status.trained = true;
+        this.status.lastTrained = new Date();
         return this;
+    }
+    async predictModel(options = {}) {
+        const { descalePredictions = true, includeInputs = false, includeEvaluation = true, } = options;
+        const predictionOptions = {
+            probability: this.config.model_category === ModelCategories.DECISION
+                ? false
+                : true,
+            ...this.prediction_options,
+            ...options.predictionOptions,
+        };
+        let predictions;
+        let newTransformedPredictions;
+        let unscaledInputs;
+        let __evaluation;
+        let [trainingstatus, raw_prediction_inputs,] = await Promise.all([
+            this.checkTrainingStatus(options),
+            options.prediction_inputs || await this.getPredictionData(options),
+        ]);
+        if (includeEvaluation) {
+            let { test, train, } = this.getCrosstrainingData();
+            const testDataSet = new ModelXDataTypes.DataSet(test);
+            const x_indep_matrix_test = testDataSet.columnMatrix(this.x_independent_features);
+            const y_dep_matrix_test = testDataSet.columnMatrix(this.y_dependent_labels);
+            const evaluationOptions = Object.assign({}, options, {
+                x_indep_matrix_test,
+                y_dep_matrix_test,
+            });
+            const primaryLabel = this.y_dependent_labels[0];
+            const evaluation = await this.evaluateModel(evaluationOptions);
+            __evaluation = Object.keys(evaluation).reduce((result, evaluationDependentLabel) => {
+                const evalItem = removeEvaluationData(evaluation[evaluationDependentLabel]);
+                if (evaluationDependentLabel === primaryLabel) {
+                    result = Object.assign({}, result, evalItem);
+                    if (this.y_dependent_labels.length > 1)
+                        result.data[evaluationDependentLabel] = evalItem;
+                }
+                else {
+                    result.data[evaluationDependentLabel] = evalItem;
+                }
+                return result;
+            }, { data: {}, });
+        }
+        if (this.config.model_category === 'timeseries') {
+            predictions = await this.timeseriesForecast(options);
+        }
+        else {
+            // console.log({ raw_prediction_inputs, options });
+            unscaledInputs = raw_prediction_inputs;
+            /*
+            unscaledRawInputObject = this.use_empty_objects
+              ? Object.assign({},
+                this.emptyObject,
+                flatten(datasetUnscaledObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+                flatten(unscaledNextValueFunctionObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+                flatten(rawInputPredictionObject, { maxDepth: 2, delimiter:flattenDelimiter, }),
+                flatten(unscaledLastForecastedValue, { maxDepth: 2, delimiter:flattenDelimiter, }),
+                flatten(parsedLocalDate, { maxDepth: 2, delimiter: flattenDelimiter, }),
+              )
+              : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
+            */
+            this.prediction_inputs = raw_prediction_inputs.map(prediction_value => {
+                const pred_val = this.use_empty_objects
+                    ? Object.assign({}, this.emptyObject, flatten(prediction_value, { maxDepth: 2, delimiter: flattenDelimiter, }))
+                    : prediction_value;
+                return this.DataSet.transformObject(pred_val, { checkColumnLength: false, });
+            });
+            const inputMatrix = this.DataSet.columnMatrix(this.x_independent_features, this.prediction_inputs);
+            if (this.validate_training_data) {
+                this.validateTrainingData({ cross_validate_training_data: false, inputMatrix, });
+            }
+            newTransformedPredictions = await this.Model.predict(inputMatrix, predictionOptions);
+            predictions = this.DataSet.reverseColumnMatrix({ vectors: newTransformedPredictions, labels: this.y_dependent_labels, });
+        }
+        if (descalePredictions) {
+            const emptyPrediction = this.y_dependent_labels.reduce((result, label) => {
+                result[label] = 0;
+                return result;
+            }, {});
+            const dimension = this.dimension;
+            // console.log({ descalePredictions, dimension });
+            predictions = predictions.map((val, i) => {
+                const transformed = this.DataSet.inverseTransformObject(val, {});
+                const is_location_open = transformed.is_location_open;
+                let empty = {};
+                if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
+                    if (this.debug)
+                        console.info(`Manually fixing prediction on closed - ${dimension} ${transformed.date}`);
+                    empty = Object.assign({}, emptyPrediction);
+                }
+                // console.log({ val, transformed, empty });
+                const descaled = Object.assign({}, empty, transformed, (includeInputs && this.config.model_category !== 'timeseries') ? unscaledInputs[i] : {}, { __evaluation, });
+                return descaled;
+            });
+        }
+        else if (includeInputs && this.config.model_category !== 'timeseries') {
+            predictions = predictions.map((val, i) => Object.assign({}, this.DataSet.inverseTransformObject(val, {}), includeInputs ? this.prediction_inputs[i] : {}, { __evaluation, }));
+        }
+        if (this.use_empty_objects) {
+            predictions = predictions.map(pred => flatten.unflatten(pred, { delimiter: flattenDelimiter, }));
+        }
+        // console.log({ predictions });
+        return predictions;
+    }
+    async retrainTimeseriesModel(options = {}) {
+        const { inputMatrix, predictionMatrix, fitOptions, } = options;
+        const fit = {
+            ...this.Model.settings.fit,
+            ...fitOptions
+        };
+        // const look_back
+        const x_timeseries = inputMatrix;
+        const y_timeseries = predictionMatrix;
+        const x_matrix = x_timeseries;
+        const y_matrix = y_timeseries;
+        let yShape;
+        this.Model;
+        //_samples, _timeSteps, _features
+        const timeseriesShape = (typeof this.Model.getTimeseriesShape === 'function')
+            ? this.Model.getTimeseriesShape(x_matrix)
+            : undefined;
+        const x_matrix_timeseries = (typeof timeseriesShape !== 'undefined')
+            ? this.Model.reshape(x_matrix, timeseriesShape)
+            : x_matrix;
+        const xs = this.Model.tf.tensor(x_matrix_timeseries, timeseriesShape);
+        const ys = this.Model.tf.tensor(y_matrix, yShape);
+        // this.Model.model.reset_states();
+        await this.Model.model.fit(xs, ys, fit);
+        // this.model.summary();
+        xs.dispose();
+        ys.dispose();
+        return this;
+    }
+    async timeseriesForecast(options = {}) {
+        // const { validateSequentialDataSet, } = options;
+        const retrain_forecast_model_with_predictions = this.retrain_forecast_model_with_predictions;
+        const predictionOptions = Object.assign({ probability: this.config.model_category === 'classification'
+                ? false
+                : true,
+        }, this.prediction_options, options.predictionOptions);
+        const { forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, } = await this.validateTimeseriesData(options);
+        // console.log({ forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, });
+        const forecasts = [];
+        let forecastPredictionIndex = 0;
+        const lastDatasetDate = datasetDates[datasetDates.length - 1];
+        //checkt dataset data for sequential
+        await Promisie.each(forecastDates, 1, async (forecastDate) => {
+            const existingDatasetObjectIndex = forecastDateFirstDataSetDateIndex + forecastPredictionIndex;
+            const rawInputPredictionObject = raw_prediction_inputs[forecastPredictionIndex];
+            let predictionMatrix;
+            let predictionInput;
+            let datasetScaledObject;
+            let datasetUnscaledObject;
+            let unscaledRawInputObject;
+            let scaledRawInputObject;
+            if (forecastDate <= lastOriginalForecastDate) {
+                datasetScaledObject = this.DataSet.data[existingDatasetObjectIndex];
+                datasetUnscaledObject = this.DataSet.inverseTransformObject(datasetScaledObject, {});
+                predictionInput = [
+                    datasetScaledObject,
+                ];
+            }
+            const lastForecastedValue = (forecasts.length)
+                ? forecasts[forecasts.length - 1]
+                : {};
+            let unscaledLastForecastedValue = (Object.keys(lastForecastedValue).length)
+                ? this.DataSet.inverseTransformObject(lastForecastedValue, {})
+                : {};
+            unscaledLastForecastedValue = this.y_dependent_labels.reduce((result, feature) => {
+                if (typeof unscaledLastForecastedValue[feature] !== 'undefined') {
+                    result[feature] = unscaledLastForecastedValue[feature];
+                }
+                return result;
+            }, {});
+            const unscaledDatasetData = [].concat(this.removedFilterdtrainingData, this.DataSet.data.map(scaledDatum => {
+                const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum, {});
+                // console.log({ unscaledDatum });
+                return unscaledDatum;
+            }));
+            const unscaledNextValueFunctionObject = (Object.keys(this.prediction_inputs_next_value_functions).length > 0)
+                ? this.prediction_inputs_next_value_function({
+                    rawInputPredictionObject,
+                    forecastDate,
+                    forecastDates,
+                    forecastPredictionIndex,
+                    existingDatasetObjectIndex: existingDatasetObjectIndex + this.removedFilterdtrainingData.length,
+                    unscaledLastForecastedValue,
+                    // data: this.DataSet.data.splice(forecastDateFirstDataSetDateIndex, 0, forecasts),
+                    data: unscaledDatasetData,
+                    DataSet: this.DataSet,
+                    lastDataRow: Object.assign({}, this.DataSet.data[this.DataSet.data.length - 1], datasetUnscaledObject, rawInputPredictionObject, unscaledLastForecastedValue),
+                })
+                : {};
+            const parsedLocalDate = getLocalParsedDate({ date: forecastDate, time_zone: this.prediction_timeseries_time_zone, dimension, });
+            // console.log({ unscaledNextValueFunctionObject });
+            unscaledRawInputObject = this.use_empty_objects
+                ? Object.assign({}, this.emptyObject, flatten(datasetUnscaledObject || {}, { maxDepth: 2, delimiter: flattenDelimiter, }), flatten(unscaledNextValueFunctionObject || {}, { maxDepth: 2, delimiter: flattenDelimiter, }), flatten(rawInputPredictionObject || {}, { maxDepth: 2, delimiter: flattenDelimiter, }), flatten(unscaledLastForecastedValue, { maxDepth: 2, delimiter: flattenDelimiter, }), flatten(parsedLocalDate, { maxDepth: 2, delimiter: flattenDelimiter, }))
+                : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
+            // console.log({ unscaledRawInputObject });
+            scaledRawInputObject = this.DataSet.transformObject(unscaledRawInputObject, { checkColumnLength: false, });
+            predictionInput = [
+                scaledRawInputObject,
+            ];
+            if (predictionInput) {
+                const inputMatrix = this.DataSet.columnMatrix(this.x_independent_features, predictionInput);
+                if (this.validate_training_data) {
+                    this.validateTrainingData({ cross_validate_training_data: false, inputMatrix, });
+                }
+                predictionMatrix = await this.Model.predict(inputMatrix, predictionOptions);
+                if (retrain_forecast_model_with_predictions && forecastDate > lastDatasetDate) {
+                    await this.retrainTimeseriesModel({
+                        inputMatrix,
+                        predictionMatrix,
+                    });
+                }
+                const newPredictionObject = this.DataSet.reverseColumnMatrix({ vectors: predictionMatrix, labels: this.y_dependent_labels, })[0];
+                // console.log({ newPredictionObject });
+                const forecast = Object.assign({}, datasetScaledObject, scaledRawInputObject, newPredictionObject, parsedLocalDate, {
+                    [this.prediction_timeseries_date_feature]: forecastDate,
+                });
+                // console.log({forecast})
+                if (forecastDate > lastOriginalForecastDate) {
+                    this.DataSet.data.splice(existingDatasetObjectIndex, 0, forecast);
+                }
+                forecasts.push(forecast);
+            }
+            forecastPredictionIndex++;
+            return predictionMatrix;
+        });
+        return forecasts;
+    }
+    evaluateClassificationAccuracy(options = {}) {
+        const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
+        const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+        const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+        const CM = ConfusionMatrix.fromLabels(actuals, estimates);
+        const accuracy = CM.getAccuracy();
+        return {
+            accuracy,
+            matrix: CM.matrix,
+            labels: CM.labels,
+            actuals, estimates,
+        };
+    }
+    evaluateRegressionAccuracy(options = {}) {
+        const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
+        const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+        const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+        const standardError = ModelXData.util.standardError(actuals, estimates);
+        const rSquared = ModelXData.util.rSquared(actuals, estimates);
+        const adjustedRSquared = ModelXData.util.adjustedRSquared({
+            actuals,
+            estimates,
+            rSquared,
+            sampleSize: actuals.length,
+            independentVariables: this.x_independent_features.length,
+        });
+        const hasZeroActual = Boolean(actuals.filter(a => a === 0 || isNaN(a)).length);
+        const originalMeanAbsolutePercentageError = ModelXData.util.meanAbsolutePercentageError(actuals, estimates);
+        const MAD = ModelXData.util.meanAbsoluteDeviation(actuals, estimates);
+        const MEAN = ModelXData.util.mean(actuals);
+        let metric = 'meanAbsolutePercentageError';
+        let reason = 'Actuals do not contain Zero values';
+        if (hasZeroActual) {
+            metric = 'MAD over MEAN ratio';
+            reason = 'Actuals contain Zero values';
+        }
+        let errorPercentage = (hasZeroActual) ? (MAD / MEAN) : originalMeanAbsolutePercentageError;
+        if (errorPercentage < 0)
+            errorPercentage = 0;
+        if (errorPercentage > 1)
+            errorPercentage = 1;
+        const accuracyPercentage = 1 - errorPercentage;
+        return {
+            standardError, rSquared, adjustedRSquared, actuals, estimates,
+            meanForecastError: ModelXData.util.meanForecastError(actuals, estimates),
+            meanAbsoluteDeviation: ModelXData.util.meanAbsoluteDeviation(actuals, estimates),
+            trackingSignal: ModelXData.util.trackingSignal(actuals, estimates),
+            meanSquaredError: ModelXData.util.meanSquaredError(actuals, estimates),
+            meanAbsolutePercentageError: errorPercentage,
+            accuracyPercentage,
+            metric,
+            reason,
+            originalMeanAbsolutePercentageError,
+        };
+    }
+    async evaluateModel(options = {}) {
+        await this.checkTrainingStatus(options);
+        const x_indep_matrix_test = options.x_indep_matrix_test || this.x_indep_matrix_test;
+        const y_dep_matrix_test = options.y_dep_matrix_test || this.y_dep_matrix_test;
+        const predictionOptions = Object.assign({
+            probability: this.config.model_category === 'classification'
+                ? false
+                : true,
+        }, this.prediction_options, options.predictionOptions);
+        const estimatesPredictions = await this.Model.predict(x_indep_matrix_test, predictionOptions);
+        const estimatedValues = this.DataSet.reverseColumnMatrix({ vectors: estimatesPredictions, labels: this.y_dependent_labels, });
+        const actualValues = this.DataSet.reverseColumnMatrix({ vectors: y_dep_matrix_test, labels: this.y_dependent_labels, });
+        const dimension = this.dimension;
+        const emptyPrediction = this.y_dependent_labels.reduce((result, label) => {
+            result[label] = 0;
+            return result;
+        }, {});
+        const estimatesDescaled = estimatedValues.map((val, i) => {
+            let inverseTransformedObject = this.DataSet.inverseTransformObject(val, {});
+            if (this.config.model_category === 'timeseries') {
+                const scaledInput = x_indep_matrix_test[i];
+                const [inputObject,] = this.DataSet.reverseColumnMatrix({ vectors: [scaledInput,], labels: this.x_independent_features, });
+                // console.log({ scaledInput, inputObject });
+                const inverseInputObject = this.DataSet.inverseTransformObject(inputObject, {});
+                // console.log({ inverseInputObject });
+                const is_location_open = inputObject.is_location_open;
+                const { year, month, day, hour, } = inverseInputObject;
+                // console.log({
+                //   'inverseInputObject.is_location_open':inverseInputObject.is_location_open,
+                //   'inputObject.is_location_open':inputObject.is_location_open,
+                //   year, month, day, hour,
+                //   is_location_open,
+                // });
+                if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
+                    // console.log('before predictionMatrix', predictionMatrix);
+                    console.info(`Manually fixing prediction on closed - ${dimension} ${year}-${month}-${day}T${hour}`);
+                    inverseTransformedObject = emptyPrediction;
+                    // inverseTransformedObject = Object.keys(inverseInputObject).reduce((result, prop) => {
+                    //   result[ prop ] = (inverseTransformedObject[prop]<0)?0:inverseTransformedObject[prop];
+                    //   return result;
+                    // }, {});
+                    //   console.log('after predictionMatrix', predictionMatrix);
+                }
+            }
+            const formattedInverse = this.use_empty_objects
+                ? flatten.unflatten(inverseTransformedObject, { delimiter: flattenDelimiter, })
+                : inverseTransformedObject;
+            return formattedInverse;
+        });
+        const actualsDescaled = actualValues.map(val => {
+            const inverseTransformedObject = this.DataSet.inverseTransformObject(val, {});
+            return this.use_empty_objects
+                ? flatten.unflatten(inverseTransformedObject, { delimiter: flattenDelimiter, })
+                : inverseTransformedObject;
+        });
+        const evaluationDependentLabels = Array.isArray(this.y_raw_dependent_labels) && this.y_raw_dependent_labels.length
+            ? this.y_raw_dependent_labels
+            : this.y_dependent_labels;
+        evaluationDependentLabels.splice(this.max_evaluation_outputs);
+        if (this.config.model_category === 'classification') {
+            return evaluationDependentLabels.reduce((evaluation, dependent_feature_label) => {
+                evaluation[dependent_feature_label] = this.evaluateClassificationAccuracy({ dependent_feature_label, estimatesDescaled, actualsDescaled, });
+                return evaluation;
+            }, {});
+        }
+        else {
+            return evaluationDependentLabels.reduce((evaluation, dependent_feature_label) => {
+                evaluation[dependent_feature_label] = this.evaluateRegressionAccuracy({ dependent_feature_label, estimatesDescaled, actualsDescaled, });
+                return evaluation;
+            }, {});
+        }
     }
 }

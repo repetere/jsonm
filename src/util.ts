@@ -177,3 +177,159 @@ export function getMockClassification() {
     prediction_inputs,
   }
 }
+
+
+  /*
+  describe('Single Value Timeseries Predictions', () => {
+    it('should forecast the number of passengers', async () => {
+      const csvPath = path.join(__dirname, '../manual/media/example/tensorflowcsv/airline-trips-sales.csv');
+
+      const airline_prediction_inputs = [
+        {
+          Month: '1960-01',
+          Flights: 47,
+          Stops: 4,
+          Tickets: 417,
+        },
+        {
+          Month: '1960-02',
+          Flights: 31,
+          Stops: 3,
+          Tickets: 391,
+        },
+        {
+          Month: '1960-03',
+          Flights: 49,
+          Stops: 4,
+          Tickets: 419,
+        },
+        {
+          Month: '1960-04',
+          Flights: 41,
+          Stops: 4,
+          Tickets: 461,
+        },
+        {
+          Month: '1960-05',
+          Flights: 42,
+          Stops: 4,
+          Tickets: 472,
+        },
+        {
+          Month: '1960-06',
+          Flights: 55,
+          Stops: 5,
+          Tickets: 535,
+        },
+        {
+          Month: '1960-07',
+          Flights: 62,
+          Stops: 6,
+          Tickets: 622,
+        },///
+        {
+          Month: '1960-08',
+          Flights: 66,
+          Stops: 6,
+          Tickets: 606,
+        },
+        {
+          Month: '1960-09',
+          Flights: 58,
+          Stops: 5,
+          Tickets: 508,
+        },
+        {
+          Month: '1960-10',
+          Flights: 41,
+          Stops: 4,
+          Tickets: 461,
+        },
+        {
+          Month: '1960-11',
+          Flights: 30,
+          Stops: 3,
+          Tickets: 390,
+        },
+        {
+          Month: '1960-12',
+          Flights: 42,
+          Stops: 4,
+          Tickets: 432,
+        },
+        {
+          Month: '1961-01',
+          Flights: 47,
+          Stops: 4,
+          Tickets: 427,
+        },
+        {
+          Month: '1961-02',
+          Flights: 41,
+          Stops: 4,
+          Tickets: 401,
+        },
+        {
+          Month: '1961-03',
+          Flights: 49,
+          Stops: 4,
+          Tickets: 429,
+        },
+      ];
+
+      const independentVariables = [
+        'Passengers',
+      ];
+      const dependentVariables = [
+        'Passengers',
+      ];
+      const airlineColumns = [].concat(independentVariables, dependentVariables);
+      const airlinetrainning_feature_column_options = airlineColumns
+        .reduce((result, val) => {
+          result[val] = ['scale', 'standard',];
+          return result;
+        }, {});
+      const airlineData = await csv.loadCSV(csvPath);
+      // console.log(airlineData.slice(100));
+      const timeseriesTestEnvParameters = {
+        modelDocument: {
+          model_configuration: {
+            model_type: 'ai-fast-forecast',
+            // model_type:'ai-classification',
+            model_category: 'timeseries',
+          },
+        },
+        
+      };
+      const timeseriesModelTest = new ModelX({
+        model_type:ModelTypes.FAST_FORECAST,
+        training_options: {
+          fit: {
+            epochs: 50,
+            batchSize: 1,
+          },
+          stateful: true,
+          // lookBack: 3,
+        },
+        trainingData: airlineData,
+        training_feature_column_options: airlinetrainning_feature_column_options,
+        x_independent_features: independentVariables,
+        y_dependent_labels: dependentVariables,
+        prediction_timeseries_date_feature: 'Month',
+        prediction_timeseries_start_date: '1960-01',
+        prediction_timeseries_end_date: '1962-12',
+        // y_raw_dependent_labels:rawDependentVariables,
+      });
+  
+      const predictions = await timeseriesModelTest.predictModel({
+        retrain: true,
+        // cross_validate_training_data: false,
+        // fixedModel: false,
+        prediction_inputs: airline_prediction_inputs,
+      });
+      // console.log({ predictions });
+      expect(predictions).toBeInstanceOf('array');
+      expect(predictions.length).toBe(36);
+    });
+  });
+  */

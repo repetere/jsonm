@@ -71,8 +71,8 @@ export type ModelConfiguration = {
   prediction_timeseries_date_feature?: string;
   prediction_timeseries_date_format?: string;
   prediction_timeseries_dimension_feature?: string;
-  prediction_timeseries_start_date?: Date;
-  prediction_timeseries_end_date?: Date;
+  prediction_timeseries_start_date?: Date | string;
+  prediction_timeseries_end_date?: Date | string;
   dimension?: Dimensions;
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
@@ -314,6 +314,7 @@ export interface sumPreviousRows{
 }
   
 export function sumPreviousRows(this: SumPreviousRowContext, options: SumPreviousRowsOptions): number {
+  // console.log('sumPreviousRows', { options });
   const { property, rows, offset = 1, } = options;
   const reverseTransform = Boolean(this.reverseTransform);
   const OFFSET = (typeof this.offset === 'number') ? this.offset : offset;
@@ -1126,7 +1127,7 @@ export class ModelX implements ModelContext {
       // console.log('this.x_independent_features',this.x_independent_features)
       // console.log('this.training_feature_column_options',this.training_feature_column_options)
       // console.log('this.validate_training_data',this.validate_training_data)
-      await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
+      await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train, undefined, undefined, undefined);
     } else {
       // console.log('this.DataSet.data',this.DataSet.data)
       // console.log('this.x_indep_matrix_train',this.x_indep_matrix_train)
@@ -1139,7 +1140,7 @@ export class ModelX implements ModelContext {
       // console.log('this.y_dependent_labels',this.y_dependent_labels)
       // console.log('this.training_feature_column_options',this.training_feature_column_options)
       // console.log('this.validate_training_data',this.validate_training_data)
-      await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train);
+      await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train, undefined, undefined, undefined);
     }
     this.status.trained = true;
     this.status.lastTrained = new Date();
@@ -1225,7 +1226,7 @@ export class ModelX implements ModelContext {
       const dimension = this.dimension;
       // console.log({ descalePredictions, dimension });
       predictions = predictions.map((val, i) => {
-        const transformed = this.DataSet.inverseTransformObject(val);
+        const transformed = this.DataSet.inverseTransformObject(val,{});
         const is_location_open = transformed.is_location_open;
         let empty = {};
         if ((dimension === 'hourly' || dimension === 'daily') && this.entity && !is_location_open) {
@@ -1245,7 +1246,7 @@ export class ModelX implements ModelContext {
     } else if (includeInputs && this.config.model_category !== 'timeseries') {
       predictions = predictions.map((val, i) => Object.assign(
         {},
-        this.DataSet.inverseTransformObject(val),
+        this.DataSet.inverseTransformObject(val,{}),
         includeInputs ? this.prediction_inputs[ i ] : {},
         { __evaluation, },
       ));
@@ -1313,7 +1314,7 @@ export class ModelX implements ModelContext {
       let scaledRawInputObject;
       if (forecastDate <= lastOriginalForecastDate) {
         datasetScaledObject = this.DataSet.data[ existingDatasetObjectIndex ];
-        datasetUnscaledObject = this.DataSet.inverseTransformObject(datasetScaledObject);
+        datasetUnscaledObject = this.DataSet.inverseTransformObject(datasetScaledObject,{});
         predictionInput = [
           datasetScaledObject,
         ];
@@ -1322,7 +1323,7 @@ export class ModelX implements ModelContext {
         ? forecasts[ forecasts.length - 1 ]
         : {};
       let unscaledLastForecastedValue = (Object.keys(lastForecastedValue).length)
-        ? this.DataSet.inverseTransformObject(lastForecastedValue)
+        ? this.DataSet.inverseTransformObject(lastForecastedValue,{})
         : {};
       unscaledLastForecastedValue = this.y_dependent_labels.reduce((result, feature) => {
         if (typeof unscaledLastForecastedValue[ feature ] !== 'undefined') {
@@ -1331,7 +1332,7 @@ export class ModelX implements ModelContext {
         return result;
       }, {});
       const unscaledDatasetData = [].concat(this.removedFilterdtrainingData, this.DataSet.data.map(scaledDatum => {
-        const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum);
+        const unscaledDatum = this.DataSet.inverseTransformObject(scaledDatum,{});
         // console.log({ unscaledDatum });
         return unscaledDatum;
       }));
@@ -1476,12 +1477,12 @@ export class ModelX implements ModelContext {
       return result;
     }, {});
     const estimatesDescaled = estimatedValues.map((val, i) => {
-      let inverseTransformedObject = this.DataSet.inverseTransformObject(val);
+      let inverseTransformedObject = this.DataSet.inverseTransformObject(val,{});
       if (this.config.model_category === 'timeseries') {
         const scaledInput = x_indep_matrix_test[ i ];
         const [inputObject,] = this.DataSet.reverseColumnMatrix({ vectors: [scaledInput,], labels: this.x_independent_features, }); 
         // console.log({ scaledInput, inputObject });
-        const inverseInputObject = this.DataSet.inverseTransformObject(inputObject);
+        const inverseInputObject = this.DataSet.inverseTransformObject(inputObject,{});
         // console.log({ inverseInputObject });
         const is_location_open = inputObject.is_location_open;
         const { year, month, day, hour, } = inverseInputObject;
@@ -1512,7 +1513,7 @@ export class ModelX implements ModelContext {
       return formattedInverse;
     });
     const actualsDescaled = actualValues.map(val => {
-      const inverseTransformedObject = this.DataSet.inverseTransformObject(val);
+      const inverseTransformedObject = this.DataSet.inverseTransformObject(val,{});
       return this.use_empty_objects
         ? flatten.unflatten(inverseTransformedObject, { delimiter:flattenDelimiter, })
         : inverseTransformedObject;

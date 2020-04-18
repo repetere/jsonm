@@ -289,3 +289,10 @@ export function removeMockDataFromDataSet(DataSet, { mockEncodedData = [], inclu
     DataSet.data.splice(DataSet.data.length - newMockData.length, newMockData.length);
     return DataSet;
 }
+export function removeEvaluationData(evaluation) {
+    evaluation.actuals = undefined;
+    delete evaluation.actuals;
+    evaluation.estimates = undefined;
+    delete evaluation.estimates;
+    return evaluation;
+}

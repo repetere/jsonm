@@ -157,3 +157,4 @@ export declare function removeMockDataFromDataSet(DataSet: ModelXDataTypes.DataS
     mockEncodedData?: ModelXDataTypes.Data;
     includeConstants?: boolean;
 }): ModelXDataTypes.DataSet;
+export declare function removeEvaluationData(evaluation: ModelXDataTypes.Datum): ModelXDataTypes.Datum;

@@ -1,7 +1,7 @@
 # ModelX
 [![Coverage Status](https://coveralls.io/repos/github/repetere/modelx/badge.svg?branch=master)](https://coveralls.io/github/repetere/modelx?branch=master) ![Build, Test & Coverage](https://github.com/repetere/modelx/workflows/Build,%20Test%20&%20Coverage/badge.svg)
 
-Construct AI &amp; ML models with JSON using Tensorflow
+Construct AI &amp; ML models with JSON using TypeScript & Tensorflow
 
 ## Getting started
 Clone the repo and drop your module in the src directory.

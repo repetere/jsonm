@@ -1,6 +1,6 @@
 {
-  "name": "@modelx/modelx",
-  "version": "1.0.0",
+  "name": "@modelx/jsonm",
+  "version": "0.9.0",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
   "main": "dist/index.cjs.js",
   "module": "build/index.js",
@@ -11,7 +11,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/repetere/modelx.git"
+    "url": "git+https://github.com/repetere/jsonm.git"
   },
   "keywords": [
     "regression",
@@ -30,9 +30,9 @@
     "email": "yaw.etse@email.com"
   },
   "bugs": {
-    "url": "https://github.com/repetere/modelx/issues"
+    "url": "https://github.com/repetere/jsonm/issues"
   },
-  "homepage": "https://github.com/repetere/modelx#readme",
+  "homepage": "https://github.com/repetere/jsonm#readme",
   "scripts": {
     "dev": "rollup -c -w",
     "benchmark": "node -r esm  benchmark/main_bmrk.js",

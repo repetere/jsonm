@@ -26597,7 +26597,7 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-var __dirname = '/Users/yawjosephetse/Developer/github/repetere/modelx/node_modules/csvtojson/libs/core';
+var __dirname = '/Users/yawjosephetse/Developer/github/repetere/jsonm/node_modules/csvtojson/libs/core';
 
 var empty = {};
 

@@ -10,7 +10,7 @@ import json from '@rollup/plugin-json';
 import pkg from "./package.json";
 import alias from '@rollup/plugin-alias';
 
-const name = 'ModelX';
+const name = 'JSONM';
 const external = [
   // "react-dom",
   'wordnet-db',

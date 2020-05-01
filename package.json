@@ -43,7 +43,7 @@
     "coverage": "coveralls"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "3.0.1",
+    "@rollup/plugin-alias": "3.1.0",
     "@rollup/plugin-commonjs": "11.0.2",
     "@rollup/plugin-json": "4.0.2",
     "@rollup/plugin-node-resolve": "7.1.1",

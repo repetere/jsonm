@@ -1,4 +1,4 @@
-var ModelX = (function (exports) {
+var JSONM = (function (exports) {
             'use strict';
 
             var global$1 = (typeof global !== "undefined" ? global :
@@ -26548,7 +26548,7 @@ var ModelX = (function (exports) {
             }.call(commonjsGlobal));
             });
 
-            var __dirname = '/Users/yawjosephetse/Developer/github/repetere/modelx/node_modules/csvtojson/libs/core';
+            var __dirname = '/Users/yawjosephetse/Developer/github/repetere/jsonm/node_modules/csvtojson/libs/core';
 
             var fs = {};
 

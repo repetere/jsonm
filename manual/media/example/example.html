@@ -28,11 +28,11 @@
       el.prepend(resultPre);
       // el.appendChild(resultPre);
     }
-    const { ModelTypes, } = window.ModelX;
+    const { ModelTypes, } = window.JSONM;
     </script>
   </head>
   <body>
-    <h1>ModelX</h1>
+    <h1>JSONM ModelX</h1>
     <h2>Classification</h2>
 <!--
     <code>
@@ -101,7 +101,7 @@ const dependentVariables = [
               // console.log({predictions});
             }
           });
-          const classificationModelTest = new ModelX.ModelX({
+          const classificationModelTest = new JSONM.ModelX({
             debug:false,
             model_type: ModelTypes.CLASSIFICATION,
             independent_variables,

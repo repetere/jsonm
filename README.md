@@ -1,5 +1,5 @@
-# ModelX
-[![Coverage Status](https://coveralls.io/repos/github/repetere/modelx/badge.svg?branch=master)](https://coveralls.io/github/repetere/modelx?branch=master) ![Build, Test & Coverage](https://github.com/repetere/modelx/workflows/Build,%20Test%20&%20Coverage/badge.svg)
+# JSONM
+[![Coverage Status](https://coveralls.io/repos/github/repetere/jsonm/badge.svg?branch=master)](https://coveralls.io/github/repetere/jsonm?branch=master) ![Build, Test & Coverage](https://github.com/repetere/jsonm/workflows/Build,%20Test%20&%20Coverage/badge.svg)
 
 Construct AI &amp; ML models with JSON using TypeScript & Tensorflow
 

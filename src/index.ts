@@ -1,2 +1,5 @@
-export { ModelX, ModelTypes, ModelCategories, getGeneratedStatefulFunction, sumPreviousRows, } from './model';
+export {
+  ModelX, ModelTypes, ModelCategories, getGeneratedStatefulFunction, sumPreviousRows,
+  ModelX as Model,
+} from './model';
 // export { MDX, getModel, } from './mdx';

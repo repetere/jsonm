@@ -109,6 +109,15 @@ export interface ModelContext  {
   entity?: Entity;
   DataSet?: ModelXData.DataSet;
 };
+
+export interface timeseriesCalculation{
+  (options:{
+    dimension?: Dimensions;
+    DataSetData?: ModelXDataTypes.Datum;
+    timeseries_date_format?: string;
+    timeseries_date_feature?: string;  
+  }): TimeseriesDimension;
+}
 export type ModelTrainningOptions = {
   cross_validate_training_data?: boolean;
   use_next_value_functions_for_training_data?: boolean;
@@ -403,6 +412,11 @@ export class ModelX implements ModelContext {
   input_independent_features?: AutoFeature[];
   output_dependent_features?: AutoFeature[];
   max_evaluation_outputs: number;
+  static prediction_timeseries_date_format: string;
+  static prediction_timeseries_date_feature: string;
+  static dimension: Dimensions;
+  static prediction_timeseries_dimension_feature: string;
+  getTimeseriesDimension: timeseriesCalculation;
 
   constructor(configuration: ModelConfiguration, options: ModelOptions = {}) {
     this.debug = typeof configuration.debug === 'boolean' ? configuration.debug : true;
@@ -529,15 +543,17 @@ export class ModelX implements ModelContext {
     this.original_data_test = [];
     this.original_data_train = [];
     this.forecastDates = [];
+    this.getTimeseriesDimension = ModelX.calcTimeseriesDimension.bind(this);
     return this;
   }
   /**
    * Attempts to automatically figure out the time dimension of each date feature (hourly, daily, etc) and the format of the date property (e.g. JS Date Object, or ISO String, etc) from the dataset data
    */
-  getTimeseriesDimension(options: { dimension?: Dimensions; DataSetData?: ModelXDataTypes.Datum } = {}): TimeseriesDimension {
-    let timeseriesDataSetDateFormat = this.prediction_timeseries_date_format;
+  static calcTimeseriesDimension(options: { dimension?: Dimensions; DataSetData?: ModelXDataTypes.Datum; timeseries_date_format?: string; timeseries_date_feature?: string;  } = {}): TimeseriesDimension {
+    let timeseriesDataSetDateFormat = options.timeseries_date_format || this.prediction_timeseries_date_format;
     //@ts-ignore
     let timeseriesForecastDimension = options.dimension || this.dimension;
+    let timeseriesDateFeature = options.timeseries_date_feature || this.prediction_timeseries_date_feature;
     //@ts-ignore
     let DataSetData:ModelXDataTypes.Datum = options.DataSetData || this.DataSet && this.DataSet.data ||[];
     if (timeseriesForecastDimension && timeseriesDataSetDateFormat) {
@@ -554,17 +570,17 @@ export class ModelX implements ModelContext {
       if (DataSetData.length && DataSetData[0][this.prediction_timeseries_dimension_feature]) {
         timeseriesForecastDimension = DataSetData[0][this.prediction_timeseries_dimension_feature];
       } 
-      if (DataSetData.length > 1 && DataSetData[0][this.prediction_timeseries_date_feature]) {
-        const recentDateField = DataSetData[ 1 ][ this.prediction_timeseries_date_feature ];
+      if (DataSetData.length > 1 && DataSetData[0][timeseriesDateFeature]) {
+        const recentDateField = DataSetData[ 1 ][ timeseriesDateFeature ];
         const parsedRecentDateField = getLuxonDateTime({
           dateObject: recentDateField,
-          dateFormat: this.prediction_timeseries_date_format,
+          dateFormat: timeseriesDataSetDateFormat,
         });
         timeseriesDataSetDateFormat = parsedRecentDateField.format;
         const test_end_date = parsedRecentDateField.date;
         const test_start_date = getLuxonDateTime({
-          dateObject: DataSetData[ 0 ][ this.prediction_timeseries_date_feature ],
-          dateFormat: this.prediction_timeseries_date_format,
+          dateObject: DataSetData[ 0 ][ timeseriesDateFeature ],
+          dateFormat: timeseriesDataSetDateFormat,
         }).date;
         // console.log({parsedRecentDateField})
 

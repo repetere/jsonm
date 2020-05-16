@@ -67,7 +67,7 @@
     "rollup-plugin-node-builtins": "2.1.2",
     "rollup-plugin-node-globals": "1.4.0",
     "rollup-plugin-terser-js": "1.0.2",
-    "ts-jest": "25.5.1",
+    "ts-jest": "26.0.0",
     "tslib": "2.0.0",
     "typedoc": "0.17.6",
     "typescript": "3.9.2"

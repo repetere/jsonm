@@ -198,7 +198,8 @@ describe('ModelX', () => {
       expect(predictions[0].previous_3_stops).toBe(11);
     }, 35000);
   });
-  
+  //TODO: uncomment for speed
+  /*
   describe('Multiple Variable LSTM Timeseries Predictions', () => {
     it('should forecast the number of passengers', async () => {
       const csvPath = path.join(__dirname, '../manual/media/example/tensorflowcsv/airline-trips-sales.csv');
@@ -358,6 +359,8 @@ describe('ModelX', () => {
       expect(predictions[0].previous_3_stops).toBe(11);
     },120000);
   });
+  */
+  //TODO: uncomment for speed
   describe('Multi-Variate Linear Regression', () => {
     it('should predict boston housing prices', async () => {
       const independentVariables = [
@@ -407,6 +410,7 @@ describe('ModelX', () => {
         x_independent_features: independentVariables,
         y_dependent_labels: dependentVariables,
       });
+      console.log('backend',regressionModelTest.Model.tf.getBackend())
       // await regressionModelTest.trainModel();
       // const modelEvaluation = await regressionModelTest.evaluateModel();
       const ranModel = await regressionModelTest.evaluateModel({

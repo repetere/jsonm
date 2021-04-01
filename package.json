@@ -62,7 +62,7 @@
     "enzyme-adapter-react-16": "1.15.2",
     "faker": "4.1.0",
     "jest": "26.0.1",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.1",
     "rollup": "2.10.2",
     "rollup-plugin-node-builtins": "2.1.2",
     "rollup-plugin-node-globals": "1.4.0",

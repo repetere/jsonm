@@ -3,17 +3,18 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@modelx/data</title>
-	<meta name="description" content="">
+	<title>@modelx/jsonm</title>
+	<meta name="description" content="Documentation for @modelx/jsonm">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -22,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@modelx/data</a>
+					<a href="index.html" class="title">@modelx/jsonm</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -40,8 +41,6 @@
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
 							<input type="checkbox" id="tsd-filter-externals" checked />
 							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,12 +50,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
-			</ul>
-			<h1>@modelx/data</h1>
+			<h1>@modelx/jsonm</h1>
 		</div>
 	</div>
 </header>
@@ -64,477 +58,56 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<a href="#modelxdata" id="modelxdata" style="color: inherit; text-decoration: none;">
-					<h1>@modelx/data</h1>
+				<a href="#jsonm" id="jsonm" style="color: inherit; text-decoration: none;">
+					<h1>JSONM</h1>
 				</a>
-				<p><a href="https://coveralls.io/github/repetere/modelx-data?branch=master"><img src="https://coveralls.io/repos/github/repetere/modelx-data/badge.svg?branch=master" alt="Coverage Status"></a> <img src="https://github.com/repetere/modelx-data/workflows/Build,%20Test%20&%20Coverage/badge.svg" alt="Build, Test &amp; Coverage"></p>
-				<p>quickly generate UMDs and other module types with rollup and typescript</p>
+				<p><a href="https://coveralls.io/github/repetere/jsonm?branch=master"><img src="https://coveralls.io/repos/github/repetere/jsonm/badge.svg?branch=master" alt="Coverage Status"></a> <img src="https://github.com/repetere/jsonm/workflows/Build,%20Test%20&%20Coverage/badge.svg" alt="Build, Test &amp; Coverage"></p>
+				<p>Construct AI &amp; ML models with JSON using TypeScript &amp; Tensorflow</p>
 				<a href="#getting-started" id="getting-started" style="color: inherit; text-decoration: none;">
 					<h2>Getting started</h2>
 				</a>
 				<p>Clone the repo and drop your module in the src directory.</p>
-				<pre><code class="language-shell"><span class="hljs-meta">#</span><span class="bash"> Install Prerequisites</span>
-<span class="hljs-meta">$</span><span class="bash"> npm install rollup typedoc jest sitedown --g</span></code></pre>
+				<pre><code class="language-shell"><span style="color: #008000"># Install Prerequisites</span>
+<span style="color: #000000">$ npm install rollup typedoc jest sitedown --g</span>
+</code></pre>
 				<a href="#basic-usage" id="basic-usage" style="color: inherit; text-decoration: none;">
 					<h2>Basic Usage</h2>
 				</a>
-				<pre><code class="language-shell"><span class="hljs-meta">$</span><span class="bash"> npm run build <span class="hljs-comment">#builds type declarations, created bundled artifacts with rollup and generates documenation</span></span></code></pre>
-				<a href="#description" id="description" style="color: inherit; text-decoration: none;">
-					<h2>Description</h2>
-				</a>
-				<p><strong>ModelScript</strong> is a javascript module with simple and efficient tools for data mining and data analysis in JavaScript. <strong>ModelScript</strong> can be used with <a href="https://github.com/mljs/ml">ML.js</a>, <a href="https://github.com/StratoDem/pandas-js">pandas-js</a>, and <a href="https://github.com/numjs/numjs">numjs</a>, to approximate the equivalent R/Python tool chain in JavaScript.</p>
-				<p>In Python, data preparation is typically done in a DataFrame, ModelScript encourages a more R like workflow where the data preparation is in it&#39;s native structure.</p>
-				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
-					<h3>Installation</h3>
-				</a>
-				<pre><code class="language-sh">$ npm i modelscript</code></pre>
-				<a href="#a-hrefhttpsgithubcomrepeteremodelscriptblobmasterdocsapimdfull-documentationa" id="a-hrefhttpsgithubcomrepeteremodelscriptblobmasterdocsapimdfull-documentationa" style="color: inherit; text-decoration: none;">
-					<h3><a href="https://github.com/repetere/modelscript/blob/master/docs/api.md">Full Documentation</a></h3>
-				</a>
-				<a href="#usage-basic" id="usage-basic" style="color: inherit; text-decoration: none;">
-					<h3>Usage (basic)</h3>
-				</a>
-				<p>ModelScript is an EcmaScript module and designed to be imported in an ES2015+ environment. In order to use in older environment, please use <code>const modelscript = require(&#39;modelscript/build/modelscript.cjs.js&#39;)</code> for older versions of node and <code>&lt;script type=&quot;text/javascript&quot; src=&quot;.../path/to/.../modelscript/build/modelscript.umd.js&quot;/&gt;</code></p>
-				<pre><code class="language-javascript"><span class="hljs-string">"modelscript"</span> : {
-  <span class="hljs-attr">ml</span>:{ <span class="hljs-comment">//see https://github.com/mljs/ml</span>
-    UpperConfidenceBound [Class: UpperConfidenceBound]{ <span class="hljs-comment">// Implementation of the Upper Confidence Bound algorithm</span>
-      predict(), <span class="hljs-comment">//returns next action based off of the upper confidence bound</span>
-      learn(), <span class="hljs-comment">//single step training method</span>
-      train(), <span class="hljs-comment">//training method for upper confidence bound calculations</span>
-    },
-    ThompsonSampling [Class: ThompsonSampling]{ <span class="hljs-comment">//Implementation of the Thompson Sampling algorithm</span>
-      predict(), <span class="hljs-comment">//returns next action based off of the thompson sampling</span>
-      learn(), <span class="hljs-comment">//single step training method</span>
-      train(), <span class="hljs-comment">//training method for thompson sampling calculations</span>
-    },
-  },
-  <span class="hljs-attr">nlp</span>:{ <span class="hljs-comment">//see https://github.com/NaturalNode/natural</span>
-    ColumnVectorizer [Class: ColumnVectorizer]{ <span class="hljs-comment">//class creating sparse matrices from a corpus</span>
-      get_tokens(), <span class="hljs-comment">// Returns a distinct array of all tokens after fit_transform</span>
-      get_vector_array(), <span class="hljs-comment">//Returns array of arrays of strings for dependent features from sparse matrix word map</span>
-      fit_transform(options), <span class="hljs-comment">//Fits and transforms data by creating column vectors (a sparse matrix where each row has every word in the corpus as a column and the count of appearances in the corpus)</span>
-      get_limited_features(options), <span class="hljs-comment">//Returns limited sets of dependent features or all dependent features sorted by word count</span>
-      evaluateString(testString), <span class="hljs-comment">//returns word map with counts</span>
-      evaluate(testString), <span class="hljs-comment">//returns new matrix of words with counts in columns</span>
-    }
-  },
-  <span class="hljs-attr">csv</span>:{
-    <span class="hljs-attr">loadCSV</span>: [<span class="hljs-built_in">Function</span>: loadCSV], <span class="hljs-comment">//asynchronously loads CSVs, either a filepath or a remote URI</span>
-    <span class="hljs-attr">loadTSV</span>: [<span class="hljs-built_in">Function</span>: loadTSV], <span class="hljs-comment">//asynchronously loads TSVs, either a filepath or a remote URI</span>
-  },
-  <span class="hljs-attr">model_selection</span>: {
-    <span class="hljs-attr">train_test_split</span>: [<span class="hljs-built_in">Function</span>: train_test_split], <span class="hljs-comment">// splits data into training and testing sets</span>
-    <span class="hljs-attr">cross_validation_split</span>: [<span class="hljs-built_in">Function</span>: kfolds], <span class="hljs-comment">//splits data into k-folds</span>
-    <span class="hljs-attr">cross_validate_score</span>: [<span class="hljs-built_in">Function</span>: cross_validate_score],<span class="hljs-comment">//test model variance and bias</span>
-    <span class="hljs-attr">grid_search</span>: [<span class="hljs-built_in">Function</span>: grid_search], <span class="hljs-comment">// tune models with grid search for optimal performance</span>
-  },
-  DataSet [Class: DataSet]: { <span class="hljs-comment">//class for manipulating an array of objects (typically from CSV data)</span>
-    columnMatrix(vectors), <span class="hljs-comment">//returns a matrix of values by combining column arrays into a matrix</span>
-    columnArray(columnName, options), <span class="hljs-comment">// - returns a new array of a selected column from an array of objects, can filter, scale and replace values</span>
-    columnReplace(columnName, options), <span class="hljs-comment">// - returns a new array of a selected column from an array of objects and replaces empty values, encodes values and scales values</span>
-    columnScale(columnName, options), <span class="hljs-comment">// - returns a new array of scaled values which can be reverse (descaled). The scaling transformations are stored on the DataSet</span>
-    columnDescale(columnName, options), <span class="hljs-comment">// - Returns a new array of descaled values</span>
-    selectColumns(columns, options), <span class="hljs-comment">//returns a list of objects with only selected columns as properties</span>
-    labelEncoder(columnName, options), <span class="hljs-comment">// - returns a new array and label encodes a selected column</span>
-    labelDecode(columnName, options), <span class="hljs-comment">// - returns a new array and decodes an encoded column back to the original array values</span>
-    oneHotEncoder(columnName, options), <span class="hljs-comment">// - returns a new object of one hot encoded values</span>
-    columnMatrix(columnName, options), <span class="hljs-comment">// - returns a matrix of values from multiple columns</span>
-    columnReducer(newColumnName, options), <span class="hljs-comment">// - returns a new array of a selected column that is passed a reducer function, this is used to create new columns for aggregate statistics</span>
-    columnMerge(name, data), <span class="hljs-comment">// - returns a new column that is merged onto the data set</span>
-    filterColumn(options), <span class="hljs-comment">// - filtered rows of data,</span>
-    fitColumns(options), <span class="hljs-comment">// - mutates data property of DataSet by replacing multiple columns in a single command</span>
-    <span class="hljs-keyword">static</span> reverseColumnMatrix(options), <span class="hljs-comment">// returns an array of objects by applying labels to matrix of columns</span>
-    <span class="hljs-keyword">static</span> reverseColumnVector(options), <span class="hljs-comment">// returns an array of objects by applying labels to column vector</span>
-  },
-  <span class="hljs-attr">calc</span>:{
-    <span class="hljs-attr">getTransactions</span>: [<span class="hljs-built_in">Function</span> getTransactions], <span class="hljs-comment">// Formats an array of transactions into a sparse matrix like format for Apriori/Eclat</span>
-    <span class="hljs-attr">assocationRuleLearning</span>: [<span class="hljs-keyword">async</span> <span class="hljs-built_in">Function</span> assocationRuleLearning], <span class="hljs-comment">// returns association rule learning results using apriori</span>
-  },
-  <span class="hljs-attr">util</span>: {
-    <span class="hljs-attr">range</span>: [<span class="hljs-built_in">Function</span>], <span class="hljs-comment">// range helper function</span>
-    <span class="hljs-attr">rangeRight</span>: [<span class="hljs-built_in">Function</span>], <span class="hljs-comment">//range right helper function</span>
-    <span class="hljs-attr">scale</span>: [<span class="hljs-built_in">Function</span>: scale], <span class="hljs-comment">//scale / normalize data</span>
-    <span class="hljs-attr">avg</span>: [<span class="hljs-built_in">Function</span>: arithmeticMean], <span class="hljs-comment">// aritmatic mean</span>
-    <span class="hljs-attr">mean</span>: [<span class="hljs-built_in">Function</span>: arithmeticMean], <span class="hljs-comment">// aritmatic mean</span>
-    <span class="hljs-attr">sum</span>: [<span class="hljs-built_in">Function</span>: sum],
-    <span class="hljs-attr">max</span>: [<span class="hljs-built_in">Function</span>: max],
-    <span class="hljs-attr">min</span>: [<span class="hljs-built_in">Function</span>: min],
-    <span class="hljs-attr">sd</span>: [<span class="hljs-built_in">Function</span>: standardDeviation], <span class="hljs-comment">// standard deviation</span>
-    <span class="hljs-attr">StandardScalerTransforms</span>: [<span class="hljs-built_in">Function</span>: StandardScalerTransforms], <span class="hljs-comment">// returns two functions that can standard scale new inputs and reverse scale new outputs</span>
-    <span class="hljs-attr">MinMaxScalerTransforms</span>: [<span class="hljs-built_in">Function</span>: MinMaxScalerTransforms], <span class="hljs-comment">// returns two functions that can mix max scale new inputs and reverse scale new outputs</span>
-    <span class="hljs-attr">StandardScaler</span>: [<span class="hljs-built_in">Function</span>: StandardScaler], <span class="hljs-comment">// standardization (z-scores)</span>
-    <span class="hljs-attr">MinMaxScaler</span>: [<span class="hljs-built_in">Function</span>: MinMaxScaler], <span class="hljs-comment">// min-max scaling</span>
-    <span class="hljs-attr">ExpScaler</span>: [<span class="hljs-built_in">Function</span>: ExpScaler], <span class="hljs-comment">// exponent scaling</span>
-    <span class="hljs-attr">LogScaler</span>: [<span class="hljs-built_in">Function</span>: LogScaler], <span class="hljs-comment">// natual log scaling</span>
-    <span class="hljs-attr">squaredDifference</span>: [<span class="hljs-built_in">Function</span>: squaredDifference], <span class="hljs-comment">// Returns an array of the squared different of two arrays</span>
-    <span class="hljs-attr">standardError</span>: [<span class="hljs-built_in">Function</span>: standardError], <span class="hljs-comment">// The standard error of the estimate is a measure of the accuracy of predictions made with a regression line</span>
-    <span class="hljs-attr">coefficientOfDetermination</span>: [<span class="hljs-built_in">Function</span>: coefficientOfDetermination],
-    <span class="hljs-attr">adjustedCoefficentOfDetermination</span>: [<span class="hljs-built_in">Function</span>: adjustedCoefficentOfDetermination],
-    <span class="hljs-attr">adjustedRSquared</span>: [<span class="hljs-built_in">Function</span>: adjustedCoefficentOfDetermination],
-    <span class="hljs-attr">rBarSquared</span>: [<span class="hljs-built_in">Function</span>: adjustedCoefficentOfDetermination],
-    <span class="hljs-attr">r</span>: [<span class="hljs-built_in">Function</span>: coefficientOfCorrelation],
-    <span class="hljs-attr">coefficientOfCorrelation</span>: [<span class="hljs-built_in">Function</span>: coefficientOfCorrelation],
-    <span class="hljs-attr">rSquared</span>: [<span class="hljs-built_in">Function</span>: rSquared], <span class="hljs-comment">//r^2</span>
-    <span class="hljs-attr">pivotVector</span>: [<span class="hljs-built_in">Function</span>: pivotVector], <span class="hljs-comment">// returns an array of vectors as an array of arrays</span>
-    <span class="hljs-attr">pivotArrays</span>: [<span class="hljs-built_in">Function</span>: pivotArrays], <span class="hljs-comment">// returns a matrix of values by combining arrays into a matrix</span>
-    <span class="hljs-attr">standardScore</span>: [<span class="hljs-built_in">Function</span>: standardScore], <span class="hljs-comment">// Calculates the z score of each value in the sample, relative to the sample mean and standard deviation.</span>
-    <span class="hljs-attr">zScore</span>: [<span class="hljs-built_in">Function</span>: standardScore], <span class="hljs-comment">// alias for standardScore.</span>
-    <span class="hljs-attr">approximateZPercentile</span>: [<span class="hljs-built_in">Function</span>: approximateZPercentile], <span class="hljs-comment">// approximate the p value from a z score</span>
-  },
-  <span class="hljs-attr">preprocessing</span>: {
-    <span class="hljs-attr">DataSet</span>: [Class DataSet],
-  },
-}</code></pre>
-				<a href="#examples-javascript--python--r" id="examples-javascript--python--r" style="color: inherit; text-decoration: none;">
-					<h3>Examples (JavaScript / Python / R)</h3>
-				</a>
-				<a href="#loading-csv-data" id="loading-csv-data" style="color: inherit; text-decoration: none;">
-					<h4>Loading CSV Data</h4>
-				</a>
-				<a href="#javascript" id="javascript" style="color: inherit; text-decoration: none;">
-					<h5>Javascript</h5>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">as</span> jsk } <span class="hljs-keyword">from</span> <span class="hljs-string">'modelscript'</span>;
-<span class="hljs-keyword">let</span> dataset;
-
-<span class="hljs-comment">//In JavaScript, by default most I/O Operations are asynchronous, see the notes section for more</span>
-ms.loadCSV(<span class="hljs-string">'/some/file/path.csv'</span>)
-  .then(<span class="hljs-function"><span class="hljs-params">csvData</span>=&gt;</span>{
-    dataset = <span class="hljs-keyword">new</span> ms.DataSet(csvData);
-    <span class="hljs-built_in">console</span>.log({csvData});
-    <span class="hljs-comment">/* csvData [{
-      'Country': 'Brazil',
-      'Age': '44',
-      'Salary': '72000',
-      'Purchased': 'N',
-    },
-    ...
-    {
-      'Country': 'Mexico',
-      'Age': '27',
-      'Salary': '48000',
-      'Purchased': 'Yes',
-    }] */</span>
-  })
-  .catch(<span class="hljs-built_in">console</span>.error);
-
-<span class="hljs-comment">// or from URL</span>
-ms.loadCSV(<span class="hljs-string">'https://example.com/some/file/path.csv'</span>)
-</code></pre>
-				<a href="#python" id="python" style="color: inherit; text-decoration: none;">
-					<h5>Python</h5>
-				</a>
-				<pre><code class="language-python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
-
-<span class="hljs-comment">#Importing the dataset</span>
-dataset = pd.read_csv(<span class="hljs-string">'/some/file/path.csv'</span>)</code></pre>
-				<a href="#r" id="r" style="color: inherit; text-decoration: none;">
-					<h5>R</h5>
-				</a>
-				<pre><code class="language-R"><span class="hljs-comment"># Importingd the dataset</span>
-dataset = read.csv(<span class="hljs-string">'Data.csv'</span>)</code></pre>
-				<a href="#handling-missing-data" id="handling-missing-data" style="color: inherit; text-decoration: none;">
-					<h4>Handling Missing Data</h4>
-				</a>
-				<a href="#javascript-1" id="javascript-1" style="color: inherit; text-decoration: none;">
-					<h5>Javascript</h5>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">//column Array returns column of data by name</span>
-<span class="hljs-comment">// [ '44','27','30','38','40','35','','48','50', '37' ]</span>
-<span class="hljs-keyword">const</span> OringalAgeColumn = dataset.columnArray(<span class="hljs-string">'Age'</span>); 
-
-<span class="hljs-comment">//column Replace returns new Array with replaced missing data</span>
-<span class="hljs-comment">//[ '44','27','30','38','40','35',38.77777777777778,'48','50','37' ]</span>
-<span class="hljs-keyword">const</span> ReplacedAgeMeanColumn = dataset.columnReplace(<span class="hljs-string">'Age'</span>,{<span class="hljs-attr">strategy</span>:<span class="hljs-string">'mean'</span>}); 
-
-<span class="hljs-comment">//fit Columns, mutates dataset</span>
-dataset.fitColumns({
-  <span class="hljs-attr">columns</span>:[{<span class="hljs-attr">name</span>:<span class="hljs-string">'Age'</span>,<span class="hljs-attr">strategy</span>:<span class="hljs-string">'mean'</span>}]
-});
-<span class="hljs-comment">/*
-dataset
-class DataSet
-  data:[
-    {
-      'Country': 'Brazil',
-      'Age': '38.77777777777778',
-      'Salary': '72000',
-      'Purchased': 'N',
-    }
-    ...
-  ]
-*/</span></code></pre>
-				<a href="#python-1" id="python-1" style="color: inherit; text-decoration: none;">
-					<h5>Python</h5>
-				</a>
-				<pre><code class="language-python">X = dataset.iloc[:, :<span class="hljs-number">-1</span>].values
-y = dataset.iloc[:, <span class="hljs-number">3</span>].values
-
-<span class="hljs-comment"># Taking care of of missing data</span>
-<span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> Imputer
-imputer = Imputer(missing_values=<span class="hljs-string">'NaN'</span>, strategy = <span class="hljs-string">'mean'</span>, axis=<span class="hljs-number">0</span>)
-imputer = imputer.fit(X[:, <span class="hljs-number">1</span>:<span class="hljs-number">3</span>])
-X[:, <span class="hljs-number">1</span>:<span class="hljs-number">3</span>] = imputer.transform(X[:, <span class="hljs-number">1</span>:<span class="hljs-number">3</span>])</code></pre>
-				<a href="#r-1" id="r-1" style="color: inherit; text-decoration: none;">
-					<h5>R</h5>
-				</a>
-				<pre><code class="language-R"><span class="hljs-comment"># Taking care of the missing data</span>
-dataset$Age = ifelse(is.na(dataset$Age),
-                ave(dataset$Age,FUN = <span class="hljs-keyword">function</span>(x) mean(x,na.rm =<span class="hljs-literal">TRUE</span>)),
-                dataset$Age)</code></pre>
-				<a href="#one-hot-encoding-and-label-encoding" id="one-hot-encoding-and-label-encoding" style="color: inherit; text-decoration: none;">
-					<h4>One Hot Encoding and Label Encoding</h4>
-				</a>
-				<a href="#javascript-2" id="javascript-2" style="color: inherit; text-decoration: none;">
-					<h5>Javascript</h5>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-comment">// [ 'Brazil','Mexico','Ghana','Mexico','Ghana','Brazil','Mexico','Brazil','Ghana', 'Brazil' ]</span>
-<span class="hljs-keyword">const</span> originalCountry = dataset.columnArray(<span class="hljs-string">'Country'</span>); 
-<span class="hljs-comment">/*
-{ originalCountry:
-   { Country_Brazil: [ 1, 0, 0, 0, 0, 1, 0, 1, 0, 1 ],
-     Country_Mexico: [ 0, 1, 0, 1, 0, 0, 1, 0, 0, 0 ],
-     Country_Ghana: [ 0, 0, 1, 0, 1, 0, 0, 0, 1, 0 ] },
-    }
-*/</span>
-<span class="hljs-keyword">const</span> oneHotCountryColumn = dataset.oneHotEncoder(<span class="hljs-string">'Country'</span>);
-
-<span class="hljs-comment">// [ 'N', 'Yes', 'No', 'f', 'Yes', 'Yes', 'false', 'Yes', 'No', 'Yes' ]</span>
-<span class="hljs-keyword">const</span> originalPurchasedColumn = dataset.labelEncoder(<span class="hljs-string">'Purchased'</span>);
-<span class="hljs-comment">// [ 0, 1, 0, 0, 1, 1, 1, 1, 0, 1 ]</span>
-<span class="hljs-keyword">const</span> encodedBinaryPurchasedColumn = dataset.labelEncoder(<span class="hljs-string">'Purchased'</span>,{ <span class="hljs-attr">binary</span>:<span class="hljs-literal">true</span> });
-<span class="hljs-comment">// [ 0, 1, 2, 3, 1, 1, 4, 1, 2, 1 ]</span>
-<span class="hljs-keyword">const</span> encodedPurchasedColumn = dataset.labelEncoder(<span class="hljs-string">'Purchased'</span>);
-<span class="hljs-comment">// [ 'N', 'Yes', 'No', 'f', 'Yes', 'Yes', 'false', 'Yes', 'No', 'Yes' ]</span>
-<span class="hljs-keyword">const</span> decodedPurchased = dataset.labelDecode(<span class="hljs-string">'Purchased'</span>, { <span class="hljs-attr">data</span>: encodedPurchasedColumn, });
-
-
-<span class="hljs-comment">//fit Columns, mutates dataset</span>
-dataset.fitColumns({
-  <span class="hljs-attr">columns</span>:[
-    {
-      <span class="hljs-attr">name</span>: <span class="hljs-string">'Purchased'</span>,
-      <span class="hljs-attr">options</span>: {
-        <span class="hljs-attr">strategy</span>: <span class="hljs-string">'label'</span>,
-        <span class="hljs-attr">labelOptions</span>: {
-          <span class="hljs-attr">binary</span>: <span class="hljs-literal">true</span>,
-        },
-      },
-    },
-    {
-      <span class="hljs-attr">name</span>: <span class="hljs-string">'Country'</span>,
-      <span class="hljs-attr">options</span>: {
-        <span class="hljs-attr">strategy</span>: <span class="hljs-string">'onehot'</span>,
-      },
-    },
-  ]
-});</code></pre>
-				<a href="#python-2" id="python-2" style="color: inherit; text-decoration: none;">
-					<h5>Python</h5>
-				</a>
-				<pre><code class="language-python"><span class="hljs-comment"># Encoding  categorical data</span>
-<span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> LabelEncoder, OneHotEncoder
-labelencoder_X = LabelEncoder()
-X[:, <span class="hljs-number">0</span>] = labelencoder_X.fit_transform(X[:, <span class="hljs-number">0</span>])
-onehotencoder = OneHotEncoder(categorical_features=[<span class="hljs-number">0</span>])
-X = onehotencoder.fit_transform(X).toarray()
-labelencoder_y = LabelEncoder()
-y = labelencoder_y.fit_transform(y)</code></pre>
-				<a href="#r-2" id="r-2" style="color: inherit; text-decoration: none;">
-					<h5>R</h5>
-				</a>
-				<pre><code class="language-R"><span class="hljs-comment"># Encoding categorical data</span>
-dataset$Country = factor(dataset$Country,
-                         levels = c(<span class="hljs-string">'Brazil'</span>, <span class="hljs-string">'Mexico'</span>, <span class="hljs-string">'Ghana'</span>),
-                         labels = c(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
-
-dataset$Purchased = factor(dataset$Purchased,
-                         levels = c(<span class="hljs-string">'No'</span>, <span class="hljs-string">'Yes'</span>),
-                         labels = c(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>))</code></pre>
-				<a href="#cross-validation" id="cross-validation" style="color: inherit; text-decoration: none;">
-					<h4>Cross Validation</h4>
-				</a>
-				<a href="#javascript-3" id="javascript-3" style="color: inherit; text-decoration: none;">
-					<h5>Javascript</h5>
-				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> testArray = [<span class="hljs-number">20</span>, <span class="hljs-number">25</span>, <span class="hljs-number">10</span>, <span class="hljs-number">33</span>, <span class="hljs-number">50</span>, <span class="hljs-number">42</span>, <span class="hljs-number">19</span>, <span class="hljs-number">34</span>, <span class="hljs-number">90</span>, <span class="hljs-number">23</span>, ];
-
-<span class="hljs-comment">// { train: [ 50, 20, 34, 33, 10, 23, 90, 42 ], test: [ 25, 19 ] }</span>
-<span class="hljs-keyword">const</span> trainTestSplit = ms.cross_validation.train_test_split(testArray,{ <span class="hljs-attr">test_size</span>:<span class="hljs-number">0.2</span>, <span class="hljs-attr">random_state</span>: <span class="hljs-number">0</span>, });
-
-<span class="hljs-comment">// [ [ 50, 20, 34, 33, 10 ], [ 23, 90, 42, 19, 25 ] ] </span>
-<span class="hljs-keyword">const</span> crossValidationArrayKFolds = ms.cross_validation.cross_validation_split(testArray, { <span class="hljs-attr">folds</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">random_state</span>: <span class="hljs-number">0</span>, });</code></pre>
-				<a href="#python-3" id="python-3" style="color: inherit; text-decoration: none;">
-					<h5>Python</h5>
-				</a>
-				<pre><code class="language-python"><span class="hljs-comment">#splitting the dataset into trnaing set and test set</span>
-<span class="hljs-keyword">from</span> sklearn.cross_validation <span class="hljs-keyword">import</span> train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = <span class="hljs-number">0.2</span>, random_state = <span class="hljs-number">0</span>)</code></pre>
-				<a href="#r-3" id="r-3" style="color: inherit; text-decoration: none;">
-					<h5>R</h5>
-				</a>
-				<pre><code class="language-R"><span class="hljs-comment"># Splitting the dataset into the training set and test set</span>
-<span class="hljs-keyword">library</span>(caTools)
-set.seed(<span class="hljs-number">1</span>)
-split = sample.split(dataset$Purchased, SplitRatio = <span class="hljs-number">0.8</span>)
-training_set = subset(dataset, split == <span class="hljs-literal">TRUE</span>)
-test_set = subset(dataset, split == <span class="hljs-literal">FALSE</span>)</code></pre>
-				<a href="#scaling-z-score--min-mix" id="scaling-z-score--min-mix" style="color: inherit; text-decoration: none;">
-					<h4>Scaling (z-score / min-mix)</h4>
-				</a>
-				<a href="#javascript-4" id="javascript-4" style="color: inherit; text-decoration: none;">
-					<h5>Javascript</h5>
-				</a>
-				<pre><code class="language-javascript">dataset.columnArray(<span class="hljs-string">'Salary'</span>,{ <span class="hljs-attr">scale</span>:<span class="hljs-string">'standard'</span>});
-dataset.columnArray(<span class="hljs-string">'Salary'</span>,{ <span class="hljs-attr">scale</span>:<span class="hljs-string">'minmax'</span>}); </code></pre>
-				<a href="#python-4" id="python-4" style="color: inherit; text-decoration: none;">
-					<h5>Python</h5>
-				</a>
-				<pre><code class="language-python"><span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> StandardScaler
-sc_X = StandardScaler()
-X_train = sc_X.fit_transform(X_train)
-X_test = sc_X.transform(X_test)</code></pre>
-				<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
-					<h3>Notes</h3>
-				</a>
-				<p>Check out <a href="https://repetere.github.io/modelscript">https://repetere.github.io/modelscript</a> for the full modelscript Documentation</p>
-				<a href="#a-quick-word-about-asynchronous-javascript" id="a-quick-word-about-asynchronous-javascript" style="color: inherit; text-decoration: none;">
-					<h4>A quick word about asynchronous JavaScript</h4>
-				</a>
-				<p>Most machine learning tutorials in Python and R are not using their asynchronous equivalents; however, there is a bias in JavaScript to default to non-blocking operations.</p>
-				<p>With the advent of ES7 and Node.js 7+ there are syntax helpers with asynchronous functions. It may be easier to use async/await in JS if you want an approximation close to what a workflow would look like in R/Python</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'fs-extra'</span>;
-<span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> np <span class="hljs-keyword">from</span> <span class="hljs-string">'numjs'</span>; 
-<span class="hljs-keyword">import</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">as</span> ml } <span class="hljs-keyword">from</span> <span class="hljs-string">'ml'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">as</span> pd } <span class="hljs-keyword">from</span> <span class="hljs-string">'pandas-js'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-keyword">default</span> <span class="hljs-keyword">as</span> mpn } <span class="hljs-keyword">from</span> <span class="hljs-string">'matplotnode'</span>;
-<span class="hljs-keyword">import</span> { loadCSV, preprocessing } <span class="hljs-keyword">from</span> <span class="hljs-string">'modelscript'</span>;
-<span class="hljs-keyword">const</span> plt = mpn.plot;
-
-<span class="hljs-keyword">void</span> <span class="hljs-keyword">async</span> () =&gt; {
-  <span class="hljs-keyword">const</span> csvData = <span class="hljs-keyword">await</span> loadCSV(<span class="hljs-string">'../Data.csv'</span>);
-  <span class="hljs-keyword">const</span> rawData = <span class="hljs-keyword">new</span> preprocessing.DataSet(csvData);
-  <span class="hljs-keyword">const</span> fittedData = rawData.fitColumns({
-    <span class="hljs-attr">columns</span>: [
-      { <span class="hljs-attr">name</span>: <span class="hljs-string">'Age'</span> },
-      { <span class="hljs-attr">name</span>: <span class="hljs-string">'Salary'</span> },
-      {
-        <span class="hljs-attr">name</span>: <span class="hljs-string">'Purchased'</span>,
-        <span class="hljs-attr">options</span>: {
-          <span class="hljs-attr">strategy</span>: <span class="hljs-string">'label'</span>,
-          <span class="hljs-attr">labelOptions</span>: {
-            <span class="hljs-attr">binary</span>: <span class="hljs-literal">true</span>,
-          },
-        }
-      },
-    ]
-  });
-  <span class="hljs-keyword">const</span> dataset = <span class="hljs-keyword">new</span> pd.DataFrame(fittedData);
-  <span class="hljs-keyword">const</span> X = dataset.iloc(
-    [ <span class="hljs-number">0</span>, dataset.length ],
-    [ <span class="hljs-number">0</span>, <span class="hljs-number">3</span> ]).values;
-  <span class="hljs-keyword">const</span> y = dataset.iloc(
-    [ <span class="hljs-number">0</span>, dataset.length ],
-    <span class="hljs-number">3</span>).values;
-  <span class="hljs-built_in">console</span>.log({
-    X,
-    y
-  });
-}();
+				<pre><code class="language-shell"><span style="color: #000000">$ npm run build </span><span style="color: #008000">#builds type declarations, created bundled artifacts with rollup and generates documenation</span>
 </code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_columnvectorizer_.html">&quot;node_<wbr>modules/@modelx/data/src/<wbr>Column<wbr>Vectorizer&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_dataset_.html">&quot;node_<wbr>modules/@modelx/data/src/<wbr>Data<wbr>Set&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_reinforcedlearning_.html">&quot;node_<wbr>modules/@modelx/data/src/<wbr>Reinforced<wbr>Learning&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_calc_.html">&quot;node_<wbr>modules/@modelx/data/src/calc&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_cross_validation_.html">&quot;node_<wbr>modules/@modelx/data/src/cross_<wbr>validation&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_csv_.html">&quot;node_<wbr>modules/@modelx/data/src/csv&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_index_.html">&quot;node_<wbr>modules/@modelx/data/src/index&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_nlp_.html">&quot;node_<wbr>modules/@modelx/data/src/nlp&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_stub_.html">&quot;node_<wbr>modules/@modelx/data/src/stub&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_src_util_.html">&quot;node_<wbr>modules/@modelx/data/src/util&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_test_mock_dataset_.html">&quot;node_<wbr>modules/@modelx/data/test/mock/dataset&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_data_test_mock_mock_csv_.html">&quot;node_<wbr>modules/@modelx/data/test/mock/mock_<wbr>csv&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_base_neural_network_.html">&quot;node_<wbr>modules/@modelx/model/src/base_<wbr>neural_<wbr>network&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_classification_.html">&quot;node_<wbr>modules/@modelx/model/src/classification&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_index_.html">&quot;node_<wbr>modules/@modelx/model/src/index&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_logistic_regression_.html">&quot;node_<wbr>modules/@modelx/model/src/logistic_<wbr>regression&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_lstm_multivariate_time_series_.html">&quot;node_<wbr>modules/@modelx/model/src/lstm_<wbr>multivariate_<wbr>time_<wbr>series&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_lstm_time_series_.html">&quot;node_<wbr>modules/@modelx/model/src/lstm_<wbr>time_<wbr>series&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_model_interface_.html">&quot;node_<wbr>modules/@modelx/model/src/model_<wbr>interface&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_multiple_linear_regression_.html">&quot;node_<wbr>modules/@modelx/model/src/multiple_<wbr>linear_<wbr>regression&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_regression_.html">&quot;node_<wbr>modules/@modelx/model/src/regression&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_node_modules__modelx_model_src_text_embedding_.html">&quot;node_<wbr>modules/@modelx/model/src/text_<wbr>embedding&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_constants_.html">&quot;src/constants&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_features_.html">&quot;src/features&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_index_.html">&quot;src/index&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_model_.html">&quot;src/model&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_util_.html">&quot;src/util&quot;</a>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-reference">
+						<a href="modules.html#model" class="tsd-kind-icon">Model</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/modelcategories.html" class="tsd-kind-icon">Model<wbr>Categories</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/modeltypes.html" class="tsd-kind-icon">Model<wbr>Types</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/modelx.html" class="tsd-kind-icon">ModelX</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sumpreviousrows.html" class="tsd-kind-icon">sum<wbr>Previous<wbr>Rows</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getgeneratedstatefulfunction" class="tsd-kind-icon">get<wbr>Generated<wbr>Stateful<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#sumpreviousrows" class="tsd-kind-icon">sum<wbr>Previous<wbr>Rows</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -545,63 +118,21 @@ X_test = sc_X.transform(X_test)</code></pre>
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
 				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
 			</ul>
 		</div>
 	</div>
 </footer>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

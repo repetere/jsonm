@@ -1,0 +1,227 @@
+<html>
+  <head>
+    <title>Model test</title>
+    <script>
+    // const natural={}
+    </script>
+    <script src="/Users/yawjosephetse/Developer/github/repetere/modelx-data/dist/index.web.js"></script>
+    <script src="../../../dist/index.web.js"></script>
+    <style type="text/css">
+    .result{
+      border:1px solid black;
+      padding:1rem;
+      max-height: 20rem;
+      overflow: auto;
+      overflow-y: scroll;
+    }
+    </style>
+    <script type="application/javascript">
+    const cacheData={};
+    function setLoadingDom(selector){
+      const el = document.querySelector(selector);
+      el.innerHTML = '';
+      return el;
+    }
+    function updateLoadingDom(el,content){
+      const resultPre = document.createElement('pre');
+      resultPre.innerHTML = `${new Date().valueOf()}: ${JSON.stringify(content ,null,2)}`;
+      el.prepend(resultPre);
+      // el.appendChild(resultPre);
+    }
+    const { ModelTypes, } = window.JSONM;
+    </script>
+  </head>
+  <body>
+    <h1>JSONM ModelX</h1>
+    <h2>Classification</h2>
+<!--
+    <code>
+const independentVariables = [
+  'sepal_length_cm',
+  'sepal_width_cm',
+  'petal_length_cm',
+  'petal_width_cm',
+];
+const dependentVariables = [
+  'plant_Iris-setosa',
+  'plant_Iris-versicolor',
+  'plant_Iris-virginica',
+];
+    </code>
+  -->
+    <script>
+      window.addEventListener('load',()=>{
+        const csvtest1Main = (async function csvtest1Main(){
+          const csvtest1DOM= setLoadingDom('#csvtest1');
+          const trainingDataLabel = document.querySelector('.classification_data_status');
+          trainingDataLabel.value = 'loading';
+          let irisData = await ModelXData.csv.loadCSVURI('https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv');
+          trainingDataLabel.value = 'loaded';
+          // updateLoadingDom(csvtest1DOM,{ data:'loaded', });
+          const independent_variables = [
+            'sepal_length_cm',
+            'sepal_width_cm',
+            'petal_length_cm',
+            'petal_width_cm',
+          ];
+          const dependent_variables = [
+            'plant',
+          ];
+          const trainingStatusDoms = document.querySelectorAll('.classification_training_progress');
+          const trainingStatusLabel = document.querySelector('.classification_training_status');
+          const trainingStatusLoss = document.querySelector('.classification_training_loss');
+          function training_progress_callback({completion_percentage, loss, epoch, status, logs, defaultLog, }){
+            // console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, });
+            // updateLoadingDom(csvtest1DOM,{ completion_percentage, loss, });
+            trainingStatusDoms.forEach(trainingDom=>{
+              trainingDom.value=`${Math.ceil(completion_percentage*100)}%`;
+            });
+            trainingStatusLabel.value=status;
+            trainingStatusLoss.value=`loss: ${loss}`;
+          }
+          const classificationForm =  document.querySelector('#handleClassification');
+          classificationForm.addEventListener('submit',async (e)=>{
+            e.preventDefault();
+            if(classificationModelTest.status.trained===false) {
+              updateLoadingDom(csvtest1DOM,'Error: Model is not trained');
+            } else{
+
+              const formData = {};
+              const form = new FormData(classificationForm);
+              for(var value of form.entries()){
+                formData[value[0]] = parseFloat(value[1]);
+              }
+              // console.log({formData,});
+              const predictions = await classificationModelTest.predictModel({ prediction_inputs:[
+                formData,
+                // { sepal_length_cm: 5.1, sepal_width_cm: 3.5, petal_length_cm: 1.4, petal_width_cm: 0.2, }
+              ], includeEvaluation:false, includeInputs:true, });
+              updateLoadingDom(csvtest1DOM,predictions);
+
+              // console.log({predictions});
+            }
+          });
+          const classificationModelTest = new JSONM.ModelX({
+            debug:false,
+            model_type: ModelTypes.CLASSIFICATION,
+            independent_variables,
+            dependent_variables,
+            training_progress_callback,
+            training_options: {
+              fit: {
+                epochs: 300,
+                batchSize: 20,
+              },
+            },
+            trainingData: irisData,
+          });
+          const evaluation = await classificationModelTest.evaluateModel({});
+          console.log({evaluation, classificationModelTest});
+          window.classificationModelTest = classificationModelTest;
+        })();
+      });
+    </script>
+    <div class="result">
+      <p>
+        <label>Data Status</label>
+        <input class="classification_data_status" type="input" readonly="readonly" />
+      </p>
+      <hr/>
+      <p>
+        <label>Training Status</label>
+        <input class="classification_training_status" type="input" readonly="readonly" />
+        <input class="classification_training_progress" type="range" readonly="readonly" max="100" min="0" value="0"/>
+        <input class="classification_training_progress" type="input" readonly="readonly" max="100" min="0" value="0" style="width:40px;"/>
+        <input class="classification_training_loss" type="input" readonly="readonly" />
+      </p>
+      <hr/>
+      <p>
+        <label>Prediction:</label>
+        <form id="handleClassification">
+          <table style="width: 100%;">    
+            <tr>
+              <td>
+                sepal_length_cm
+              </td>
+              <td>
+                sepal_width_cm
+              </td>
+              <td>
+                petal_length_cm
+              </td>
+              <td>
+                petal_width_cm
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input name="sepal_length_cm" type="number" max="15" min="0" step="0.1" value="5.1"/>
+              </td>
+              <td>
+                <input name="sepal_width_cm" type="number" max="15" min="0" step="0.1" value="3.5"/>
+              </td>
+              <td>
+                <input name="petal_length_cm" type="number" max="15" min="0" step="0.1" value="1.4"/>
+              </td>
+              <td>
+                <input name="petal_width_cm" type="number" max="15" min="0" step="0.1" value="0.2"/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" style="text-align: center;">
+                <input type="submit" value="predict"/>
+              </td>
+            </tr>
+          </table>
+        </form>
+      </p>
+    </div>
+    <pre id='csvtest1' class="result"></pre>
+
+    <!--
+    <h2>TextEmbedding</h2>
+    <pre>
+      const TextEmbedder = new ModelXModel.TextEmbedding();
+      await TextEmbedder.train();
+      const sentences = [
+        'Hello.',
+        'How are you?',
+      ];
+      const predictions = await TextEmbedder.predict(sentences);
+
+    </pre>
+    <pre id='csvtest2' class="result"></pre>
+    <h3>ModelXData.DataSet.selectColumns</h3>
+    <pre>
+      const cols = ['Age', 'Salary', ];
+      const selectedCols = CSVDataSet.selectColumns(cols);
+    </pre>
+    <pre id='csvtest3' class="result"></pre>
+
+    <script>
+      window.addEventListener('load',()=>{
+        (async function csvtest1Main(){
+          const csvtest2DOM= setLoadingDom('#csvtest2');          
+          const TextEmbedder = new ModelXModel.TextEmbedding();
+          console.log('before',{TextEmbedder})
+          updateLoadingDom(csvtest2DOM,{ msg: 'attempting to train TextEmbedding model', });
+          await TextEmbedder.train();
+          console.log('after',{TextEmbedder})
+          const sentences = [
+            'Hello.',
+            'How are you?',
+          ];
+          const predictions = await TextEmbedder.predict(sentences);
+          console.log({predictions});
+          updateLoadingDom(csvtest2DOM, {predictions});
+          const tokens = await TextEmbedder.tokenizer.encode('Hello, how are you?');
+          console.log({tokens});
+          updateLoadingDom(csvtest2DOM, {tokens});
+
+
+        })();
+      });
+    </script>
+    -->
+  </body>
+</html>

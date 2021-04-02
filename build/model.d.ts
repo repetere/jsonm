@@ -99,6 +99,14 @@ export interface ModelContext {
     entity?: Entity;
     DataSet?: ModelXData.DataSet;
 }
+export interface timeseriesCalculation {
+    (options: {
+        dimension?: Dimensions;
+        DataSetData?: ModelXDataTypes.Datum;
+        timeseries_date_format?: string;
+        timeseries_date_feature?: string;
+    }): TimeseriesDimension;
+}
 export declare type ModelTrainningOptions = {
     cross_validate_training_data?: boolean;
     use_next_value_functions_for_training_data?: boolean;
@@ -126,13 +134,13 @@ export declare const modelMap: {
     'ai-logistic-classification': typeof ModelXModel.LogisticRegression;
 };
 export declare const modelCategoryMap: {
-    [ModelTypes.FAST_FORECAST]: ModelCategories;
-    [ModelTypes.FORECAST]: ModelCategories;
-    [ModelTypes.TIMESERIES_REGRESSION_FORECAST]: ModelCategories;
-    [ModelTypes.LINEAR_REGRESSION]: ModelCategories;
-    [ModelTypes.REGRESSION]: ModelCategories;
-    [ModelTypes.CLASSIFICATION]: ModelCategories;
-    [ModelTypes.LOGISTIC_CLASSIFICATION]: ModelCategories;
+    "ai-fast-forecast": ModelCategories;
+    "ai-forecast": ModelCategories;
+    "ai-timeseries-regression-forecast": ModelCategories;
+    "ai-linear-regression": ModelCategories;
+    "ai-regression": ModelCategories;
+    "ai-classification": ModelCategories;
+    "ai-logistic-classification": ModelCategories;
 };
 export declare type CrossValidationOptions = {
     folds?: number;
@@ -344,13 +352,20 @@ export declare class ModelX implements ModelContext {
     input_independent_features?: AutoFeature[];
     output_dependent_features?: AutoFeature[];
     max_evaluation_outputs: number;
+    static prediction_timeseries_date_format: string;
+    static prediction_timeseries_date_feature: string;
+    static dimension: Dimensions;
+    static prediction_timeseries_dimension_feature: string;
+    getTimeseriesDimension: timeseriesCalculation;
     constructor(configuration: ModelConfiguration, options?: ModelOptions);
     /**
      * Attempts to automatically figure out the time dimension of each date feature (hourly, daily, etc) and the format of the date property (e.g. JS Date Object, or ISO String, etc) from the dataset data
      */
-    getTimeseriesDimension(options?: {
+    static calcTimeseriesDimension(options?: {
         dimension?: Dimensions;
         DataSetData?: ModelXDataTypes.Datum;
+        timeseries_date_format?: string;
+        timeseries_date_feature?: string;
     }): TimeseriesDimension;
     getForecastDates(options?: {}): Date[];
     addMockData({ use_mock_dates, }?: {
@@ -380,13 +395,13 @@ export declare class ModelX implements ModelContext {
         forecastDates: Date[];
         forecastDateFirstDataSetDateIndex: any;
         lastOriginalForecastDate: Date;
-        raw_prediction_inputs: ModelXDataTypes.Datum[];
+        raw_prediction_inputs: ModelXDataTypes.Data;
         dimension: Dimensions;
         datasetDates: any;
     }>;
     getPredictionData(options?: {
         getPredictionInputPromise?: GetPredicitonData;
-    }): Promise<ModelXDataTypes.Datum[]>;
+    }): Promise<ModelXDataTypes.Data>;
     /**
      *
      * @param options

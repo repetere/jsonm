@@ -37,9 +37,9 @@
     "dev": "rollup -c -w",
     "benchmark": "node -r esm  benchmark/main_bmrk.js",
     "test": "jest --coverage",
-    "doc": "tsc && typedoc && sitedown manual/ -b docs/manual",
-    "compile": "tsc",
-    "build": "tsc && rollup -c && typedoc && sitedown manual/ -b docs/manual",
+    "doc": "tsc -p tsconfig.build.json  && typedoc && sitedown manual/ -b docs/manual",
+    "compile": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && rollup -c && typedoc && sitedown manual/ -b docs/manual",
     "coverage": "coveralls"
   },
   "dependencies": {

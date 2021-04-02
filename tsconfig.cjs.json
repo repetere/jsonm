@@ -1,0 +1,19 @@
+{
+  "extends":"./tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+  ],
+  "exclude": [
+    "./test",
+    "**/*.util.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+  ],
+  "compilerOptions": {
+    "declarationDir": "./dist/cjs",
+    "outDir": "./dist/cjs",
+    "module": "commonjs",
+    "target": "es2019",
+  }
+}

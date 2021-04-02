@@ -170,6 +170,19 @@ export function getMockClassification() {
         prediction_inputs,
     };
 }
+export const dataset0 = [{ num: 1, some: 'val dataset0 1' }, { num: 1, some: 'val dataset0 2' }, { num: 1, some: 'val dataset0 3' }];
+export const dataset1 = [{ num: 1, some1: 'val dataset1' }, { num: 1, some1: 'val dataset1' }, { num: 1, some1: 'val dataset1' }];
+export const dataset2 = {
+    name: 'custom_name_2',
+    data: [{ num: 1, some2: 'val custom_name_2' }, { num: 1, some2: 'val custom_name_2' }, { num: 1, some2: 'val custom_name_2' }],
+};
+export const dataset3 = {
+    data: [{ num: 1, some3: 'val dataset3 1' }, { num: 1, some3: 'val dataset3' }, { num: 1, some3: 'val dataset3' }],
+};
+export const dataset4 = {
+    name: 'async dataset',
+    _data_promise: () => Promise.resolve([{ num: 1, some4: 'val dataset4' }, { num: 1, some4: 'val dataset4' }, { num: 1, some4: 'val dataset4' }]),
+};
 /*
 describe('Single Value Timeseries Predictions', () => {
   it('should forecast the number of passengers', async () => {

@@ -59,3 +59,31 @@ export declare function getMockClassification(): {
         ear_style: string;
     }[];
 };
+export declare const dataset0: {
+    num: number;
+    some: string;
+}[];
+export declare const dataset1: {
+    num: number;
+    some1: string;
+}[];
+export declare const dataset2: {
+    name: string;
+    data: {
+        num: number;
+        some2: string;
+    }[];
+};
+export declare const dataset3: {
+    data: {
+        num: number;
+        some3: string;
+    }[];
+};
+export declare const dataset4: {
+    name: string;
+    _data_promise: () => Promise<{
+        num: number;
+        some4: string;
+    }[]>;
+};

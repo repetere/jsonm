@@ -1,6 +1,6 @@
 {
   "name": "@modelx/jsonm",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
   "main": "dist/index.cjs.js",
   "module": "build/index.js",

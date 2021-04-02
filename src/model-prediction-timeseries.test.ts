@@ -42,6 +42,8 @@ describe('ModelX', () => {
       // console.log('data.length',data.length)
     }, 15000);
   });
+  //TODO: uncomment for speed
+  /*
   describe('Multiple Regression Timeseries Predictions', () => {
     it('should forecast the number of passengers', async () => {
       const csvPath = path.join(__dirname, '../manual/media/example/tensorflowcsv/airline-trips-sales.csv');
@@ -198,6 +200,8 @@ describe('ModelX', () => {
       expect(predictions[0].previous_3_stops).toBe(11);
     }, 35000);
   });
+  //TODO: uncomment for speed
+  */
   //TODO: uncomment for speed
   /*
   describe('Multiple Variable LSTM Timeseries Predictions', () => {

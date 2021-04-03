@@ -8,6 +8,12 @@
 ### Declarative
 
 The JSONM UMD comes with batteries included so you can use JSONM in the browser without transpilers or any additional setup/configuration. The JSONM UMD is ideal for JAMstack Applications.
+
+### Intention
+
+The idea behind JSONM is to enable rapid model development, and extremely complicated model development. JSONM attempts to automate the data pre-processing and feature engineering needed for most modeling tasks. 
+
+Data Scientists who are more comfortable finely tuning hyperparameters and controlling pre-processing, scaling and normalization of datasets can also configure JSONM to meet specific model requirements.
 ## Installation
 
 ```sh
@@ -77,8 +83,9 @@ await IrisModel.trainModel()
 const predictions = await IrisModel.predictModel({ 
   prediction_inputs:[
     { sepal_length_cm: 5.1, sepal_width_cm: 3.5, petal_length_cm: 1.4, petal_width_cm: 0.2, },
+    { sepal_length_cm: 5.9, sepal_width_cm: 3.0, petal_length_cm: 5.1, petal_width_cm: 1.8, },
   ],
-}); // => [{plant:'Iris-setosa'}]
+}); // => [ { plant:'Iris-setosa' }, { plant:'Iris-virginica' }, ]
 
 ```
 

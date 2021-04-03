@@ -90,6 +90,9 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function"><a href="modules.html#getgeneratedstatefulfunction" class="tsd-kind-icon">get<wbr>Generated<wbr>Stateful<wbr>Function</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#getmodel" class="tsd-kind-icon">get<wbr>Model</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#getmodelfromjsonm" class="tsd-kind-icon">get<wbr>Model<wbr>FromJSONM</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#getmodeltrainingoptions" class="tsd-kind-icon">get<wbr>Model<wbr>Training<wbr>Options</a></li>
 								<li class="tsd-kind-function"><a href="modules.html#sumpreviousrows" class="tsd-kind-icon">sum<wbr>Previous<wbr>Rows</a></li>
 							</ul>
 						</section>
@@ -116,7 +119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/e63467a/src/model.ts#L311">model.ts:311</a></li>
+									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/2c11b9b/src/model.ts#L311">model.ts:311</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -144,6 +147,93 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="getmodel" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> get<wbr>Model</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Model<span class="tsd-signature-symbol">(</span>jml<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">JML</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ModelContext</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/2c11b9b/src/jsonm.ts#L39">jsonm.ts:39</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> jml: <span class="tsd-signature-type">JML</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ModelContext</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="getmodelfromjsonm" class="tsd-anchor"></a>
+					<h3>get<wbr>Model<wbr>FromJSONM</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Model<wbr>FromJSONM<span class="tsd-signature-symbol">(</span>jml<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">JML</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ModelContext</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/2c11b9b/src/jsonm.ts#L22">jsonm.ts:22</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> jml: <span class="tsd-signature-type">JML</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ModelContext</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="getmodeltrainingoptions" class="tsd-anchor"></a>
+					<h3>get<wbr>Model<wbr>Training<wbr>Options</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Model<wbr>Training<wbr>Options<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>accuracy_target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>fit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>batchSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>epochs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/2c11b9b/src/jsonm.ts#L41">jsonm.ts:41</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>accuracy_target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>accuracy_<wbr>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>fit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>batchSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>epochs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>fit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>batchSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>epochs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>batch<wbr>Size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>epochs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="sumpreviousrows" class="tsd-anchor"></a>
 					<h3>sum<wbr>Previous<wbr>Rows</h3>
 					<ul class="tsd-signatures tsd-kind-function">
@@ -153,7 +243,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/e63467a/src/model.ts#L325">model.ts:325</a></li>
+									<li>Defined in <a href="https://github.com/repetere/jsonm/blob/2c11b9b/src/model.ts#L325">model.ts:325</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -195,6 +285,15 @@
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#getgeneratedstatefulfunction" class="tsd-kind-icon">get<wbr>Generated<wbr>Stateful<wbr>Function</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getmodel" class="tsd-kind-icon">get<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getmodelfromjsonm" class="tsd-kind-icon">get<wbr>Model<wbr>FromJSONM</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#getmodeltrainingoptions" class="tsd-kind-icon">get<wbr>Model<wbr>Training<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="modules.html#sumpreviousrows" class="tsd-kind-icon">sum<wbr>Previous<wbr>Rows</a>

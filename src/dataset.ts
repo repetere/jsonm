@@ -1,4 +1,5 @@
 import { Data, } from '@modelx/data/src/DataSet';
+import { CSVOptions, loadCSV, loadTSV, } from '@modelx/data/src/csv';
 import { getFirstDataset, } from './transforms'
 import Promisie from 'promisie';
 import fetch from 'node-fetch';
@@ -23,6 +24,9 @@ export type JDS = {
   data?: Data;
   _data_static?: Data;
   _data_url?: string;
+  _data_csv?: string;
+  _data_tsv?: string;
+  _data_csv_options?: CSVOptions;
   _data_innodb?: string;
   _data_localstorage?: Data;
   _data_promise?: genericFunction;
@@ -45,10 +49,12 @@ export const defaultReducerContext = {
  */
 export async function getDataSet(jds: JDS | Data = {}): Promise<Data> {
   if (Array.isArray(jds)) return jds;
-  const { reducer, data, _data_static, _data_promise, _data_url } = jds as JDS;
+  const { reducer, data, _data_static, _data_promise, _data_url, _data_csv, _data_tsv, _data_csv_options } = jds as JDS;
   let returnData=[];
   if (data) returnData = data;
   else if (_data_static) returnData = _data_static;
+  else if (_data_csv) returnData = await loadCSV(_data_csv, _data_csv_options);
+  else if (_data_tsv) returnData = await loadTSV(_data_tsv, _data_csv_options);
   else if (reducer) returnData = await ReduceDataset(reducer);
   else if (_data_promise) returnData = await _data_promise();
   else if (_data_url) {

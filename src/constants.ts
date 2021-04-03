@@ -131,10 +131,12 @@ export type TrainingProgressUpdate = {
   status: string;
   defaultLog?: boolean;
 }
+
 export function training_on_progress({ completion_percentage, loss, epoch, status, logs, defaultLog=true }:TrainingProgressUpdate):void {
   if(defaultLog) console.log({ completion_percentage, loss, epoch, status, logs });
 }
-export type TrainingProgressCallback =({ completion_percentage, loss, epoch, status, logs }:TrainingProgressUpdate)=> void;
+
+export type TrainingProgressCallback =({ completion_percentage, loss, epoch, status, logs }?:TrainingProgressUpdate)=> void;
 
 
 export const mockDates = generatedMockDates;

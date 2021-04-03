@@ -1,5 +1,5 @@
 {
-  "name": "@modelx/jsonm",
+  "name": "@outsights/jsonm",
   "version": "1.0.0",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
   "main": "dist/index.cjs.js",

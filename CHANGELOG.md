@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/repetere/jsonm/compare/v1.0.1...v1.0.2) (2021-04-03)
+
+
+### Bug Fixes
+
+* publishing to outsights ([01061fc](https://github.com/repetere/jsonm/commit/01061fc0ba9e5d0c22bc7e8c9744aecfbf8aa2f8))
+
 ## [1.0.1](https://github.com/repetere/jsonm/compare/v1.0.0...v1.0.1) (2021-04-03)
 
 

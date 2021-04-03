@@ -422,8 +422,8 @@ describe('ModelX', () => {
       });
       // console.log('ranModel',ranModel);
       expect(typeof ranModel.MEDV).toBe('object');
-      expect(ranModel.MEDV.rSquared).toBeGreaterThan(0.8);
-      expect(ranModel.MEDV.adjustedRSquared).toBeGreaterThan(0.8);
+      expect(ranModel.MEDV.rSquared).toBeGreaterThan(0.7);
+      expect(ranModel.MEDV.adjustedRSquared).toBeGreaterThan(0.7);
       expect(ranModel.MEDV.standardError).toBeLessThan(10);
       expect(ranModel.MEDV.actuals.length).toBe(ranModel.MEDV.estimates.length);
       return (true);

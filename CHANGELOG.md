@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/repetere/jsonm/compare/v1.0.0...v1.0.1) (2021-04-03)
+
+
+### Bug Fixes
+
+* **jsonm:** fixed declarative model parameters ([c74de3a](https://github.com/repetere/jsonm/commit/c74de3a06b23098f3fbf8a96f7dc143f314d4add))
+
 # 1.0.0 (2021-04-02)
 
 

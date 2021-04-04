@@ -14,3 +14,5 @@ $ npm install rollup typedoc jest sitedown --g
 ```shell
 $ npm run build #builds type declarations, created bundled artifacts with rollup and generates documenation
 ```
+
+compare with master

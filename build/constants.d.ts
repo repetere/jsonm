@@ -46,7 +46,7 @@ export declare type TrainingProgressUpdate = {
     defaultLog?: boolean;
 };
 export declare function training_on_progress({ completion_percentage, loss, epoch, status, logs, defaultLog }: TrainingProgressUpdate): void;
-export declare type TrainingProgressCallback = ({ completion_percentage, loss, epoch, status, logs }: TrainingProgressUpdate) => void;
+export declare type TrainingProgressCallback = ({ completion_percentage, loss, epoch, status, logs }?: TrainingProgressUpdate) => void;
 export declare const mockDates: {
     year: number;
     month: number;

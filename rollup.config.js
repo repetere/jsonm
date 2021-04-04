@@ -31,6 +31,8 @@ const serverExternal = [
   'valid-url',
   'http',
   'https',
+  'axios',
+  'node-fetch',
   "csvtojson",
   "js-grid-search-lite",
   "lodash.range",

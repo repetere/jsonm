@@ -2,7 +2,7 @@ import { Data, } from '@modelx/data/src/DataSet';
 import { CSVOptions, loadCSV, loadTSV, } from '@modelx/data/src/csv';
 import { getFirstDataset, } from './transforms'
 import Promisie from 'promisie';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export type DataSets = { [index: string]: Data; };
 export type genericFunction = (...args: any[]) => Promise<Data>;
@@ -58,8 +58,8 @@ export async function getDataSet(jds: JDS | Data = {}): Promise<Data> {
   else if (reducer) returnData = await ReduceDataset(reducer);
   else if (_data_promise) returnData = await _data_promise();
   else if (_data_url) {
-    const response = await fetch(_data_url);
-    returnData = await response.json();
+    const response = await axios(_data_url);
+    returnData = await response.data;
   }
   return returnData;
 }

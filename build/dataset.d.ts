@@ -1,4 +1,5 @@
 import { Data } from '@modelx/data/src/DataSet';
+import { CSVOptions } from '@modelx/data/src/csv';
 import { getFirstDataset } from './transforms';
 export declare type DataSets = {
     [index: string]: Data;
@@ -20,6 +21,9 @@ export declare type JDS = {
     data?: Data;
     _data_static?: Data;
     _data_url?: string;
+    _data_csv?: string;
+    _data_tsv?: string;
+    _data_csv_options?: CSVOptions;
     _data_innodb?: string;
     _data_localstorage?: Data;
     _data_promise?: genericFunction;

@@ -51,6 +51,7 @@ export type ModelConfiguration = {
   training_feature_column_options?: ModelXDataTypes.DataSetTransform;
   use_preprocessing_on_trainning_data?: boolean;
   use_mock_dates_to_fit_trainning_data?: boolean;
+  use_next_value_functions_for_training_data?: boolean;
   use_cache?: boolean;
   model_type: ModelTypes;
   model_category?: ModelCategories;
@@ -360,6 +361,7 @@ export class ModelX implements ModelContext {
   removedFilterdtrainingData: ModelXDataTypes.Data;
   use_empty_objects: boolean;
   use_preprocessing_on_trainning_data: boolean;
+  use_next_value_functions_for_training_data: boolean;
   use_mock_encoded_data: boolean;
   validate_training_data:  boolean;
   x_independent_features: string[];
@@ -460,6 +462,7 @@ export class ModelX implements ModelContext {
     this.dependent_variables = configuration.dependent_variables;
     this.input_independent_features = configuration.input_independent_features;
     this.output_dependent_features = configuration.output_dependent_features;
+    this.use_next_value_functions_for_training_data = configuration.use_next_value_functions_for_training_data;
 
 
     this.training_size_values = configuration.training_size_values;
@@ -1014,9 +1017,10 @@ export class ModelX implements ModelContext {
     if (this.use_preprocessing_on_trainning_data && this.preprocessing_feature_column_options && Object.keys(this.preprocessing_feature_column_options).length) {
       this.DataSet.fitColumns(this.preprocessing_feature_column_options);
     }
-    if (use_next_value_functions_for_training_data) {
+    if (use_next_value_functions_for_training_data || this.use_next_value_functions_for_training_data) {
       const trainingDates:Date[] = trainingData.map(tdata => tdata[ this.prediction_timeseries_date_feature ]);
       trainingData = trainingData.map((trainingDatum, dataIndex) => {
+        if(this.prediction_timeseries_date_format) trainingDatum[this.prediction_timeseries_date_feature] = Luxon.DateTime.fromFormat(trainingDatum[this.prediction_timeseries_date_feature],this.prediction_timeseries_date_format).toJSDate()
         const forecastDate = trainingDatum[ this.prediction_timeseries_date_feature ];
         const forecastPredictionIndex = dataIndex;
         if (trainingDatum._id) trainingDatum._id = trainingDatum._id.toString();

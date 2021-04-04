@@ -1,6 +1,7 @@
+import { loadCSV, loadTSV, } from '@modelx/data/src/csv';
 import { getFirstDataset, } from './transforms';
 import Promisie from 'promisie';
-import fetch from 'node-fetch';
+import axios from 'axios';
 export const defaultReducerContext = {
     Promisie,
     getFirstDataset,
@@ -11,19 +12,23 @@ export const defaultReducerContext = {
 export async function getDataSet(jds = {}) {
     if (Array.isArray(jds))
         return jds;
-    const { reducer, data, _data_static, _data_promise, _data_url } = jds;
+    const { reducer, data, _data_static, _data_promise, _data_url, _data_csv, _data_tsv, _data_csv_options } = jds;
     let returnData = [];
     if (data)
         returnData = data;
     else if (_data_static)
         returnData = _data_static;
+    else if (_data_csv)
+        returnData = await loadCSV(_data_csv, _data_csv_options);
+    else if (_data_tsv)
+        returnData = await loadTSV(_data_tsv, _data_csv_options);
     else if (reducer)
         returnData = await ReduceDataset(reducer);
     else if (_data_promise)
         returnData = await _data_promise();
     else if (_data_url) {
-        const response = await fetch(_data_url);
-        returnData = await response.json();
+        const response = await axios(_data_url);
+        returnData = await response.data;
     }
     return returnData;
 }

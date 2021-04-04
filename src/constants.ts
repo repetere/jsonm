@@ -162,6 +162,7 @@ export function getQuarterHour(parsedDate: ParsedDate):number {
 export function getParsedDate(date:Date, options?:DateTimeJSOptions): ParsedDate {
   const luxonDate = DateTime.fromJSDate(date, options);
   const parsedDate:ParsedDate = Object.assign({}, luxonDate.toObject());
+  // console.log('parsedDate',parsedDate,{date})
   parsedDate.week = luxonDate.weekNumber;
   parsedDate.ordinal_day = luxonDate.ordinal;
   parsedDate.weekday = luxonDate.weekday;

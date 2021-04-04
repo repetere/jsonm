@@ -11,7 +11,7 @@ The JSONM UMD comes with batteries included so you can use JSONM in the browser 
 
 ### Intention
 
-The idea behind JSONM is to enable rapid model development, and extremely complicated model development. JSONM attempts to automate the data pre-processing and feature engineering needed for most modeling tasks. 
+The idea behind JSONM is to enable rapid model development. JSONM attempts to automate the data pre-processing and feature engineering needed for most modeling tasks. 
 
 Data Scientists who are more comfortable finely tuning hyperparameters and controlling pre-processing, scaling and normalization of datasets can also configure JSONM to meet specific model requirements.
 ## Installation

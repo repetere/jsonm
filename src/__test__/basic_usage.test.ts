@@ -1,11 +1,11 @@
 import { TrainingProgressCallback } from '../constants';
 import { getModel } from '../index';
-import { JML } from '../jsonm';
+import { JML, } from '../jsonm';
 import { ModelTypes } from '../model';
 import { toBeWithinRange, } from '../jest.test';
 expect.extend({ toBeWithinRange });
 
-describe('basic jsonm classification',()=>{
+describe('basic jsonm examples',()=>{
   it('should classify iris flowers',async()=>{
     const inputs = ['sepal_length_cm','sepal_width_cm','petal_length_cm','petal_width_cm', ];
     const outputs = [ 'plant',];
@@ -60,6 +60,37 @@ describe('basic jsonm classification',()=>{
     const predictionMap = predictions.map(prediction=>parseInt(prediction.price))
     expect(predictionMap[0]).toBeWithinRange(570000, 600000)
     expect(predictionMap[1]).toBeWithinRange(250000, 280000)
+    // expect(predictionMap).toMatchObject([ 'Iris-setosa', 'Iris-virginica' ])
+  }, 20000);
+  it('should forecast retail sales',async()=>{
+    // https://raw.githubusercontent.com/repetere/sample-csv-data/main/examples/forecasts/kaggle-retaildataset/sales-data-1-1.csv
+    const inputs = ['IsHoliday', ];
+    const outputs = [ 'Weekly_Sales',];
+    const on_progress:TrainingProgressCallback = ({ completion_percentage, loss, epoch, status, logs, defaultLog, }) => { 
+      // console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, })
+     }
+    const exampleJSON: JML = {
+      type: 'forecast',
+      inputs,
+      outputs,
+      on_progress,
+      dataset:{
+        _data_csv:'https://raw.githubusercontent.com/repetere/sample-csv-data/main/examples/forecasts/kaggle-retaildataset/sales-data-1-1.csv'
+      },
+      forecast_date_format:'dd/MM/yyyy'
+    }
+    const SalesForecastModel = await getModel(exampleJSON); 
+    await SalesForecastModel.trainModel({use_next_value_functions_for_training_data: true,})
+    // console.log(SalesForecastModel)    
+    // const predictions = await SalesForecastModel.predictModel({ 
+    //   prediction_inputs:[
+    //     { isHoliday: false, year:2011, month: 8, day: 7, },
+    //   ],
+    //   // includeEvaluation:false, 
+    //   // includeInputs:true,
+    // });
+    // console.log('predictions',predictions)    
+    // const predictionMap = predictions.map(prediction=>prediction.plant)
     // expect(predictionMap).toMatchObject([ 'Iris-setosa', 'Iris-virginica' ])
   }, 20000);
 })

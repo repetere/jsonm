@@ -84,8 +84,7 @@ const dependentVariables = [
             e.preventDefault();
             if(classificationModelTest.status.trained===false) {
               updateLoadingDom(csvtest1DOM,'Error: Model is not trained');
-            } else{
-
+            } else {
               const formData = {};
               const form = new FormData(classificationForm);
               for(var value of form.entries()){

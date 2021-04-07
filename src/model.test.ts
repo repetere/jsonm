@@ -47,7 +47,7 @@ describe('Generated Functions', () => {
       expect(sumPreviousRows.call({ data, }, { property, offset: 1, rows: 1 })).toBe(20);
       expect(sumPreviousRows.call({ data, }, { property, offset: 2, rows: 1 })).toBe(30);
       expect(sumPreviousRows.call({ data, }, { property, offset: 1, rows: 3 })).toBe(90);
-      expect(() => { sumPreviousRows.call({ data, }, { property, offset: 0, rows: 3 }) }).toThrow('Offset must be larger');
+      expect(() => { sumPreviousRows.call({ data, debug:true }, { property, offset: 0, rows: 3 }) }).toThrow('Offset must be larger');
     });
   });
 });

@@ -92,7 +92,7 @@ export function getModelOptions(jml?:JML,datum?:Datum){
       day: ['onehot',],
     }
   }
-   return {
+  return {
     ...defaultModelOptions,
     ...jml?.model_options,
   }

@@ -331,34 +331,29 @@ export function sumPreviousRows(this: SumPreviousRowContext, options: SumPreviou
   const OFFSET = (typeof this.offset === 'number') ? this.offset : offset;
   const index = OFFSET; //- 1;
   // console.log({index,OFFSET,'index-rows':index-rows})
-  try {
-
-    if (this.debug) {
-      if (OFFSET < 1) throw new RangeError(`Offset must be larger than or equal to the default of 1 [property:${property}]`);
-      if (index-rows < 0) throw new RangeError(`previous index must be greater than 0 [index-rows:${index-rows}]`);
-    }
-    const begin = index;
-    const end = rows+index;
-    const sum = this.data
-    .slice(begin, end)
-    // .slice(index-rows, index)
-    // .slice(index, rows + index)
-    .reduce((result, val) => {
-      //@ts-ignore
-      const value = (reverseTransform) ? this.DataSet.inverseTransformObject(val) : val;
-      // console.log({ value, result, });
-      result = result + value[ property ];
-      return result;
-    }, 0);
-    // const sumSet = this.data
-    //   .slice(begin, end).map(ss => ss[ property ]);
-    // console.log('this.data.length', this.data.length,'this.data.map(d=>d[property])',this.data.map(d=>d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
-    
-    return sum;
-  } catch(e){
-    console.error(e)
-    return undefined
+  if (this.debug) {
+    if (OFFSET < 1) throw new RangeError(`Offset must be larger than or equal to the default of 1 [property:${property}]`);
+    // if (index-rows < 0) throw new RangeError(`previous index must be greater than 0 [index-rows:${index-rows}]`);
   }
+  const begin = index;
+  const end = rows+index;
+  const sum = this.data
+  .slice(begin, end)
+  // .slice(index-rows, index)
+  // .slice(index, rows + index)
+  .reduce((result, val) => {
+    //@ts-ignore
+    const value = (reverseTransform) ? this.DataSet.inverseTransformObject(val) : val;
+    // console.log({ value, result, });
+    result = result + value[ property ];
+    return result;
+  }, 0);
+  // const sumSet = this.data
+  //   .slice(begin, end).map(ss => ss[ property ]);
+  // console.log('this.data.length', this.data.length,'this.data.map(d=>d[property])',this.data.map(d=>d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
+  
+  return sum;
+  
 }
 
 export class ModelX implements ModelContext {

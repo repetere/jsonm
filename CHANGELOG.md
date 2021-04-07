@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/repetere/jsonm/compare/v1.0.2...v1.0.3) (2021-04-07)
+
+
+### Bug Fixes
+
+* basic forecasting working ([a2c0b05](https://github.com/repetere/jsonm/commit/a2c0b0590e8dd04072561110a23682245aa8044a))
+
 ## [1.0.2](https://github.com/repetere/jsonm/compare/v1.0.1...v1.0.2) (2021-04-03)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@outsights/jsonm",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
   "main": "dist/index.cjs.js",
   "module": "build/index.js",

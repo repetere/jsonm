@@ -64,7 +64,10 @@ describe('basic jsonm examples',()=>{
   }, 20000);
   it('should forecast retail sales',async()=>{
     // https://raw.githubusercontent.com/repetere/sample-csv-data/main/examples/forecasts/kaggle-retaildataset/sales-data-1-1.csv
-    const inputs = ['IsHoliday', ];
+    const inputs = [
+      'IsHoliday', 
+      // 'sum_last_1_weekly_sales'
+    ];
     const outputs = [ 'Weekly_Sales',];
     const on_progress:TrainingProgressCallback = ({ completion_percentage, loss, epoch, status, logs, defaultLog, }) => { 
       // console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, })
@@ -77,19 +80,63 @@ describe('basic jsonm examples',()=>{
       dataset:{
         _data_csv:'https://raw.githubusercontent.com/repetere/sample-csv-data/main/examples/forecasts/kaggle-retaildataset/sales-data-1-1.csv'
       },
-      forecast_date_format:'dd/MM/yyyy'
+      forecast_date_format:'dd/MM/yyyy',
+      // model_options:{
+      //   validate_training_data: true,
+      //   retrain_forecast_model_with_predictions: true,
+      //   use_next_value_functions_for_training_data: true,
+      //   use_mock_dates_to_fit_trainning_data: true,
+      //   use_preprocessing_on_trainning_data: true,
+      //   training_feature_column_options: {
+      //     year: ['onehot',],
+      //     month: ['onehot',],
+      //     day: ['onehot',],
+      //   },
+      //   training_data_filter_function:(datum, datumIndex)=>{
+      //     // console.log({datum, datumIndex})
+      //     return datumIndex>2
+      //   },
+      //   prediction_timeseries_date_format:'dd/MM/yyyy',
+      //   prediction_timeseries_date_feature:'Date',
+      //   prediction_inputs_next_value_functions:[
+      //     {
+      //       variable_name: 'sum_last_1_weekly_sales',
+      //       function_body: 'return state.sumPreviousRows({property:"Weekly_Sales",rows:2})',
+      //     }
+      //   ]
+      // }
     }
     const SalesForecastModel = await getModel(exampleJSON); 
     await SalesForecastModel.trainModel({use_next_value_functions_for_training_data: true,})
     // console.log(SalesForecastModel)    
-    // const predictions = await SalesForecastModel.predictModel({ 
-    //   prediction_inputs:[
-    //     { isHoliday: false, year:2011, month: 8, day: 7, },
-    //   ],
-    //   // includeEvaluation:false, 
-    //   // includeInputs:true,
-    // });
-    // console.log('predictions',predictions)    
+    const predictions = await SalesForecastModel.predictModel({ 
+      prediction_inputs:[
+        // { Date:'05/08/2011', IsHoliday: false, },
+        // { Date:'06/01/2012',act:16567.69,IsHoliday:false,},
+        // { Date:'13/01/2012',act:16894.4,IsHoliday:true,},
+        // { Date:'20/01/2012',act:18365.1,IsHoliday:false,},
+        // { Date:'27/01/2012',act:18378.16,IsHoliday:false,},
+        // { Date:'03/02/2012',act:23510.49,IsHoliday:false},
+        { 
+          Date:'02/11/2012',
+          // act:27390.81,
+          IsHoliday:false
+        },
+        { 
+          Date:'09/11/2012',
+          // act:27390.81,
+          IsHoliday:false
+        },
+      ],
+      includeEvaluation:false, 
+      includeInputs:true,
+    });
+    // console.log('predictions',predictions.map(pred=>({
+    //   Date:pred.Date,
+    //   act:pred.act,
+    //   Weekly_Sales:pred.Weekly_Sales,
+    //   IsHoliday:pred.IsHoliday,
+    // })))    
     // const predictionMap = predictions.map(prediction=>prediction.plant)
     // expect(predictionMap).toMatchObject([ 'Iris-setosa', 'Iris-virginica' ])
   }, 20000);

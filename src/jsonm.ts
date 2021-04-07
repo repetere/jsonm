@@ -28,7 +28,7 @@ export type JML = {
   model_type?: ModelTypes;
   dataset?: JDS | Data;
   on_progress?: TrainingProgressCallback;
-  model_options?: ModelConfiguration;
+  model_options?: Partial<ModelConfiguration>;
   forecast_date_field?:string;
   forecast_date_format?:string;
   forecast_date_time_zone?:string;
@@ -92,7 +92,7 @@ export function getModelOptions(jml?:JML,datum?:Datum){
       day: ['onehot',],
     }
   }
-  return {
+   return {
     ...defaultModelOptions,
     ...jml?.model_options,
   }

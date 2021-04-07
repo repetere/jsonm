@@ -285,6 +285,7 @@ export type ValidateTimeseriesDataOptions = {
   prediction_inputs?: ModelXDataTypes.Data;
   getPredictionInputPromise?: GetPredicitonData;
   predictionOptions?: PredictionOptions;
+  set_forecast_dates_for_predictions?:boolean;
 }
 
 export type PredictionOptions = {
@@ -324,19 +325,21 @@ export interface sumPreviousRows{
 }
   
 export function sumPreviousRows(this: SumPreviousRowContext, options: SumPreviousRowsOptions): number {
-  // console.log('sumPreviousRows', { options });
+  // console.log('sumPreviousRows', { options },'this.offset',this.offset);
   const { property, rows, offset = 1, } = options;
   const reverseTransform = Boolean(this.reverseTransform);
   const OFFSET = (typeof this.offset === 'number') ? this.offset : offset;
   const index = OFFSET; //- 1;
   // console.log({index,OFFSET,'index-rows':index-rows})
-  // if (this.debug) {
-    if (OFFSET < 1) throw new RangeError(`Offset must be larger than or equal to the default of 1 [property:${property}]`);
-    // if (index-rows < 0) throw new RangeError(`previous index must be greater than 0 [index-rows:${index-rows}]`);
-  // }
-  const begin = index;
-  const end = rows+index;
-  const sum = this.data
+  try {
+
+    if (this.debug) {
+      if (OFFSET < 1) throw new RangeError(`Offset must be larger than or equal to the default of 1 [property:${property}]`);
+      if (index-rows < 0) throw new RangeError(`previous index must be greater than 0 [index-rows:${index-rows}]`);
+    }
+    const begin = index;
+    const end = rows+index;
+    const sum = this.data
     .slice(begin, end)
     // .slice(index-rows, index)
     // .slice(index, rows + index)
@@ -347,11 +350,15 @@ export function sumPreviousRows(this: SumPreviousRowContext, options: SumPreviou
       result = result + value[ property ];
       return result;
     }, 0);
-  // const sumSet = this.data
-  //   .slice(begin, end).map(ss => ss[ property ]);
-  // console.log('this.data.length', this.data.length,'this.data.map(d=>d[property])',this.data.map(d=>d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
-
-  return sum;
+    // const sumSet = this.data
+    //   .slice(begin, end).map(ss => ss[ property ]);
+    // console.log('this.data.length', this.data.length,'this.data.map(d=>d[property])',this.data.map(d=>d[property]), { sumSet, property, offset, rows, sum, reverseTransform, index, begin, end, });
+    
+    return sum;
+  } catch(e){
+    console.error(e)
+    return undefined
+  }
 }
 
 export class ModelX implements ModelContext {
@@ -681,7 +688,7 @@ export class ModelX implements ModelContext {
       // console.log({ trainningData, i });
       trainningData.forEach((trainningVal, v) => {
         if (typeof trainningVal !== 'number' || isNaN(trainningVal)) {
-          // // console.error(`Trainning data (${i}) has an invalid ${this.x_independent_features[ v ]}. Value: ${trainningVal}`);
+          // console.error(`${dataType} data (${i}) has an invalid ${this.x_independent_features[ v ]}. Value: ${trainningVal}`);
           // const originalData = (inputMatrix)
           //   ? inputMatrix[ i ]
           //   : (cross_validate_training_data)
@@ -842,16 +849,42 @@ export class ModelX implements ModelContext {
       this.getForecastDates();
     }
   }
+  getForecastDatesFromPredictionInputs(options:ValidateTimeseriesDataOptions={}){
+    const raw_prediction_inputs =  options.prediction_inputs.map(predictionInput=>{
+      const inputDate = predictionInput[this.prediction_timeseries_date_feature];
+      const predictionDate = (inputDate  && inputDate instanceof Date)
+        ? inputDate
+        : (this.prediction_timeseries_date_format)
+          ? Luxon.DateTime.fromFormat(inputDate,this.prediction_timeseries_date_format).toJSDate()
+          : inputDate as Date;
+      return {
+        ...predictionInput,
+        [ this.prediction_timeseries_date_feature ]: predictionDate
+      }
+    });
+    const forecastDates = raw_prediction_inputs.map(rawInput=>rawInput[this.prediction_timeseries_date_feature]);
+    return {
+      forecastDates,
+      raw_prediction_inputs,
+    }
+  }
   async validateTimeseriesData(options: ValidateTimeseriesDataOptions = {}) {
     const { fixPredictionDates = true, } = options;
     const dimension = this.dimension as Dimensions;
     let raw_prediction_inputs = options.prediction_inputs || await this.getPredictionData(options) || [];
     // console.log('ORIGINAL raw_prediction_inputs', raw_prediction_inputs);
+    // console.log('ORIGINAL options.prediction_inputs', options.prediction_inputs);
     // console.log('this.DataSet', this.DataSet);
 
     const lastOriginalDataSetIndex = this.DataSet.data.length - 1;
     const lastOriginalDataSetObject = this.DataSet.data[ lastOriginalDataSetIndex ];
     let forecastDates = this.forecastDates;
+    if(options.set_forecast_dates_for_predictions && this.forecastDates.length<1){
+      const transformedInputs = this.getForecastDatesFromPredictionInputs(options);
+       forecastDates = transformedInputs.forecastDates;
+       raw_prediction_inputs = transformedInputs.raw_prediction_inputs;
+      }
+    // console.log({lastOriginalDataSetIndex,lastOriginalDataSetObject, forecastDates})
     const datasetDateOptions = getLuxonDateTime({
       dateObject: lastOriginalDataSetObject[ this.prediction_timeseries_date_feature ],
       dateFormat: this.prediction_timeseries_date_format,
@@ -1079,6 +1112,8 @@ export class ModelX implements ModelContext {
   
     this.addMockData({ use_mock_dates, });
     this.DataSet.fitColumns(this.training_feature_column_options);
+    // console.log('trainModel this.DataSet.data[0]', this.DataSet.data[0]);
+    // console.log('trainModel this.DataSet.data[this.DataSet.data.length-1]', this.DataSet.data[this.DataSet.data.length-1]);
     this.removeMockData({ use_mock_dates, });
     // console.log('this.auto_assign_features', this.auto_assign_features);
     // console.log('before this.x_independent_features', this.x_independent_features);
@@ -1114,8 +1149,12 @@ export class ModelX implements ModelContext {
       train = crosstrainingData.train;
       this.original_data_test = crosstrainingData.test;
       this.original_data_train = crosstrainingData.train;
+      
+    // console.log('trainModel this.DataSet.data[0]', this.DataSet.data[0]);
+    // console.log('trainModel this.DataSet.data[this.DataSet.data.length-1]', this.DataSet.data[this.DataSet.data.length-1]);
       // console.log('IN MODEL test.length', test.length);
-      // console.log('IN MODEL train.length', train.length);
+      // console.log('IN MODEL train[0]', train[0]);
+      // console.log('IN MODEL train[train.length-1]', train[train.length-1]);
       // Object.defineProperty(this.x_indep_matrix_train, '', {
       //   writable: false,
       //   configurable: false,
@@ -1132,7 +1171,7 @@ export class ModelX implements ModelContext {
       this.y_dep_matrix_train = this.DataSet.columnMatrix(this.y_dependent_labels);
     }
     this.Model = new modelObject(this.training_options, {});
-    this.Model.tf.set
+    // this.Model.tf.set
     if (this.config.model_category === 'timeseries') {
       const validationData = await this.validateTimeseriesData(options);
     }
@@ -1183,6 +1222,7 @@ export class ModelX implements ModelContext {
       this.checkTrainingStatus(options),
       options.prediction_inputs || await this.getPredictionData(options),
     ]);
+    // console.log({trainingstatus, raw_prediction_inputs})
     if (includeEvaluation) {
       let { test, train, } = this.getCrosstrainingData();
       const testDataSet = new ModelXDataTypes.DataSet(test);
@@ -1314,6 +1354,7 @@ export class ModelX implements ModelContext {
       : true,
     }, this.prediction_options, options.predictionOptions);
     
+    options.set_forecast_dates_for_predictions = true;
     const { forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, } = await this.validateTimeseriesData(options);
 
     // console.log({ forecastDates, forecastDateFirstDataSetDateIndex, lastOriginalForecastDate, raw_prediction_inputs, dimension, datasetDates, });
@@ -1335,6 +1376,7 @@ export class ModelX implements ModelContext {
       if (forecastDate <= lastOriginalForecastDate) {
         datasetScaledObject = this.DataSet.data[ existingDatasetObjectIndex ];
         datasetUnscaledObject = this.DataSet.inverseTransformObject(datasetScaledObject,{});
+        // console.log({datasetScaledObject,datasetUnscaledObject})
         predictionInput = [
           datasetScaledObject,
         ];
@@ -1384,12 +1426,13 @@ export class ModelX implements ModelContext {
         )
         : Object.assign({}, datasetUnscaledObject, unscaledNextValueFunctionObject, rawInputPredictionObject, unscaledLastForecastedValue, parsedLocalDate);
       // console.log({ unscaledRawInputObject });
-
+      // console.log('this.DataSet',this.DataSet.exportFeatures())
       scaledRawInputObject = this.DataSet.transformObject(unscaledRawInputObject, { checkColumnLength: false, });
       
       predictionInput = [
         scaledRawInputObject,
       ];
+      // console.log({scaledRawInputObject})
       
       if (predictionInput) {
         const inputMatrix = this.DataSet.columnMatrix(this.x_independent_features, predictionInput);

@@ -51,7 +51,7 @@
     "ml-confusion-matrix": "^0.4.0",
     "outlier": "0.0.1",
     "promisie": "^3.0.1",
-    "stemmer": "^1.0.5"
+    "stemmer": "^2.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "12.1.1",

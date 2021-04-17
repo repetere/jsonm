@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/repetere/jsonm/compare/v1.0.3...v1.0.4) (2021-04-17)
+
+
+### Bug Fixes
+
+* adding for basic prediction inputs ([97f4542](https://github.com/repetere/jsonm/commit/97f4542ca9574a0d6494beef8b6b3c12de8299cf))
+
 ## [1.0.3](https://github.com/repetere/jsonm/compare/v1.0.2...v1.0.3) (2021-04-07)
 
 

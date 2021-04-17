@@ -3,21 +3,30 @@
 
 ## Description
 
-**JSONM** is a module that creates AI &amp; ML models with JSON using TypeScript & Tensorflow
+**JSONM** is a module that creates Tensorflow models with JSON.
 
-### Declarative
+### Jump right in
 
-The JSONM UMD comes with batteries included so you can use JSONM in the browser without transpilers or any additional setup/configuration. The JSONM UMD is ideal for JAMstack Applications.
+JSONM is designed so software engineers and machine learning engineers can quickly build, train, save, and load Tensorflow based AI & ML Models. The JSONM Library includes a JSONM UMD module with batteries included so you can use JSONM in the browser without transpilers or any additional setup/configuration. The JSONM UMD is ideal for JAMstack Applications.
 
-### Intention
+### Usage
 
 The idea behind JSONM is to enable rapid model development. JSONM attempts to automate the data pre-processing and feature engineering needed for most modeling tasks. 
 
 Data Scientists who are more comfortable finely tuning hyperparameters and controlling pre-processing, scaling and normalization of datasets can also configure JSONM to meet specific model requirements.
+
+### What's included
+JSONM currently supports the following models
+- General purpose multivariate based predictions
+- Multivariate linear regression based predictions
+- General purpose multivariate classification based descriptions
+- General purpose multivariate timeseries based forecasts
+- General purpose content based recommendations *(coming soon)*
+- General purpose cohort analysis *(coming soon)*
 ## Installation
 
 ```sh
-$ npm i @outsights/jsonm
+$ npm i @jsonstack/jsonm
 ```
 ### [Full Documentation](https://repetere.github.io/jsonm/)
 
@@ -27,11 +36,13 @@ $ npm i @outsights/jsonm
 ---
 ### JSONM Manual
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
+ - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
  - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
  - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
  - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)
  - [Model Evaluation](https://repetere.github.io/jsonm/manual/model-evaluation/index.html)
  - [Model Predictions](https://repetere.github.io/jsonm/manual/model-predictions/index.html)
+ - [Saving and Loading Models](https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html)
  - [JSONM & JML Spec](https://repetere.github.io/jsonm/manual/spec/index.html)
  - [Examples](https://repetere.github.io/jsonm/manual/examples/index.html)
  - [Full API Docs](https://repetere.github.io/jsonm/)

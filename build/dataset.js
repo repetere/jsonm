@@ -1,4 +1,4 @@
-import { loadCSV, loadTSV, } from '@modelx/data/src/csv';
+import { loadCSV, loadTSV, } from '@jsonstack/data/src/csv';
 import { getFirstDataset, } from './transforms';
 import Promisie from 'promisie';
 import axios from 'axios';

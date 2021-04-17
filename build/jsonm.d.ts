@@ -1,9 +1,9 @@
 import { ModelX, ModelTypes, ModelConfiguration } from './model';
-import { Data, Datum } from '@modelx/data/src/DataSet';
+import { Data, Datum } from '@jsonstack/data/src/DataSet';
 import { TrainingProgressCallback } from './constants';
 import { JDS } from './dataset';
 import { AutoFeature } from './features';
-import { TensorScriptOptions } from '@modelx/model/src/model_interface';
+import { TensorScriptOptions } from '@jsonstack/model/src/model_interface';
 export declare const ModelToTypeMap: {
     regression: string;
     prediction: string;

@@ -43,8 +43,8 @@
     "coverage": "coveralls"
   },
   "dependencies": {
-    "@modelx/data": "^1.1.2",
-    "@modelx/model": "1.6.1",
+    "@jsonstack/data": "^0.0.1",
+    "@jsonstack/model": "^1.1.1",
     "axios": "^0.21.1",
     "flat": "^5.0.2",
     "luxon": "^1.26.0",
@@ -94,7 +94,7 @@
       }
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!(@modelx/data|@modelx/model)/)"
+      "node_modules/(?!(@jsonstack/data|@jsonstack/model)/)"
     ]
   },
   "commitlint": {

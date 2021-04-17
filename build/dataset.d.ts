@@ -1,5 +1,5 @@
-import { Data } from '@modelx/data/src/DataSet';
-import { CSVOptions } from '@modelx/data/src/csv';
+import { Data } from '@jsonstack/data/src/DataSet';
+import { CSVOptions } from '@jsonstack/data/src/csv';
 import { getFirstDataset } from './transforms';
 export declare type DataSets = {
     [index: string]: Data;

@@ -14,5 +14,5 @@ export {
 export {
   getDataSet,
 } from './dataset'
-export * as Data from '@modelx/data/src/index';
-export * as Model from '@modelx/model/src/index';
+export * as Data from '@jsonstack/data/src/index';
+export * as Model from '@jsonstack/model/src/index';

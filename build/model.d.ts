@@ -1,7 +1,7 @@
-import * as ModelXData from '@modelx/data/src/index';
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
-import * as ModelXModel from '@modelx/model/src/index';
-import * as ModelXModelTypes from '@modelx/model/src/model_interface';
+import * as ModelXData from '@jsonstack/data/src/index';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as ModelXModel from '@jsonstack/model/src/index';
+import * as ModelXModelTypes from '@jsonstack/model/src/model_interface';
 import { BooleanAnswer, Dimensions, Entity, ParsedDate, TrainingProgressCallback } from './constants';
 import { AutoFeature } from './features';
 export declare enum ModelTypes {

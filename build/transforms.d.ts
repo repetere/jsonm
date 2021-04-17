@@ -1,4 +1,4 @@
-import { Data } from '@modelx/data/src/DataSet';
+import { Data } from '@jsonstack/data/src/DataSet';
 import { Dimensions } from './constants';
 import { DataSets } from './dataset';
 export declare type CombineDatasetOptions = {

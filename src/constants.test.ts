@@ -19,7 +19,7 @@ import {
   removeEvaluationData,
 } from './constants';
 import { Info, DateTime, } from 'luxon';
-import { DataSet, } from '@modelx/data/src/index';
+import { DataSet, } from '@jsonstack/data/src/index';
 import { getDatum, getData, generateNumberRange,randomNumber, } from './util';
 
 

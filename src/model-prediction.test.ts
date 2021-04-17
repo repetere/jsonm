@@ -1,6 +1,6 @@
 import { ModelX, ModelTypes, EvaluateRegressionModel, EvaluateClassificationModel, } from './model';
 import  { Dimensions, getIsOutlier, mockDates } from './constants';
-import { DataSet, } from '@modelx/data/src/index';
+import { DataSet, } from '@jsonstack/data/src/index';
 import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
 
 describe('ModelX', () => {

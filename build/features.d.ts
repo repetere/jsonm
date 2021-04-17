@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
 export declare type UniqueDateOptions = {
     start: string;
     end: string;

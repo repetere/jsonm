@@ -2,7 +2,7 @@
 /*jshint expr: true*/
 import * as luxon from 'luxon';
 import * as features from './features';
-import * as ModelXData from '@modelx/data/src/index';
+import * as ModelXData from '@jsonstack/data/src/index';
 
 import { getDatum, getData, generateNumberRange,timeseriesSort, } from './util';
 // const validMongoId = '5b1eca428d021f08885edbf5';

@@ -1,7 +1,7 @@
-import * as ModelXData from '@modelx/data/src/index';
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
-import * as ModelXModel from '@modelx/model/src/index';
-import * as ModelXModelTypes from '@modelx/model/src/model_interface';
+import * as ModelXData from '@jsonstack/data/src/index';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as ModelXModel from '@jsonstack/model/src/index';
+import * as ModelXModelTypes from '@jsonstack/model/src/model_interface';
 import Promisie from 'promisie';
 import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
@@ -509,6 +509,7 @@ export class ModelX implements ModelContext {
         ...customFit,
       },
     };
+    console.log('this.training_options',this.training_options)
     this.training_progress_callback = configuration.training_progress_callback || training_on_progress;
     if (this.training_options && this.training_options.fit && this.training_options.fit.callbacks && this.training_options.fit.epochs) {
       this.training_options.fit.callbacks.onEpochEnd = (epoch, logs) => {
@@ -1040,7 +1041,7 @@ export class ModelX implements ModelContext {
     // console.log('after this.preprocessing_feature_column_options', this.preprocessing_feature_column_options);
     // console.log('after this.training_feature_column_options', this.training_feature_column_options);
     
-    // console.log('this.DataSet', this.DataSet);
+    console.log('initial this.DataSet', this.DataSet);
     
     if (this.use_preprocessing_on_trainning_data && this.preprocessing_feature_column_options && Object.keys(this.preprocessing_feature_column_options).length) {
       this.DataSet.fitColumns(this.preprocessing_feature_column_options);
@@ -1132,7 +1133,7 @@ export class ModelX implements ModelContext {
     // console.log('this.y_dependent_labels', this.y_dependent_labels);
     // console.log('IN MODEL trainingData.length', trainingData.length);
     // throw new Error('SHOULD NOT GET TO ADD MOCK DATA');
-    // console.log({ cross_validate_training_data });
+    console.log({ cross_validate_training_data });
     // Object.defineProperty(this, 'x_indep_matrix_train', {
     //   writable: false,
     //   configurable: false,
@@ -1147,7 +1148,8 @@ export class ModelX implements ModelContext {
       
     // console.log('trainModel this.DataSet.data[0]', this.DataSet.data[0]);
     // console.log('trainModel this.DataSet.data[this.DataSet.data.length-1]', this.DataSet.data[this.DataSet.data.length-1]);
-      // console.log('IN MODEL test.length', test.length);
+      console.log('IN MODEL train.length',{train}, train.length);
+      console.log('IN MODEL test.length',{test}, test.length);
       // console.log('IN MODEL train[0]', train[0]);
       // console.log('IN MODEL train[train.length-1]', train[train.length-1]);
       // Object.defineProperty(this.x_indep_matrix_train, '', {
@@ -1183,7 +1185,6 @@ export class ModelX implements ModelContext {
       // console.log('this.validate_training_data',this.validate_training_data)
       await this.Model.train(this.x_indep_matrix_train, this.y_dep_matrix_train, undefined, undefined, undefined);
     } else {
-      // console.log('this.DataSet.data',this.DataSet.data)
       // console.log('this.x_indep_matrix_train',this.x_indep_matrix_train)
       // console.log('this.x_indep_matrix_train[0]', this.x_indep_matrix_train[ 0 ]);
       // console.log('this.x_indep_matrix_train[this.x_indep_matrix_train.length-1]', this.x_indep_matrix_train[this.x_indep_matrix_train.length-1 ]);
@@ -1200,8 +1201,14 @@ export class ModelX implements ModelContext {
     this.status.lastTrained = new Date();
     return this;
   }
-  async predictModel(options:PredictModelOptions = {}) {
-    const { descalePredictions = true, includeInputs = false, includeEvaluation = true, } = options;
+  async predictModel(options:PredictModelOptions | ModelXDataTypes.Data = {}) {
+    if(Array.isArray(options)) {
+      const PredictionOptions:PredictModelOptions = {
+        prediction_inputs: options
+      }
+      options = PredictionOptions
+    }
+    const { descalePredictions = true, includeInputs = true, includeEvaluation = false, } = options as PredictModelOptions;
     const predictionOptions = {
       probability: this.config.model_category === ModelCategories.DECISION
         ? false
@@ -1294,7 +1301,7 @@ export class ModelX implements ModelContext {
           empty,
           transformed,
           (includeInputs && this.config.model_category !== 'timeseries') ? unscaledInputs[ i ] : {},
-          { __evaluation, },
+          includeEvaluation?{ __evaluation, }:{},
         );
         return descaled;
       });
@@ -1303,7 +1310,7 @@ export class ModelX implements ModelContext {
         {},
         this.DataSet.inverseTransformObject(val,{}),
         includeInputs ? this.prediction_inputs[ i ] : {},
-        { __evaluation, },
+        includeEvaluation?{ __evaluation, }:{},
       ));
     }
     if (this.use_empty_objects) {

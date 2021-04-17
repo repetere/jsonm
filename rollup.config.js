@@ -18,8 +18,8 @@ const external = [
   'webworkerThreads',
 ];
 const serverExternal = [
-  "@modelx/data",
-  "@modelx/model",
+  "@jsonstack/data",
+  "@jsonstack/model",
   "flat",
   "luxon",
   "outlier",
@@ -119,8 +119,8 @@ function getPlugins({
           // resolve: ['.js', '.ts'],
           entries: {
             '@tensorflow/tfjs-node': '@tensorflow/tfjs',
-            'natural':'./node_modules/@modelx/data/src/stub.ts',
-            'async_hooks': './node_modules/@modelx/data/src/async_hook_stub.ts',
+            'natural':'./node_modules/@jsonstack/data/src/stub.ts',
+            'async_hooks': './node_modules/@jsonstack/data/src/async_hook_stub.ts',
             'tsne-js': 'tsne-js/build/tsne.min.js',
           }
         })

@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
 import { DateTime, DateTimeJSOptions, DateObject } from 'luxon';
 export declare enum Dimensions {
     YEARLY = "yearly",

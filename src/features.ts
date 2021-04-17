@@ -1,8 +1,8 @@
 
 import { DateTime, } from 'luxon';
 import { Dimensions, } from './constants';
-import * as ModelXData from '@modelx/data/src/index';
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
+import * as ModelXData from '@jsonstack/data/src/index';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
 export type UniqueDateOptions = {
   start: string;
   end: string;

@@ -1,6 +1,6 @@
-import * as ModelXData from '@modelx/data/src/index';
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
-import * as ModelXModel from '@modelx/model/src/index';
+import * as ModelXData from '@jsonstack/data/src/index';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as ModelXModel from '@jsonstack/model/src/index';
 import Promisie from 'promisie';
 import { ISOOptions, durationToDimensionProperty, getOpenHour, getIsOutlier, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, } from './features';

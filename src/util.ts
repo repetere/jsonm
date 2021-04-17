@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
 // ts-node -O {\"module\":\"commonjs\"}  src/util.ts
 import * as features from './features';
 import { getParsedDate, } from './constants';

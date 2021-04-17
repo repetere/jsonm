@@ -1,8 +1,8 @@
 import { getFunctionString, ResolveDataset, ReduceDataset, getDataSet, } from './dataset';
-import { Data, } from '@modelx/data/src/DataSet';
+import { Data, } from '@jsonstack/data/src/DataSet';
 import { dataset0, dataset1, dataset2, dataset3, dataset4, } from './util';
 /*
-import { toBeWithinRange, } from '@modelx/model/src/jest.test';
+import { toBeWithinRange, } from '@jsonstack/model/src/jest.test';
 chai.use(sinonChai);		 expect.extend({ toBeWithinRange });
 */
 

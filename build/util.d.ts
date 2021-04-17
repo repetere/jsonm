@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@modelx/data/src/DataSet';
+import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
 import * as features from './features';
 export declare type Fake = {
     [index: string]: any;

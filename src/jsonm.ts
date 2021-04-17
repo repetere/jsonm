@@ -1,13 +1,13 @@
 import { ModelX, ModelContext, ModelTypes, ModelConfiguration, } from './model';
-import { Data, Datum, } from '@modelx/data/src/DataSet';
+import { Data, Datum, } from '@jsonstack/data/src/DataSet';
 import { TrainingProgressCallback, } from './constants';
 
 import { JDS, getDataSet, } from './dataset';
 import { AutoFeature } from './features';
-import { TensorScriptOptions } from '@modelx/model/src/model_interface';
+import { TensorScriptOptions } from '@jsonstack/model/src/model_interface';
 
 export const ModelToTypeMap = {
-  'regression':'ai-regression',
+  'regression':'ai-linear-regression',
   'prediction':'ai-regression',
   'classification':'ai-classification',
   'description':'ai-classification',
@@ -25,7 +25,7 @@ export type JML = {
   input_transforms?: AutoFeature[];
   output_transforms?: AutoFeature[];
   type?: string;
-  model_type?: ModelTypes;
+  model_type?: string;
   dataset?: JDS | Data;
   on_progress?: TrainingProgressCallback;
   model_options?: Partial<ModelConfiguration>;

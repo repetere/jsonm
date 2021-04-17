@@ -1,10 +1,10 @@
 import { getFunctionString, ResolveDataset, ReduceDataset, getDataSet, } from './dataset';
-// import { Data, } from '@modelx/data/src/DataSet';
+// import { Data, } from '@jsonstack/data/src/DataSet';
 import { Dimensions, } from './constants';
 import { dataset0, dataset1, dataset2, dataset3, dataset4, } from './util';
 import { getFirstDataset, combineDatasetsOnField, _helper_getBaseDataset, _helper_formatDateField, _helper_setEmptyDates, } from './transforms';
 /*
-import { toBeWithinRange, } from '@modelx/model/src/jest.test';
+import { toBeWithinRange, } from '@jsonstack/model/src/jest.test';
 chai.use(sinonChai);		 expect.extend({ toBeWithinRange });
 */
 

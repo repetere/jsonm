@@ -8,13 +8,14 @@ describe('basic jsonm examples',()=>{
   it('should handle basic linear regressions', async()=>{
     const inputs = ['height',];
     const outputs = [ 'weight',];
-    const on_progress:TrainingProgressCallback = ({ completion_percentage, loss, epoch, status, logs, defaultLog, }) => { 
-      console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, })
-     }
+    function on_progress({ completion_percentage, loss, epoch, status, logs, defaultLog, }) { 
+    // console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, })
+    }
     const exampleJSON: JML = {
       type: 'regression',
       inputs,
       outputs,
+      //@ts-ignore
       on_progress,
       dataset:[
         {height:61, weight:105},
@@ -39,7 +40,7 @@ describe('basic jsonm examples',()=>{
       ],
     );
     // console.log('predictions[0]',predictions[0])
-    console.log({predictions})
+    // console.log({predictions})
     // const predictionMap = predictions.map(prediction=>parseInt(prediction.price))
     expect(predictions[0].weight).toBeWithinRange(90, 110)
     expect(predictions[1].weight).toBeWithinRange(160, 180)

@@ -509,7 +509,7 @@ export class ModelX implements ModelContext {
         ...customFit,
       },
     };
-    console.log('this.training_options',this.training_options)
+    // console.log('this.training_options',this.training_options)
     this.training_progress_callback = configuration.training_progress_callback || training_on_progress;
     if (this.training_options && this.training_options.fit && this.training_options.fit.callbacks && this.training_options.fit.epochs) {
       this.training_options.fit.callbacks.onEpochEnd = (epoch, logs) => {
@@ -1041,7 +1041,7 @@ export class ModelX implements ModelContext {
     // console.log('after this.preprocessing_feature_column_options', this.preprocessing_feature_column_options);
     // console.log('after this.training_feature_column_options', this.training_feature_column_options);
     
-    console.log('initial this.DataSet', this.DataSet);
+    // console.log('initial this.DataSet', this.DataSet);
     
     if (this.use_preprocessing_on_trainning_data && this.preprocessing_feature_column_options && Object.keys(this.preprocessing_feature_column_options).length) {
       this.DataSet.fitColumns(this.preprocessing_feature_column_options);
@@ -1133,7 +1133,7 @@ export class ModelX implements ModelContext {
     // console.log('this.y_dependent_labels', this.y_dependent_labels);
     // console.log('IN MODEL trainingData.length', trainingData.length);
     // throw new Error('SHOULD NOT GET TO ADD MOCK DATA');
-    console.log({ cross_validate_training_data });
+    // console.log({ cross_validate_training_data });
     // Object.defineProperty(this, 'x_indep_matrix_train', {
     //   writable: false,
     //   configurable: false,
@@ -1148,8 +1148,8 @@ export class ModelX implements ModelContext {
       
     // console.log('trainModel this.DataSet.data[0]', this.DataSet.data[0]);
     // console.log('trainModel this.DataSet.data[this.DataSet.data.length-1]', this.DataSet.data[this.DataSet.data.length-1]);
-      console.log('IN MODEL train.length',{train}, train.length);
-      console.log('IN MODEL test.length',{test}, test.length);
+      // console.log('IN MODEL train.length',{train}, train.length);
+      // console.log('IN MODEL test.length',{test}, test.length);
       // console.log('IN MODEL train[0]', train[0]);
       // console.log('IN MODEL train[train.length-1]', train[train.length-1]);
       // Object.defineProperty(this.x_indep_matrix_train, '', {

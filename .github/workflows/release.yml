@@ -50,7 +50,7 @@ jobs:
       - name: build files, docs
         run: |
           npm run compile
-          npm run build 
+          NODE_OPTIONS=--max-old-space-size=9000 npm run build 
         # tsc && rollup -c && typedoc && sitedown manual/ -b docs/manual
       - name: Release
         env:

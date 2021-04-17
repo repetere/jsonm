@@ -45,6 +45,7 @@ export declare type ModelConfiguration = {
     training_feature_column_options?: ModelXDataTypes.DataSetTransform;
     use_preprocessing_on_trainning_data?: boolean;
     use_mock_dates_to_fit_trainning_data?: boolean;
+    use_next_value_functions_for_training_data?: boolean;
     use_cache?: boolean;
     model_type: ModelTypes;
     model_category?: ModelCategories;
@@ -271,6 +272,7 @@ export declare type ValidateTimeseriesDataOptions = {
     prediction_inputs?: ModelXDataTypes.Data;
     getPredictionInputPromise?: GetPredicitonData;
     predictionOptions?: PredictionOptions;
+    set_forecast_dates_for_predictions?: boolean;
 };
 export declare type PredictionOptions = {
     [index: string]: any;
@@ -304,6 +306,7 @@ export declare class ModelX implements ModelContext {
     removedFilterdtrainingData: ModelXDataTypes.Data;
     use_empty_objects: boolean;
     use_preprocessing_on_trainning_data: boolean;
+    use_next_value_functions_for_training_data: boolean;
     use_mock_encoded_data: boolean;
     validate_training_data: boolean;
     x_independent_features: string[];
@@ -391,6 +394,12 @@ export declare class ModelX implements ModelContext {
         retrain?: boolean;
     }): Promise<boolean>;
     getDataSetProperties(options?: GetDataSetProperties): Promise<void>;
+    getForecastDatesFromPredictionInputs(options?: ValidateTimeseriesDataOptions): {
+        forecastDates: any[];
+        raw_prediction_inputs: {
+            [x: string]: any;
+        }[];
+    };
     validateTimeseriesData(options?: ValidateTimeseriesDataOptions): Promise<{
         forecastDates: Date[];
         forecastDateFirstDataSetDateIndex: any;
@@ -407,7 +416,7 @@ export declare class ModelX implements ModelContext {
      * @param options
      */
     trainModel(options?: ModelTrainningOptions): Promise<this>;
-    predictModel(options?: PredictModelOptions): Promise<any>;
+    predictModel(options?: PredictModelOptions | ModelXDataTypes.Data): Promise<any>;
     retrainTimeseriesModel(options?: retrainTimeseriesModel): Promise<this>;
     timeseriesForecast(options?: ValidateTimeseriesDataOptions): Promise<any[]>;
     evaluateClassificationAccuracy(options?: EvaluationAccuracyOptions): {

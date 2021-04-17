@@ -120,6 +120,7 @@ function getPlugins({
           entries: {
             '@tensorflow/tfjs-node': '@tensorflow/tfjs',
             'natural':'./node_modules/@jsonstack/data/src/stub.ts',
+            'probability-distributions': './src/__test__/prob_stub.ts',
             'async_hooks': './node_modules/@jsonstack/data/src/async_hook_stub.ts',
             'tsne-js': 'tsne-js/build/tsne.min.js',
           }

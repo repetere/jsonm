@@ -67,15 +67,15 @@ const dependentVariables = [
           const dependent_variables = [
             'plant',
           ];
-          const trainingStatusDoms = document.querySelectorAll('.classification_training_progress');
+          const trainingStatusRange = document.querySelector('.classification_training_progress_range');
+          const trainingStatusOutput = document.querySelector('.classification_training_progress');
           const trainingStatusLabel = document.querySelector('.classification_training_status');
           const trainingStatusLoss = document.querySelector('.classification_training_loss');
           function training_progress_callback({completion_percentage, loss, epoch, status, logs, defaultLog, }){
             // console.log({ completion_percentage, loss, epoch, status, logs, defaultLog, });
             // updateLoadingDom(csvtest1DOM,{ completion_percentage, loss, });
-            trainingStatusDoms.forEach(trainingDom=>{
-              trainingDom.value=`${Math.ceil(completion_percentage*100)}%`;
-            });
+            trainingStatusRange.value=(completion_percentage*100);
+            trainingStatusOutput.value=`${Math.ceil(completion_percentage*100)}%`;
             trainingStatusLabel.value=status;
             trainingStatusLoss.value=`loss: ${loss}`;
           }
@@ -129,7 +129,7 @@ const dependentVariables = [
       <p>
         <label>Training Status</label>
         <input class="classification_training_status" type="input" readonly="readonly" />
-        <input class="classification_training_progress" type="range" readonly="readonly" max="100" min="0" value="0"/>
+        <input class="classification_training_progress_range" type="range" readonly="readonly" max="100" min="0" disabled value="0"/>
         <input class="classification_training_progress" type="input" readonly="readonly" max="100" min="0" value="0" style="width:40px;"/>
         <input class="classification_training_loss" type="input" readonly="readonly" />
       </p>

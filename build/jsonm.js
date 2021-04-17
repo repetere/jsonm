@@ -1,7 +1,7 @@
 import { ModelX, } from './model';
 import { getDataSet, } from './dataset';
 export const ModelToTypeMap = {
-    'regression': 'ai-regression',
+    'regression': 'ai-linear-regression',
     'prediction': 'ai-regression',
     'classification': 'ai-classification',
     'description': 'ai-classification',
@@ -51,7 +51,10 @@ export function getModelOptions(jml, datum) {
         defaultModelOptions.prediction_timeseries_date_feature = jml?.forecast_date_field || getDateField(datum);
         defaultModelOptions.prediction_timeseries_date_format = jml?.forecast_date_format;
         defaultModelOptions.validate_training_data = true;
+        // use_mock_dates_to_fit_trainning_data
         defaultModelOptions.retrain_forecast_model_with_predictions = true;
+        defaultModelOptions.use_next_value_functions_for_training_data = true;
+        defaultModelOptions.use_mock_dates_to_fit_trainning_data = true;
         defaultModelOptions.use_preprocessing_on_trainning_data = true;
         defaultModelOptions.training_feature_column_options = {
             year: ['onehot',],

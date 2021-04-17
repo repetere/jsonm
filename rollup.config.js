@@ -116,11 +116,11 @@ function getPlugins({
     plugins.push(
       ...[
         alias({
-          // resolve: ['.js', '.ts'],
+          resolve: ['.js', '.ts'],
           entries: {
             '@tensorflow/tfjs-node': '@tensorflow/tfjs',
             'natural':'./node_modules/@jsonstack/data/src/stub.ts',
-            'probability-distributions': './src/__test__/prob_stub.ts',
+            'probability-distributions': './src/stubs/prob_stub.js',
             'async_hooks': './node_modules/@jsonstack/data/src/async_hook_stub.ts',
             'tsne-js': 'tsne-js/build/tsne.min.js',
           }

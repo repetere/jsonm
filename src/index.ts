@@ -4,7 +4,7 @@ export {
   ModelCategories, 
   getGeneratedStatefulFunction, 
   sumPreviousRows,
-  ModelX as Model,
+  ModelX as JSONModel,
 } from './model';
 export {
   getModel,
@@ -14,4 +14,5 @@ export {
 export {
   getDataSet,
 } from './dataset'
-// export { MDX, getModel, } from './mdx';
+export * as Data from '@modelx/data/src/index';
+export * as Model from '@modelx/model/src/index';

@@ -77,4 +77,4 @@ JSONM is not great for
 - A heavy exploratory analysis
 
 ## Example ##
-<iframe width="100%" height="400" src="https://jsfiddle.net/yawetse/4ph1vwes/19/embedded/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/19/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>

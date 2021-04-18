@@ -77,4 +77,21 @@ JSONM is not great for
 - A heavy exploratory analysis
 
 ## Example ##
-<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/19/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+
+## Next: [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
+---
+### JSONM Manual
+ - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
+ - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
+ - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
+ - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
+ - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)
+ - [Model Evaluation](https://repetere.github.io/jsonm/manual/model-evaluation/index.html)
+ - [Model Predictions](https://repetere.github.io/jsonm/manual/model-predictions/index.html)
+ - [Saving and Loading Models](https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html)
+ - [JSONM & JML Spec](https://repetere.github.io/jsonm/manual/spec/index.html)
+ - [Examples](https://repetere.github.io/jsonm/manual/examples/index.html)
+ - [Full API Docs](https://repetere.github.io/jsonm/)
+---

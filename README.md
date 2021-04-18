@@ -100,6 +100,9 @@ const predictions = await IrisModel.predictModel({
 
 ```
 
+## Example ##
+<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
 ### Development
 
 Note *Make sure you have typescript installed*

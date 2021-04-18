@@ -16,73 +16,12 @@
  - [Full API Docs](https://repetere.github.io/jsonm/)
 ---
 
-# Getting started
 
-JSONM is a library that creates Tensorflow models from JSON. JSONM works by converting JSON Objects that follow the JML JSON spec into a Tensorflow model that can be trained, evaluated and used to make predictions.
+# Examples
 
-JSONM can normalize, scale, feature engineer inputs and outputs automatically. You can also specify how JSONM creates your model for you.
-
-## A simple linear regression example
-```Typescript
-import {getModel} from '@jsonstack/jsonm'; 
-
-const inputs = ['height',];
-const outputs = [ 'weight',];
-function on_progress({ completion_percentage, loss, epoch, status, }){ 
-  console.log({ completion_percentage, loss, epoch, status, })
-}
-const exampleJSON: JML = {
-  type: 'regression',
-  inputs,
-  outputs,
-  on_progress,
-  dataset:[
-    {height:61, weight:105},
-    {height:62, weight:120},
-    {height:63, weight:120},
-    {height:65, weight:160},
-    {height:65, weight:120},
-    {height:68, weight:145},
-    {height:69, weight:175},
-    {height:70, weight:160},
-    {height:72, weight:185},
-    {height:75, weight:210},
-  ]
-}
-const simpleModel = await getModel(exampleJSON); 
-await simpleModel.trainModel()
-const predictions = await simpleModel.predictModel( 
-  [
-    { height: 60, },
-    { height: 71, },
-    { height: 80, },
-  ],
-);
-/*
-=>  predictions: [
-  { weight: 99.99914637982626, height: 60 },
-  { weight: 177.6612194038534, height: 71 },
-  { weight: 241.20291735639228, height: 80 }
-]
-*/
-```
-
-## Usages ##
-JSONM is great for
--  Adding TensorFlow models to JAMStack based applications
--  Quickly building models directly in the browser or Node.js
--  Serving previously trained Tensorflow models
-
-JSONM is not great for
-- A heavy exploratory analysis
-
-## Example ##
-<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
-
-## Declarative vs Imperative Models
+1. [Getting Started Basic Classification Example](https://jsfiddle.net/yawetse/4ph1vwes/21/)
 
 
-## Next: [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
 ---
 ### JSONM Manual
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)

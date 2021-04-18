@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Basic JSONM</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://unpkg.com/@jsonstack/jsonm@1.0.4/dist/index.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/antd@4.15.1/dist/antd.min.css">
+    <style id="compiled-css" type="text/css">
+      .result{
+        border:1px solid black;
+        padding:1rem;
+        max-height: 20rem;
+        overflow: auto;
+        overflow-y: scroll;
+      }
+    </style>
+    <title>Classification Model</title>
+  </head>
+  <body>
+    <h2>JSONM Classification Model Example</h2>
+    <div class="result">
+      <p>
+        <label>Data Status</label>
+        <input class="classification_data_status" type="input" readonly="readonly" />
+      </p>
+      <hr/>
+      <p>
+        <label>Training Status</label>
+        <input class="classification_training_status" type="input" readonly="readonly" />
+        <input class="classification_training_progress_range" type="range" readonly="readonly" max="100" min="0" disabled value="0"/>
+        <input class="classification_training_progress" type="input" readonly="readonly" max="100" min="0" value="0" style="width:40px;"/>
+        <input class="classification_training_loss" type="input" readonly="readonly" />
+      </p>
+      <hr/>
+      <section>
+        <label>Prediction:</label>
+        <form id="handleClassification">
+          <table style="width: 100%;">    
+            <tr>
+              <td>
+                sepal_length_cm
+              </td>
+              <td>
+                sepal_width_cm
+              </td>
+              <td>
+                petal_length_cm
+              </td>
+              <td>
+                petal_width_cm
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input name="sepal_length_cm" type="number" max="15" min="0" step="0.1" value="5.1"/>
+              </td>
+              <td>
+                <input name="sepal_width_cm" type="number" max="15" min="0" step="0.1" value="3.5"/>
+              </td>
+              <td>
+                <input name="petal_length_cm" type="number" max="15" min="0" step="0.1" value="1.4"/>
+              </td>
+              <td>
+                <input name="petal_width_cm" type="number" max="15" min="0" step="0.1" value="0.2"/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" style="text-align: center;">
+                <button id="predictButton" class="ant-btn ant-btn-primary" type="submit" value="predict">Predict</button>
+              </td>
+            </tr>
+          </table>
+        </form>
+      </section>
+    </div>
+    <pre id='csvtest1' class="result"></pre>
+  </body>
+</html>
+<script type="text/javascript">//<![CDATA[
+  let classificationModelTest;
+  const { ModelTypes, Data, getModel} = window.JSONM;
+  const inputs = [
+    'sepal_length_cm',
+    'sepal_width_cm',
+    'petal_length_cm',
+    'petal_width_cm',
+  ];
+  const outputs = [
+    'plant',
+  ];
+  function on_progress({completion_percentage, loss, epoch, status, logs, defaultLog, }){
+    trainingStatusRange.value=(completion_percentage*100);
+    trainingStatusOutput.value=`${Math.ceil(completion_percentage*100)}%`;
+    trainingStatusLabel.value=status;
+    trainingStatusLoss.value=`loss: ${loss}`;
+    if (completion_percentage<1) {
+      predictButton.innerHTML = 'Predict (disabled while training)';
+      predictButton.classList.add('ant-btn-loading',true);
+    } else{
+      predictButton.innerHTML = 'Predict';
+      predictButton.classList.remove('ant-btn-loading',true);
+    }
+  }
+  async function main(){
+    trainingDataLabel.value = 'loading';
+    classificationModelTest = await getModel({
+      type:'classification',
+      inputs,
+      outputs,
+      on_progress,
+      dataset:{
+        _data_csv:'https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv'
+      }
+    })
+    trainingDataLabel.value = 'loaded';
+    await classificationModelTest.trainModel();
+  /*   const evaluation = await classificationModelTest.evaluateModel({}); */
+  }
+
+
+  const cacheData={};
+  function setLoadingDom(selector){
+    const el = document.querySelector(selector);
+    el.innerHTML = '';
+    return el;
+  }
+  function updateLoadingDom(el,content){
+    const resultPre = document.createElement('pre');
+    resultPre.innerHTML = `${new Date().valueOf()}: ${JSON.stringify(content ,null,2)}`;
+    el.prepend(resultPre);
+    // el.appendChild(resultPre);
+  }
+  const predictButton = document.querySelector('#predictButton')
+  const trainingStatusRange = document.querySelector('.classification_training_progress_range');
+  const trainingStatusOutput = document.querySelector('.classification_training_progress');
+  const trainingStatusLabel = document.querySelector('.classification_training_status');
+  const trainingStatusLoss = document.querySelector('.classification_training_loss');
+  const classificationForm =  document.querySelector('#handleClassification');
+  const csvtest1DOM= setLoadingDom('#csvtest1');
+  const trainingDataLabel = document.querySelector('.classification_data_status');
+  async function formSubmitHandler(e){
+    e.preventDefault();
+    if(classificationModelTest.status.trained===false) {
+      updateLoadingDom(csvtest1DOM,'Error: Model is not trained');
+    } else {
+      const formData = {};
+      const form = new FormData(classificationForm);
+      for(var value of form.entries()){
+        formData[value[0]] = parseFloat(value[1]);
+      }
+      const predictions = await classificationModelTest.predictModel([formData]);
+      updateLoadingDom(csvtest1DOM,predictions); // console.log({predictions});
+    }
+  }
+  classificationForm.addEventListener('submit',formSubmitHandler);
+  window.addEventListener('load',()=>{
+    main();
+  });
+//]]></script>
+</body>
+</html>

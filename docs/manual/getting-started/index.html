@@ -20,16 +20,28 @@
 <h3>JSONM Manual</h3>
 <ul>
 <li><a href="https://repetere.github.io/jsonm/manual/getting-started/index.html">Getting Started</a></li>
+<li>Working With Data
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
+</ul>
+</li>
+<li>Working With Models
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/model-training/index.html">Model Training</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/model-evaluation/index.html">Model Evaluation</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/model-predictions/index.html">Model Predictions</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html">Saving and Loading Models</a></li>
+</ul>
+</li>
+<li><a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/spec/index.html">JSONM &amp; JML Spec</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/examples/index.html">Examples</a></li>
 <li><a href="https://repetere.github.io/jsonm/">Full API Docs</a></li>
+</ul>
+</li>
 </ul>
 <hr>
 <h1>Getting started</h1>
@@ -91,22 +103,42 @@
 </ul>
 <h2>Example</h2>
 <iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest="" frameborder="0"></iframe>
+<h2>How JSONM works</h2>
+<p>JSONM works by translating a JSON object that follows the JML spec into a tensorflow model using both <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> and <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a>.</p>
+<h3><a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a></h3>
+<p>The jsonstack data module is a library that constructs datasets for machine learning models. <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> contains methods for preprocessing and feature engineering data. You can find out more about how <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> works from the documentation. JSONM can be used to automate preprocessing and feature engineering for you.</p>
+<h3><a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a></h3>
+<p>The jsonstack model module is a library that constructs tensorflow models for machine learning models. <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> contains classes for various kinds of machine learning and artifical intelligence models. You can find out more about how <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> works from the documentation. JSONM can be used to automatically define, train and evaluate tensorflow models for you.</p>
 <h2>Declarative vs Imperative Models</h2>
+<p>The primary way to build a Tensorflow model JSONM is to use the declarative model description via a JSON object that follows the JML spec. In some instances if you need to finely control how your models are trained and evaluated, the JSONModel Class is how models are created and can be used to manually create models.</p>
+<p>Read more about manual model creation in <a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>.</p>
 <h2>Next: <a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></h2>
 <hr>
 <h3>JSONM Manual</h3>
 <ul>
 <li><a href="https://repetere.github.io/jsonm/manual/getting-started/index.html">Getting Started</a></li>
+<li>Working With Data
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
+</ul>
+</li>
+<li>Working With Models
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/model-training/index.html">Model Training</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/model-evaluation/index.html">Model Evaluation</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/model-predictions/index.html">Model Predictions</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html">Saving and Loading Models</a></li>
+</ul>
+</li>
+<li><a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>
+<ul>
 <li><a href="https://repetere.github.io/jsonm/manual/spec/index.html">JSONM &amp; JML Spec</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/examples/index.html">Examples</a></li>
 <li><a href="https://repetere.github.io/jsonm/">Full API Docs</a></li>
+</ul>
+</li>
 </ul>
 <hr>
 </main>

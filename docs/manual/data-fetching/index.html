@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Getting started</title>
+  <title>Data fetching</title>
   <link rel="stylesheet" href="https://unpkg.com/style.css">
   <style type="text/css">
     .markdown-body {
@@ -44,75 +44,181 @@
 </li>
 </ul>
 <hr>
-<h1>Getting started</h1>
-<p>JSONM is a library that creates Tensorflow models from JSON. JSONM works by converting JSON Objects that follow the JML JSON spec into a Tensorflow model that can be trained, evaluated and used to make predictions.</p>
-<p>JSONM can normalize, scale, feature engineer inputs and outputs automatically. You can also specify how JSONM creates your model for you.</p>
-<h2>A simple linear regression example</h2>
-<pre><code class="hljs language-Typescript"><span class="hljs-keyword">import</span> {getModel} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>; 
-
-<span class="hljs-keyword">const</span> inputs = [<span class="hljs-string">'height'</span>,];
-<span class="hljs-keyword">const</span> outputs = [ <span class="hljs-string">'weight'</span>,];
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">on_progress</span>(<span class="hljs-params">{ completion_percentage, loss, epoch, status, }</span>)</span>{ 
-  <span class="hljs-built_in">console</span>.log({ completion_percentage, loss, epoch, status, })
-}
-<span class="hljs-keyword">const</span> exampleJSON: JML = {
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'regression'</span>,
-  inputs,
-  outputs,
-  on_progress,
-  <span class="hljs-attr">dataset</span>:[
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">61</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">105</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">62</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">63</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">65</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">160</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">65</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">68</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">145</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">69</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">175</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">70</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">160</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">72</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">185</span>},
-    {<span class="hljs-attr">height</span>:<span class="hljs-number">75</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">210</span>},
-  ]
-}
-<span class="hljs-keyword">const</span> simpleModel = <span class="hljs-keyword">await</span> getModel(exampleJSON); 
-<span class="hljs-keyword">await</span> simpleModel.trainModel()
-<span class="hljs-keyword">const</span> predictions = <span class="hljs-keyword">await</span> simpleModel.predictModel( 
-  [
-    { <span class="hljs-attr">height</span>: <span class="hljs-number">60</span>, },
-    { <span class="hljs-attr">height</span>: <span class="hljs-number">71</span>, },
-    { <span class="hljs-attr">height</span>: <span class="hljs-number">80</span>, },
+<h1>Data fetching</h1>
+<p>JSONM is designed to let you describe how to load model training data into your TensorFlow model via JSON and uses @jsonstack/data to construct training data for your model. The training data for your model can come from one or many data sources. JSONM also exposes the <code>getDataSet</code> asynchronous function that can be used to retrieve data independently.</p>
+<ol>
+<li><a href="#dataset">Static Training Data</a> - defining training data directly on your JML JSON Object on the <code>dataset</code> property</li>
+<li><a href="#getdataset">Using JDS JSON Data</a> - getModel’s <code>dataset</code> property can also be defined as a JDS JSON Object that returns training data from calling <code>getDataSet</code>
+<ol>
+<li><a href="#jds">JDS</a> - JSON DataSet JSON spec</li>
+<li><a href="'#static-data">JSON Training Data</a> - <code>dataset.data</code> or <code>dataset._static_data</code></li>
+<li><a href="'#dynamic-data">Dynamic Training Data</a>
+<ol>
+<li><a href="'#data-url">Fetching JSON from a URL</a> - <code>dataset._data_url</code></li>
+<li><a href="'#data-csv">Fetching JSON from CSV/TSV from a URL</a> - <code>dataset._data_csv</code> or <code>dataset._data_tsv</code></li>
+<li><a href="'#data-promise">Fetching JSON from a custom JavaScript Promise</a> - <code>dataset._data_promise</code></li>
+</ol>
+</li>
+<li><a href="'#data-reducer">Combining Multiple Data Sources</a>  - <code>dataset.reducer</code></li>
+<li><a href="'#data-transform'">Transforming Training Data</a> - <code>dataset.pre_transform</code> and <code>dataset.post_transform</code></li>
+</ol>
+</li>
+</ol>
+<h2><a name="dataset">1. Static Training Data </a></h2>
+<p>The most straightforward way of defining your training data, is to assign your model training data directly to the <code>dataset</code> property. When using static data, the <code>dataset</code> property expects to be an array of JSON objects.</p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: [ <span class="hljs-comment">//define static data</span>
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
   ],
-);
-<span class="hljs-comment">/*
-=&gt;  predictions: [
-  { weight: 99.99914637982626, height: 60 },
-  { weight: 177.6612194038534, height: 71 },
-  { weight: 241.20291735639228, height: 80 }
-]
-*/</span>
+};
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
 </code></pre>
-<h2>Usages</h2>
-<p>JSONM is great for</p>
-<ul>
-<li>Adding TensorFlow models to JAMStack based applications</li>
-<li>Quickly building models directly in the browser or Node.js</li>
-<li>Serving previously trained Tensorflow models</li>
-</ul>
-<p>JSONM is not great for</p>
-<ul>
-<li>A heavy exploratory analysis</li>
-</ul>
-<h2>Example</h2>
-<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest="" frameborder="0"></iframe>
-<h2>How JSONM works</h2>
-<p>JSONM works by translating a JSON object that follows the JML spec into a tensorflow model using both <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> and <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a>.</p>
-<h3><a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a></h3>
-<p>The jsonstack data module is a library that constructs datasets for machine learning models. <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> contains methods for preprocessing and feature engineering data. You can find out more about how <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> works from the documentation. JSONM can be used to automate preprocessing and feature engineering for you.</p>
-<h3><a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a></h3>
-<p>The jsonstack model module is a library that constructs tensorflow models for machine learning models. <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> contains classes for various kinds of machine learning and artifical intelligence models. You can find out more about how <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> works from the documentation. JSONM can be used to automatically define, train and evaluate tensorflow models for you.</p>
-<h2>Declarative vs Imperative Models</h2>
-<p>The primary way to build a Tensorflow model JSONM is to use the declarative model description via a JSON object that follows the JML spec. In some instances if you need to finely control how your models are trained and evaluated, the JSONModel Class is how models are created and can be used to manually create models.</p>
-<p>Read more about manual model creation in <a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>.</p>
-<h2>Next: <a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></h2>
+<h2><a name="getdataset">2. Using JDS JSON Data </a></h2>
+<p>Another way to set the training data for your model is to use JDS JSON in your <code>dataset</code> property. When <code>getModel</code> is called with <code>JML</code> and the <code>dataset</code> property is not an array of JSON objects, the <code>dataset</code> property is passed to the <code>getDataSet</code> function.</p>
+<p>The <code>getDataSet</code> method expects to be called with an JDS (JSON DataSet) formatted Object.</p>
+<h3><a name="jds">2.1 JDS </a></h3>
+<p>JDS Objects are defined as:</p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> JDS = {
+  name?: <span class="hljs-built_in">string</span>;
+  id?: <span class="hljs-built_in">string</span>;
+  reducer?: Reducer;
+  pre_transform?: <span class="hljs-built_in">string</span> | genericFunction;
+  post_transform?: <span class="hljs-built_in">string</span> | genericFunction;
+  data?: Data;
+  _data_static?: Data;
+  _data_url?: <span class="hljs-built_in">string</span>;
+  _data_csv?: <span class="hljs-built_in">string</span>;
+  _data_tsv?: <span class="hljs-built_in">string</span>;
+  _data_csv_options?: CSVOptions;
+  _data_promise?: genericFunction;
+}
+</code></pre>
+<h3><a name="static-data">2.2 JSON Training Data </a></h3>
+<p>The most simple use case would be just defining static data using JDS <code>data</code> or <code>_static_data</code></p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
+<span class="hljs-keyword">const</span> JDS = {
+  <span class="hljs-attr">data</span>:[ <span class="hljs-comment">//define static data</span>
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
+  ]
+};
+
+<span class="hljs-keyword">const</span> JDS2 = {
+  <span class="hljs-attr">_data_static</span>:[ <span class="hljs-comment">//define static data</span>
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
+    {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
+  ]
+};
+
+<span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: JDS || JDS2 || <span class="hljs-keyword">await</span> getDataSet(JDS || JDS2 )
+};
+
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+</code></pre>
+<h3><a name="data-dynamic">2.3 Dynamic Training Data </a></h3>
+<p>The primary use case for defining your training data with JDS JSON is because you need to fetch, combine and transform data from one or multiple sources.</p>
+<h4><a name="data-url">2.3.1 Fetching JSON from a URL </a></h4>
+<p>JSONM can be used to fetch JSON from a remote location by defining <code>_data_url</code></p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
+<span class="hljs-keyword">const</span> JDS = {
+   <span class="hljs-attr">_data_url</span>: <span class="hljs-string">'https://jsonplaceholder.typicode.com/posts'</span>
+};
+
+
+<span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: JDS
+  <span class="hljs-comment">/* resolves to:
+    [
+      {
+        userId: 1,
+        id: 1,
+        title: "sunt auto"
+      },
+      {
+        userId: 1,
+        id: 2,
+        title: "qui est esse",
+        body: "est rerum"
+      },
+      ...
+    ]
+  */</span>
+};
+
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+</code></pre>
+<h4><a name="data-csv">2.3.2 Fetching JSON from CSV/TSV from a URL </a></h4>
+<p>JSONM can be used to fetch JSON from a remote CSV/TSV location by defining <code>_data_csv</code> or <code>_data_tsv</code>. Both TSVs and CSVs will accept additional loading options that are defined on <code>_data_csv_options</code></p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
+<span class="hljs-keyword">const</span> JDS = {
+  <span class="hljs-attr">_data_csv</span>:<span class="hljs-string">'https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv'</span>,
+  <span class="hljs-attr">_data_csv_options</span>:{} <span class="hljs-comment">//options passed to csvtojson module</span>
+};
+
+<span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-comment">/* resolves to:
+    [
+      {
+        sepal_length_cm: 5.1, sepal_width_cm: 3.5, petal_length_cm: 1.4, petal_width_cm: 0.2, plant: 'Iris-setosa'
+      },
+      ...
+    ]
+  */</span>
+};
+
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+</code></pre>
+<h4><a name="data-promise">2.3.3 Fetching JSON from a custom JavaScript Promise </a></h4>
+<p>JSONM can be used to fetch JSON from any asynchronus function of Promise  by defining <code>_data_promise</code>. This allows for JSONM to load data from user defined functions.</p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
+<span class="hljs-keyword">const</span> JDS = {
+  <span class="hljs-attr">_data_promise</span>:<span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve,reject</span>)=&gt;</span>{
+    resolve([ 
+      {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
+      {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
+      {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
+    ])
+  })
+};
+
+<span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-comment">/* resolves to:
+    [ //define static data
+      {x:1,y:2,},
+      {x:2,y:4,},
+      {x:3,y:6,},
+    ]
+  */</span>
+};
+
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+</code></pre>
+<h2><a name="data-reducer">3. Combining Multiple Data Sources</a></h2>
+<h2><a name="data-transform">4. Transforming Training Data</a></h2>
+<p>Attempting to access <code>window.location.href</code> is where traverse props are useful. Conceptually you are traversing the <code>window</code> property and assign the <code>href</code> property from <code>window.location</code> to the <code>JXM.props.alt</code> property.</p>
+<h2>Next: <a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></h2>
 <hr>
 <h3>JSONM Manual</h3>
 <ul>

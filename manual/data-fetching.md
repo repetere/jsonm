@@ -19,86 +19,196 @@
    - [Full API Docs](https://repetere.github.io/jsonm/)
 ---
 
-# Getting started
+# Data fetching
 
-JSONM is a library that creates Tensorflow models from JSON. JSONM works by converting JSON Objects that follow the JML JSON spec into a Tensorflow model that can be trained, evaluated and used to make predictions.
+JSONM is designed to let you describe how to load model training data into your TensorFlow model via JSON and uses @jsonstack/data to construct training data for your model. The training data for your model can come from one or many data sources. JSONM also exposes the `getDataSet` asynchronous function that can be used to retrieve data independently.
 
-JSONM can normalize, scale, feature engineer inputs and outputs automatically. You can also specify how JSONM creates your model for you.
+1. [Static Training Data](#dataset) - defining training data directly on your JML JSON Object on the `dataset` property
+2. [Using JDS JSON Data](#getdataset) - getModel's `dataset` property can also be defined as a JDS JSON Object that returns training data from calling `getDataSet`
+   1. [JDS](#jds) - JSON DataSet JSON spec
+   2. [JSON Training Data]('#static-data) - `dataset.data` or `dataset._static_data`
+   3. [Dynamic Training Data]('#dynamic-data)
+      1. [Fetching JSON from a URL]('#data-url) - `dataset._data_url`
+      2. [Fetching JSON from CSV/TSV from a URL]('#data-csv) - `dataset._data_csv` or `dataset._data_tsv`
+      3. [Fetching JSON from a custom JavaScript Promise]('#data-promise) - `dataset._data_promise`
+   3. [Combining Multiple Data Sources]('#data-reducer)  - `dataset.reducer`
+   4. [Transforming Training Data]('#data-transform') - `dataset.pre_transform` and `dataset.post_transform`
 
-## A simple linear regression example
-```Typescript
-import {getModel} from '@jsonstack/jsonm'; 
+## <a name="dataset">1. Static Training Data </a>
 
-const inputs = ['height',];
-const outputs = [ 'weight',];
-function on_progress({ completion_percentage, loss, epoch, status, }){ 
-  console.log({ completion_percentage, loss, epoch, status, })
-}
-const exampleJSON: JML = {
-  type: 'regression',
-  inputs,
-  outputs,
-  on_progress,
-  dataset:[
-    {height:61, weight:105},
-    {height:62, weight:120},
-    {height:63, weight:120},
-    {height:65, weight:160},
-    {height:65, weight:120},
-    {height:68, weight:145},
-    {height:69, weight:175},
-    {height:70, weight:160},
-    {height:72, weight:185},
-    {height:75, weight:210},
-  ]
-}
-const simpleModel = await getModel(exampleJSON); 
-await simpleModel.trainModel()
-const predictions = await simpleModel.predictModel( 
-  [
-    { height: 60, },
-    { height: 71, },
-    { height: 80, },
+The most straightforward way of defining your training data, is to assign your model training data directly to the `dataset` property. When using static data, the `dataset` property expects to be an array of JSON objects.
+
+```TypeScript
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: [ //define static data
+    {x:1,y:2,},
+    {x:2,y:4,},
+    {x:3,y:6,},
   ],
-);
-/*
-=>  predictions: [
-  { weight: 99.99914637982626, height: 60 },
-  { weight: 177.6612194038534, height: 71 },
-  { weight: 241.20291735639228, height: 80 }
-]
-*/
+};
+const Model = await getModel(JML); 
 ```
 
-## Usages ##
-JSONM is great for
--  Adding TensorFlow models to JAMStack based applications
--  Quickly building models directly in the browser or Node.js
--  Serving previously trained Tensorflow models
+## <a name="getdataset">2. Using JDS JSON Data </a>
 
-JSONM is not great for
-- A heavy exploratory analysis
+Another way to set the training data for your model is to use JDS JSON in your `dataset` property. When `getModel` is called with `JML` and the `dataset` property is not an array of JSON objects, the `dataset` property is passed to the `getDataSet` function.
 
-## Example ##
-<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+The `getDataSet` method expects to be called with an JDS (JSON DataSet) formatted Object.
 
-## How JSONM works
+### <a name="jds">2.1 JDS </a>
+JDS Objects are defined as:
+```TypeScript
+export type JDS = {
+  name?: string;
+  id?: string;
+  reducer?: Reducer;
+  pre_transform?: string | genericFunction;
+  post_transform?: string | genericFunction;
+  data?: Data;
+  _data_static?: Data;
+  _data_url?: string;
+  _data_csv?: string;
+  _data_tsv?: string;
+  _data_csv_options?: CSVOptions;
+  _data_promise?: genericFunction;
+}
+```
+### <a name="static-data">2.2 JSON Training Data </a>
+The most simple use case would be just defining static data using JDS `data` or `_static_data`
 
-JSONM works by translating a JSON object that follows the JML spec into a tensorflow model using both [@jsonstack/data](https://repetere.github.io/jsonm-data/) and [@jsonstack/model](https://repetere.github.io/jsonm-model/).
+```TypeScript
+import { getModel, getDataSet} from '@jsonstack/jsonm'
+const JDS = {
+  data:[ //define static data
+    {x:1,y:2,},
+    {x:2,y:4,},
+    {x:3,y:6,},
+  ]
+};
 
-### [@jsonstack/data](https://repetere.github.io/jsonm-data/)
-The jsonstack data module is a library that constructs datasets for machine learning models. [@jsonstack/data](https://repetere.github.io/jsonm-data/) contains methods for preprocessing and feature engineering data. You can find out more about how [@jsonstack/data](https://repetere.github.io/jsonm-data/) works from the documentation. JSONM can be used to automate preprocessing and feature engineering for you.
+const JDS2 = {
+  _data_static:[ //define static data
+    {x:1,y:2,},
+    {x:2,y:4,},
+    {x:3,y:6,},
+  ]
+};
 
-### [@jsonstack/model](https://repetere.github.io/jsonm-model/)
-The jsonstack model module is a library that constructs tensorflow models for machine learning models. [@jsonstack/model](https://repetere.github.io/jsonm-model/) contains classes for various kinds of machine learning and artifical intelligence models. You can find out more about how [@jsonstack/model](https://repetere.github.io/jsonm-model/) works from the documentation. JSONM can be used to automatically define, train and evaluate tensorflow models for you.
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: JDS || JDS2 || await getDataSet(JDS || JDS2 )
+};
 
-## Declarative vs Imperative Models
-The primary way to build a Tensorflow model JSONM is to use the declarative model description via a JSON object that follows the JML spec. In some instances if you need to finely control how your models are trained and evaluated, the JSONModel Class is how models are created and can be used to manually create models.
+const Model = await getModel(JML); 
+```
+### <a name="data-dynamic">2.3 Dynamic Training Data </a>
+The primary use case for defining your training data with JDS JSON is because you need to fetch, combine and transform data from one or multiple sources.
 
-Read more about manual model creation in [Advanced Topics](https://repetere.github.io/jsonm/manual/advanced-topics/index.html).
+#### <a name="data-url">2.3.1 Fetching JSON from a URL </a>
+JSONM can be used to fetch JSON from a remote location by defining `_data_url`
+
+```TypeScript
+import { getModel, getDataSet} from '@jsonstack/jsonm'
+const JDS = {
+   _data_url: 'https://jsonplaceholder.typicode.com/posts'
+};
 
 
-## Next: [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: JDS
+  /* resolves to:
+    [
+      {
+        userId: 1,
+        id: 1,
+        title: "sunt auto"
+      },
+      {
+        userId: 1,
+        id: 2,
+        title: "qui est esse",
+        body: "est rerum"
+      },
+      ...
+    ]
+  */
+};
+
+const Model = await getModel(JML); 
+```
+#### <a name="data-csv">2.3.2 Fetching JSON from CSV/TSV from a URL </a>
+JSONM can be used to fetch JSON from a remote CSV/TSV location by defining `_data_csv` or `_data_tsv`. Both TSVs and CSVs will accept additional loading options that are defined on `_data_csv_options`
+
+```TypeScript
+import { getModel, getDataSet} from '@jsonstack/jsonm'
+const JDS = {
+  _data_csv:'https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv',
+  _data_csv_options:{} //options passed to csvtojson module
+};
+
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: JDS 
+  /* resolves to:
+    [
+      {
+        sepal_length_cm: 5.1, sepal_width_cm: 3.5, petal_length_cm: 1.4, petal_width_cm: 0.2, plant: 'Iris-setosa'
+      },
+      ...
+    ]
+  */
+};
+
+const Model = await getModel(JML); 
+```
+#### <a name="data-promise">2.3.3 Fetching JSON from a custom JavaScript Promise </a>
+JSONM can be used to fetch JSON from any asynchronus function of Promise  by defining `_data_promise`. This allows for JSONM to load data from user defined functions.
+
+```TypeScript
+import { getModel, getDataSet} from '@jsonstack/jsonm'
+const JDS = {
+  _data_promise:new Promise((resolve,reject)=>{
+    resolve([ 
+      {x:1,y:2,},
+      {x:2,y:4,},
+      {x:3,y:6,},
+    ])
+  })
+};
+
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: JDS 
+  /* resolves to:
+    [ //define static data
+      {x:1,y:2,},
+      {x:2,y:4,},
+      {x:3,y:6,},
+    ]
+  */
+};
+
+const Model = await getModel(JML); 
+```
+## <a name="data-reducer">3. Combining Multiple Data Sources</a>
+## <a name="data-transform">4. Transforming Training Data</a>
+
+Attempting to access `window.location.href` is where traverse props are useful. Conceptually you are traversing the `window` property and assign the `href` property from `window.location` to the `JXM.props.alt` property.
+
+
+## Next: [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
 ---
 ### JSONM Manual
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)

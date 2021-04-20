@@ -30,6 +30,12 @@ describe('JSON Dataset', () => {
         { num:1, some4: 'val dataset4' }
       ]));
     });
+    it('should return async data passed from _data_csv property', async () => {
+      const returnedData = await getDataSet({
+        _data_csv:'https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv'
+    });
+      expect(returnedData[0]).toHaveProperty('sepal_length_cm');
+    });
     it('should return async data passed from _data_url property', async () => {
       const returnedData = await getDataSet({ _data_url: 'https://jsonplaceholder.typicode.com/posts' });
       expect(returnedData[0]).toHaveProperty('id');

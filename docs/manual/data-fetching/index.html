@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting started</title>
+  <link rel="stylesheet" href="https://unpkg.com/style.css">
+  <style type="text/css">
+    .markdown-body {
+      max-width: 46em;
+      margin: 2em auto;
+      padding: 0 1em;
+      overflow: hidden;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main class="markdown-body"><link id="viewx-style-style-0" rel="stylesheet" type="text/css" href="https://unpkg.com/highlight.js@9.18.1/styles/darkula.css">
+<!-- <script src="https://unpkg.com/highlight.js@9.18.1/lib/highlight.js"> </script> -->
+<hr>
+<h3>JSONM Manual</h3>
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/getting-started/index.html">Getting Started</a></li>
+<li>Working With Data
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
+</ul>
+</li>
+<li>Working With Models
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/model-training/index.html">Model Training</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/model-evaluation/index.html">Model Evaluation</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/model-predictions/index.html">Model Predictions</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html">Saving and Loading Models</a></li>
+</ul>
+</li>
+<li><a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/spec/index.html">JSONM &amp; JML Spec</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/examples/index.html">Examples</a></li>
+<li><a href="https://repetere.github.io/jsonm/">Full API Docs</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1>Getting started</h1>
+<p>JSONM is a library that creates Tensorflow models from JSON. JSONM works by converting JSON Objects that follow the JML JSON spec into a Tensorflow model that can be trained, evaluated and used to make predictions.</p>
+<p>JSONM can normalize, scale, feature engineer inputs and outputs automatically. You can also specify how JSONM creates your model for you.</p>
+<h2>A simple linear regression example</h2>
+<pre><code class="hljs language-Typescript"><span class="hljs-keyword">import</span> {getModel} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>; 
+
+<span class="hljs-keyword">const</span> inputs = [<span class="hljs-string">'height'</span>,];
+<span class="hljs-keyword">const</span> outputs = [ <span class="hljs-string">'weight'</span>,];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">on_progress</span>(<span class="hljs-params">{ completion_percentage, loss, epoch, status, }</span>)</span>{ 
+  <span class="hljs-built_in">console</span>.log({ completion_percentage, loss, epoch, status, })
+}
+<span class="hljs-keyword">const</span> exampleJSON: JML = {
+  <span class="hljs-attr">type</span>: <span class="hljs-string">'regression'</span>,
+  inputs,
+  outputs,
+  on_progress,
+  <span class="hljs-attr">dataset</span>:[
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">61</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">105</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">62</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">63</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">65</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">160</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">65</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">120</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">68</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">145</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">69</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">175</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">70</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">160</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">72</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">185</span>},
+    {<span class="hljs-attr">height</span>:<span class="hljs-number">75</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">210</span>},
+  ]
+}
+<span class="hljs-keyword">const</span> simpleModel = <span class="hljs-keyword">await</span> getModel(exampleJSON); 
+<span class="hljs-keyword">await</span> simpleModel.trainModel()
+<span class="hljs-keyword">const</span> predictions = <span class="hljs-keyword">await</span> simpleModel.predictModel( 
+  [
+    { <span class="hljs-attr">height</span>: <span class="hljs-number">60</span>, },
+    { <span class="hljs-attr">height</span>: <span class="hljs-number">71</span>, },
+    { <span class="hljs-attr">height</span>: <span class="hljs-number">80</span>, },
+  ],
+);
+<span class="hljs-comment">/*
+=&gt;  predictions: [
+  { weight: 99.99914637982626, height: 60 },
+  { weight: 177.6612194038534, height: 71 },
+  { weight: 241.20291735639228, height: 80 }
+]
+*/</span>
+</code></pre>
+<h2>Usages</h2>
+<p>JSONM is great for</p>
+<ul>
+<li>Adding TensorFlow models to JAMStack based applications</li>
+<li>Quickly building models directly in the browser or Node.js</li>
+<li>Serving previously trained Tensorflow models</li>
+</ul>
+<p>JSONM is not great for</p>
+<ul>
+<li>A heavy exploratory analysis</li>
+</ul>
+<h2>Example</h2>
+<iframe width="100%" height="500" src="https://jsfiddle.net/yawetse/4ph1vwes/21/embedded/result,js,html,css,resources/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest="" frameborder="0"></iframe>
+<h2>How JSONM works</h2>
+<p>JSONM works by translating a JSON object that follows the JML spec into a tensorflow model using both <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> and <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a>.</p>
+<h3><a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a></h3>
+<p>The jsonstack data module is a library that constructs datasets for machine learning models. <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> contains methods for preprocessing and feature engineering data. You can find out more about how <a href="https://repetere.github.io/jsonm-data/">@jsonstack/data</a> works from the documentation. JSONM can be used to automate preprocessing and feature engineering for you.</p>
+<h3><a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a></h3>
+<p>The jsonstack model module is a library that constructs tensorflow models for machine learning models. <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> contains classes for various kinds of machine learning and artifical intelligence models. You can find out more about how <a href="https://repetere.github.io/jsonm-model/">@jsonstack/model</a> works from the documentation. JSONM can be used to automatically define, train and evaluate tensorflow models for you.</p>
+<h2>Declarative vs Imperative Models</h2>
+<p>The primary way to build a Tensorflow model JSONM is to use the declarative model description via a JSON object that follows the JML spec. In some instances if you need to finely control how your models are trained and evaluated, the JSONModel Class is how models are created and can be used to manually create models.</p>
+<p>Read more about manual model creation in <a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>.</p>
+<h2>Next: <a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></h2>
+<hr>
+<h3>JSONM Manual</h3>
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/getting-started/index.html">Getting Started</a></li>
+<li>Working With Data
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
+</ul>
+</li>
+<li>Working With Models
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/model-training/index.html">Model Training</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/model-evaluation/index.html">Model Evaluation</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/model-predictions/index.html">Model Predictions</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/saving-and-loading-models/index.html">Saving and Loading Models</a></li>
+</ul>
+</li>
+<li><a href="https://repetere.github.io/jsonm/manual/advanced-topics/index.html">Advanced Topics</a>
+<ul>
+<li><a href="https://repetere.github.io/jsonm/manual/spec/index.html">JSONM &amp; JML Spec</a></li>
+<li><a href="https://repetere.github.io/jsonm/manual/examples/index.html">Examples</a></li>
+<li><a href="https://repetere.github.io/jsonm/">Full API Docs</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+</main>
+
+
+</body></html>

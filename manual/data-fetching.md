@@ -6,7 +6,6 @@
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
  - Working With Data
    - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
-   - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
    - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
  - Working With Models
    - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)
@@ -31,9 +30,7 @@ JSONM is designed to let you describe how to load model training data into your 
       1. [Fetching JSON from a URL]('#data-url) - `dataset._data_url`
       2. [Fetching JSON from CSV/TSV from a URL]('#data-csv) - `dataset._data_csv` or `dataset._data_tsv`
       3. [Fetching JSON from a custom JavaScript Promise]('#data-promise) - `dataset._data_promise`
-   3. [Combining Multiple Data Sources]('#data-reducer)  - `dataset.reducer`
-   4. [Transforming Training Data]('#data-transform') - `dataset.pre_transform` and `dataset.post_transform`
-
+   3. [Transforming and Combining Multiple Data Sources]('#data-reducer)  - `dataset.reducer`
 ## <a name="dataset">1. Static Training Data </a>
 
 The most straightforward way of defining your training data, is to assign your model training data directly to the `dataset` property. When using static data, the `dataset` property expects to be an array of JSON objects.
@@ -203,18 +200,83 @@ const JML = {
 const Model = await getModel(JML); 
 ```
 ## <a name="data-reducer">3. Combining Multiple Data Sources</a>
-## <a name="data-transform">4. Transforming Training Data</a>
+JSONM can resolve multiple datasets objects into training data by using a reducer function. Reducer functions can pipe output from one function as the input to another function by defining multiple functions. 
 
-Attempting to access `window.location.href` is where traverse props are useful. Conceptually you are traversing the `window` property and assign the `href` property from `window.location` to the `JXM.props.alt` property.
+Reducers iterate over the JDS JSON objects defined in the `reducer.datasets` property. Reducers can be infinately nested for even more flexibility.
 
+Reducer functions can be defined as either a string of an asynchronous function body that returns the data you want, or an asychronous function.
 
-## Next: [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
+```TypeScript
+export type reducerFunction = (datasetData:DataSets) => Promise<Data>;
+
+export type Reducer = {
+  reducer_function: string | reducerFunction | Array<string|reducerFunction>;
+  name?: string;
+  context?: any;
+  datasets: Array<JDS|Data>;
+}
+```
+
+Reducers are a super powerful and flexible way to combine data from multiple sources. In order to reference datasets in your reducer functions, you can either explicitly set a name for the dataset or `dataset_${index}` name will be assigned automatically. Reducers can be used in the following way:
+```TypeScript
+import { getModel, getDataSet} from '@jsonstack/jsonm'
+
+function combineDataSets(datasets){
+  return datasets.firstDS.map((datum,i)=> {
+    return {
+      ...datum,
+      ...datasets.secondDS[i],
+      combined_x: datum.x+datasets.secondDS[i].x2,
+      combined_y: datum.y+datasets.secondDS[i].y2,
+    }
+  })
+}
+const JDS = {
+  reducer:{
+    reducer_function: combineDataSets,
+    datasets:[
+      {
+        name:'firstDS',
+        data:[
+          {x:1,y:2,},
+          {x:2,y:4,},
+          {x:3,y:6,},
+        ],
+      },
+      {
+        name:'secondDS',
+        data:[
+          {x:10,y:20,},
+          {x:20,y:40,},
+          {x:30,y:60,},
+        ],
+      }
+    ]
+  }
+};
+
+const JML = {
+  type, // required, e.g. 'regression'
+  inputs, // required, e.g. ['x']
+  outputs, // required, e.g. ['y']
+  dataset: JDS 
+  /* resolves to:
+      { x:1, y:2, x2:10, y:20, combined_x:11, combined_y:22, },
+      { x:2, y:4, x2:20, y:40, combined_x:22, combined_y:44, },
+      { x:3, y:6, x2:30, y:60, combined_x:33, combined_y:66, },
+    ]
+  */
+};
+
+const Model = await getModel(JML); 
+```
+
+## Next: [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
 ---
 ### JSONM Manual
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
  - Working With Data
    - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
-   - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
    - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
  - Working With Models
    - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)

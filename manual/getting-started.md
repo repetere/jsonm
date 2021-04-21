@@ -6,7 +6,6 @@
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
  - Working With Data
    - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
-   - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
    - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
  - Working With Models
    - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)
@@ -104,7 +103,6 @@ Read more about manual model creation in [Advanced Topics](https://repetere.gith
  - [Getting Started](https://repetere.github.io/jsonm/manual/getting-started/index.html)
  - Working With Data
    - [Data Fetching](https://repetere.github.io/jsonm/manual/data-fetching/index.html)
-   - [Data Preprocessing](https://repetere.github.io/jsonm/manual/data-preprocessing/index.html)
    - [Feature Engineering](https://repetere.github.io/jsonm/manual/feature-engineering/index.html)
  - Working With Models
    - [Model Training](https://repetere.github.io/jsonm/manual/model-training/index.html)

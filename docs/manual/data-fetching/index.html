@@ -23,7 +23,6 @@
 <li>Working With Data
 <ul>
 <li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
-<li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
 </ul>
 </li>
@@ -59,8 +58,7 @@
 <li><a href="'#data-promise">Fetching JSON from a custom JavaScript Promise</a> - <code>dataset._data_promise</code></li>
 </ol>
 </li>
-<li><a href="'#data-reducer">Combining Multiple Data Sources</a>  - <code>dataset.reducer</code></li>
-<li><a href="'#data-transform'">Transforming Training Data</a> - <code>dataset.pre_transform</code> and <code>dataset.post_transform</code></li>
+<li><a href="'#data-reducer">Transforming and Combining Multiple Data Sources</a>  - <code>dataset.reducer</code></li>
 </ol>
 </li>
 </ol>
@@ -216,9 +214,71 @@
 <span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
 </code></pre>
 <h2><a name="data-reducer">3. Combining Multiple Data Sources</a></h2>
-<h2><a name="data-transform">4. Transforming Training Data</a></h2>
-<p>Attempting to access <code>window.location.href</code> is where traverse props are useful. Conceptually you are traversing the <code>window</code> property and assign the <code>href</code> property from <code>window.location</code> to the <code>JXM.props.alt</code> property.</p>
-<h2>Next: <a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></h2>
+<p>JSONM can resolve multiple datasets objects into training data by using a reducer function. Reducer functions can pipe output from one function as the input to another function by defining multiple functions.</p>
+<p>Reducers iterate over the JDS JSON objects defined in the <code>reducer.datasets</code> property. Reducers can be infinately nested for even more flexibility.</p>
+<p>Reducer functions can be defined as either a string of an asynchronous function body that returns the data you want, or an asychronous function.</p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> reducerFunction = <span class="hljs-function">(<span class="hljs-params">datasetData:DataSets</span>) =&gt;</span> <span class="hljs-built_in">Promise</span>&lt;Data&gt;;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> Reducer = {
+  <span class="hljs-attr">reducer_function</span>: <span class="hljs-built_in">string</span> | reducerFunction | <span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">string</span>|reducerFunction&gt;;
+  name?: <span class="hljs-built_in">string</span>;
+  context?: <span class="hljs-built_in">any</span>;
+  datasets: <span class="hljs-built_in">Array</span>&lt;JDS|Data&gt;;
+}
+</code></pre>
+<p>Reducers are a super powerful and flexible way to combine data from multiple sources. In order to reference datasets in your reducer functions, you can either explicitly set a name for the dataset or <code>dataset_${index}</code> name will be assigned automatically. Reducers can be used in the following way:</p>
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">combineDataSets</span>(<span class="hljs-params">datasets</span>)</span>{
+  <span class="hljs-keyword">return</span> datasets.firstDS.map(<span class="hljs-function">(<span class="hljs-params">datum,i</span>)=&gt;</span> {
+    <span class="hljs-keyword">return</span> {
+      ...datum,
+      ...datasets.secondDS[i],
+      <span class="hljs-attr">combined_x</span>: datum.x+datasets.secondDS[i].x2,
+      <span class="hljs-attr">combined_y</span>: datum.y+datasets.secondDS[i].y2,
+    }
+  })
+}
+<span class="hljs-keyword">const</span> JDS = {
+  <span class="hljs-attr">reducer</span>:{
+    <span class="hljs-attr">reducer_function</span>: combineDataSets,
+    <span class="hljs-attr">datasets</span>:[
+      {
+        <span class="hljs-attr">name</span>:<span class="hljs-string">'firstDS'</span>,
+        <span class="hljs-attr">data</span>:[
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
+        ],
+      },
+      {
+        <span class="hljs-attr">name</span>:<span class="hljs-string">'secondDS'</span>,
+        <span class="hljs-attr">data</span>:[
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">10</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">20</span>,},
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">20</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">40</span>,},
+          {<span class="hljs-attr">x</span>:<span class="hljs-number">30</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">60</span>,},
+        ],
+      }
+    ]
+  }
+};
+
+<span class="hljs-keyword">const</span> JML = {
+  <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
+  inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
+  outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
+  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-comment">/* resolves to:
+      { x:1, y:2, x2:10, y:20, combined_x:11, combined_y:22, },
+      { x:2, y:4, x2:20, y:40, combined_x:22, combined_y:44, },
+      { x:3, y:6, x2:30, y:60, combined_x:33, combined_y:66, },
+    ]
+  */</span>
+};
+
+<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+</code></pre>
+<h2>Next: <a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></h2>
 <hr>
 <h3>JSONM Manual</h3>
 <ul>
@@ -226,7 +286,6 @@
 <li>Working With Data
 <ul>
 <li><a href="https://repetere.github.io/jsonm/manual/data-fetching/index.html">Data Fetching</a></li>
-<li><a href="https://repetere.github.io/jsonm/manual/data-preprocessing/index.html">Data Preprocessing</a></li>
 <li><a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></li>
 </ul>
 </li>

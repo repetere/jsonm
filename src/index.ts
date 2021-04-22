@@ -14,5 +14,9 @@ export {
 export {
   getDataSet,
 } from './dataset'
+export {
+  getAutoFeatures,
+  autoAssignFeatureColumns,
+} from './features'
 export * as Data from '@jsonstack/data/src/index';
 export * as Model from '@jsonstack/model/src/index';

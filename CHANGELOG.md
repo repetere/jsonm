@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/repetere/jsonm/compare/v1.0.4...v1.1.0) (2021-04-22)
+
+
+### Features
+
+* exposing feature methors ([08dd98a](https://github.com/repetere/jsonm/commit/08dd98afcc08852ca55c5c0efd63b8f0dbe0ab7d))
+* exposing feature methors ([13e1f81](https://github.com/repetere/jsonm/commit/13e1f81c8f94e49cffaec24ca391c976894807ee))
+
 ## [1.0.4](https://github.com/repetere/jsonm/compare/v1.0.3...v1.0.4) (2021-04-17)
 
 

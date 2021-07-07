@@ -70,7 +70,7 @@
     "@semantic-release/release-notes-generator": "9.0.3",
     "@tensorflow/tfjs-converter": "^3.4.0",
     "@tensorflow/tfjs-core": "^3.4.0",
-    "@types/flat": "5.0.1",
+    "@types/flat": "5.0.2",
     "@types/jest": "^26.0.22",
     "@types/lodash.range": "3.2.6",
     "@types/luxon": "^1.26.2",

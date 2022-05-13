@@ -50,7 +50,7 @@ $ npm i @jsonstack/jsonm
 
 ### Basic Usage
 ```typescript
-import { getModel } from '@outsights/jsonm';
+import { getModel } from '@jsonstack/jsonm';
 //Iris Dataset e.g from https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv
 const type = 'ai-classification';
 const dataset = [

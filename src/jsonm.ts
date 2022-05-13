@@ -34,6 +34,12 @@ export type JML = {
   forecast_date_time_zone?:string;
 }
 
+export type ModelDataOptions = {
+  inputs: string[];
+  outputs: string[];
+  data: JDS | Data;
+}
+
 export async function getModelFromJSONM(jml?: JML): Promise<ModelX> {
   const trainingData = Array.isArray(jml.dataset)
     ? jml.dataset
@@ -53,6 +59,24 @@ export async function getModelFromJSONM(jml?: JML): Promise<ModelX> {
 }
 
 export const getModel = getModelFromJSONM;
+
+/**
+ * Splits into training and prediction data
+ * @param options.inputs - list of inputs
+ * @param options.outputs - list of outputs
+ * @param options.data - data to split into training and prediction data
+ * @returns two objects (trainingData and predictionData)
+ */
+export async function splitTrainingPredictionData(options?:ModelDataOptions): Promise<{trainingData:Data, predictionData: Data}>{
+  const dataset = await getDataSet(options?.data);
+  const {trainingData, predictionData} = dataset.reduce((result,datum)=>{
+    if(options?.outputs?.filter((output)=>datum[output]===undefined || datum[output]===null
+    ).length) result.predictionData.push(datum);
+    else result.trainingData.push(datum);
+    return result;
+  },{trainingData:[],predictionData:[],})
+  return {trainingData,predictionData}
+}
 
 export function getModelTrainingOptions({ accuracy_target }: { accuracy_target?: number;} ={}) {
   return {

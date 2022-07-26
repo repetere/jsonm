@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as JSONStackData from '@jsonstack/data/src/DataSet';
 import { DateTime, DateTimeJSOptions, DateObject, } from 'luxon';
 import Outlier from 'outlier';
 
@@ -316,8 +316,8 @@ export function getOpenHour(options = {}): BooleanAnswer {
 }
 
 export function getIsOutlier(this: {
-  data: ModelXDataTypes.Data;
-  datum: ModelXDataTypes.Datum;
+  data: JSONStackData.Data;
+  datum: JSONStackData.Datum;
 }, { outlier_property, }: { outlier_property?: string; } = {}): BooleanAnswer {
   if (outlier_property) {
     const data = this.data;
@@ -330,19 +330,19 @@ export function getIsOutlier(this: {
   }
 }
 
-export function addMockDataToDataSet(DataSet: ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: ModelXDataTypes.Data; includeConstants?: boolean; }) {
+export function addMockDataToDataSet(DataSet: JSONStackData.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: JSONStackData.Data; includeConstants?: boolean; }) {
   const newMockData = new Array().concat(mockEncodedData, includeConstants ? mockDates : []);
   DataSet.data = DataSet.data.concat(newMockData);
   return DataSet;
 }
 
-export function removeMockDataFromDataSet(DataSet:ModelXDataTypes.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: ModelXDataTypes.Data; includeConstants?: boolean; }) {
+export function removeMockDataFromDataSet(DataSet:JSONStackData.DataSet, { mockEncodedData = [], includeConstants = true, }: { mockEncodedData?: JSONStackData.Data; includeConstants?: boolean; }) {
   const newMockData = new Array().concat(mockEncodedData, includeConstants ? mockDates : []);
   DataSet.data.splice(DataSet.data.length - newMockData.length, newMockData.length);
   return DataSet;
 }
 
-export function removeEvaluationData(evaluation:ModelXDataTypes.Datum) {
+export function removeEvaluationData(evaluation:JSONStackData.Datum) {
   evaluation.actuals = undefined;
   delete evaluation.actuals;
   evaluation.estimates = undefined;

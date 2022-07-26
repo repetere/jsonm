@@ -1,5 +1,5 @@
 import { ModelX, ModelContext, ModelTypes, ModelConfiguration, } from './model';
-import { Data, Datum, } from '@jsonstack/data/src/DataSet';
+import { Data, Datum, } from '@jsonstack/data';
 import { TrainingProgressCallback, } from './constants';
 
 import { JDS, getDataSet, } from './dataset';

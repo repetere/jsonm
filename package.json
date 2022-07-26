@@ -2,12 +2,11 @@
   "name": "@jsonstack/jsonm",
   "version": "1.1.0",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
-  "main": "dist/index.cjs.js",
-  "module": "build/index.js",
-  "esm": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
-  "web": "dist/index.web.js",
-  "modules.root": "build",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "browser": "dist/web/index.js",
+  "web": "dist/web/web.js",
+  "modules.root": "dist/esm",
   "type": "module",
   "repository": {
     "type": "git",
@@ -34,68 +33,70 @@
   },
   "homepage": "https://github.com/repetere/jsonm#readme",
   "scripts": {
-    "dev": "rollup -c -w",
+    "dev": "node esbuild.config.js -w",
+    "esbuild": "node esbuild.config.js",
     "benchmark": "node -r esm  benchmark/main_bmrk.js",
     "test": "jest --coverage",
-    "doc": "tsc -p tsconfig.build.json  && typedoc && sitedown manual/ -b docs/manual",
-    "compile": "tsc -p tsconfig.build.json",
-    "build": "tsc -p tsconfig.build.json && rollup -c && typedoc && sitedown manual/ -b docs/manual",
+    "doc": "tsc && typedoc && sitedown manual/ -b docs/manual",
+    "compile": "node esbuild.config.js",
+    "build": "tsc && typedoc && sitedown manual/ -b docs/manual",
     "coverage": "coveralls"
   },
   "dependencies": {
-    "@jsonstack/data": "^1.1.3",
-    "@jsonstack/model": "^1.1.1",
+    "@jsonstack/data": "^2.0.0",
+    "@jsonstack/model": "^3.0.1",
     "flat": "^5.0.2",
-    "luxon": "^2.4.0",
     "ml-confusion-matrix": "^0.4.0",
     "outlier": "0.0.1",
-    "promisie": "^3.0.1",
-    "stemmer": "^1.0.5"
+    "promisie": "^3.0.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "13.1.0",
-    "@commitlint/config-conventional": "13.1.0",
-    "@rollup/plugin-alias": "^3.1.2",
-    "@rollup/plugin-commonjs": "^20.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "@rollup/plugin-replace": "^3.0.0",
-    "@rollup/plugin-sucrase": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.2.1",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@faker-js/faker": "^7.3.0",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/npm": "^9.0.1",
     "@semantic-release/release-notes-generator": "^10.0.3",
-    "@tensorflow/tfjs-converter": "^3.4.0",
-    "@tensorflow/tfjs-core": "^3.4.0",
+    "@tensorflow/tfjs-converter": "^3.19.0",
+    "@tensorflow/tfjs-core": "^3.19.0",
+    "@tensorflow/tfjs-node": "^3.19.0",
     "@types/flat": "5.0.2",
-    "@types/jest": "^27.5.1",
-    "@types/lodash.range": "3.2.6",
-    "@types/luxon": "^1.26.2",
+    "@types/jest": "^28.1.6",
+    "@types/lodash.range": "^3.2.7",
+    "@types/luxon": "^3.0.0",
     "axios": "^0.27.2",
-    "enzyme": "3.11.0",
-    "faker": "^5.5.2",
-    "husky": "^7.0.0",
-    "jest": "^28.1.0",
-    "rollup": "^2.72.1",
-    "rollup-plugin-node-builtins": "2.1.2",
-    "rollup-plugin-node-globals": "1.4.0",
-    "rollup-plugin-terser-js": "1.0.2",
-    "ts-jest": "^28.0.2",
-    "tslib": "^2.1.0",
-    "typedoc": "^0.22.15",
-    "typescript": "^4.2.3"
+    "esbuild": "^0.14.47",
+    "esbuild-node-builtins": "^0.1.0",
+    "esbuild-plugin-alias": "^0.2.1",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
+    "luxon": "^3.0.1",
+    "puppeteer": "^15.5.0",
+    "scikitjs": "^1.24.0",
+    "stemmer": "^2.0.0",
+    "ts-jest": "^28.0.7",
+    "tslib": "^2.4.0",
+    "typedoc": "^0.23.9",
+    "typescript": "^4.7.4"
   },
   "jest": {
     "preset": "ts-jest",
     "globals": {
       "ts-jest": {
-        "diagnostics": false
+        "extensionsToTreatAsEsm": [
+          ".ts",
+          ".js"
+        ],
+        "useESM": true,
+        "diagnostics": false,
+        "tsconfig": "tsconfig.jest.json"
       }
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!(@jsonstack/data|@jsonstack/model)/)"
+      "node_modules/?!(scikitjs)",
+      "node_modules/?!(@jsonstack/data)"
     ]
   },
   "commitlint": {
@@ -133,7 +134,7 @@
             },
             {
               "type": "refactor",
-              "release": "patch"
+              "release": "major"
             },
             {
               "type": "style",
@@ -142,6 +143,7 @@
           ],
           "parserOpts": {
             "noteKeywords": [
+              "breaking",
               "BREAKING CHANGE",
               "BREAKING CHANGES"
             ]

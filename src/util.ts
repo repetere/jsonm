@@ -1,8 +1,8 @@
-import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
 // ts-node -O {\"module\":\"commonjs\"}  src/util.ts
 import * as features from './features';
 import { getParsedDate, } from './constants';
-import faker from 'faker';
+import {faker} from '@faker-js/faker';
 faker.seed(0);
 export type Fake = {
   [index: string]: any;
@@ -21,7 +21,10 @@ export function generateNumberRange(start: number, end: number): number[]{
   }, []);
 }
 export function getDatum(customDate?: Date, customTransation: { amount?: number; late_payments?: boolean; } = {}) {
-  const transaction = Faker.helpers.createTransaction();
+  const transaction = {
+    amount: Faker.finance.amount(),
+    late_payments: Faker.datatype.boolean(),
+  };
   const { amount, late_payments = true, } = customTransation;
   transaction.amount = parseFloat(amount || transaction.amount);
   transaction.late_payments = late_payments;
@@ -36,7 +39,7 @@ export function getDatum(customDate?: Date, customTransation: { amount?: number;
 export function getData(items: number) {
   return generateNumberRange(0, items-1).map(()=>getDatum());
 }
-export const timeseriesSort = (a: ModelXDataTypes.Datum, b: ModelXDataTypes.Datum) => a.date.valueOf() - b.date.valueOf();
+export const timeseriesSort = (a: JSONStackDataTypes.Datum, b: JSONStackDataTypes.Datum) => a.date.valueOf() - b.date.valueOf();
 
 export function getMockTimeseries() {
   const timeseriesData = [

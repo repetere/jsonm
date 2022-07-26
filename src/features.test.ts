@@ -2,7 +2,7 @@
 /*jshint expr: true*/
 import * as luxon from 'luxon';
 import * as features from './features';
-import * as ModelXData from '@jsonstack/data/src/index';
+import * as JSONStackData from '@jsonstack/data';
 
 import { getDatum, getData, generateNumberRange,timeseriesSort, } from './util';
 // const validMongoId = '5b1eca428d021f08885edbf5';
@@ -22,7 +22,7 @@ describe('auto features', () => {
   // console.log({ timeseriesData });
   describe('getEncodedFeatures', () => {
     it('should return encoded features', () => { 
-      const DS = new ModelXData.DataSet(timeseriesData);
+      const DS = new JSONStackData.DataSet(timeseriesData);
       const independent_variables = ['type', 'late_payments', 'month','day'];
       const dependent_variables = ['amount'];
       const input_independent_features = [

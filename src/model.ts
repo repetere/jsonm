@@ -1,13 +1,16 @@
-import * as ModelXData from '@jsonstack/data/src/index';
-import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
-import * as ModelXModel from '@jsonstack/model/src/index';
-import * as ModelXModelTypes from '@jsonstack/model/src/model_interface';
-import Promisie from 'promisie';
+import * as JSONStackData from '@jsonstack/data';
+import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
+import * as JSONStackModel from '@jsonstack/model';
+import * as JSONStackModelTypes from '@jsonstack/model/src/model_interface';
+import Promisie from 'promisie/src/index';
 import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
 import * as Luxon from 'luxon';
 import flatten from 'flat';
 import { default as ConfusionMatrix, }from 'ml-confusion-matrix';
+import { getBackend } from './tensorflow_singleton';
+import { getScikit } from './scikitjs_singleton';
+
 
 export enum ModelTypes {
   FAST_FORECAST = 'ai-fast-forecast',
@@ -34,7 +37,7 @@ export type GetDataSetProperties = {
   nextValueIncludeLocalParsedDate?: boolean;
   nextValueIncludeForecastInputs?: boolean;
   dimension?: Dimensions;
-  DataSetData?: ModelXDataTypes.Data;
+  DataSetData?: JSONStackDataTypes.Data;
 };
 export type ModelStatus = {
   trained: boolean;
@@ -47,8 +50,8 @@ export type ModelConfiguration = {
   input_independent_features?: AutoFeature[];
   output_dependent_features?: AutoFeature[];
 
-  preprocessing_feature_column_options?: ModelXDataTypes.DataSetTransform;
-  training_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  preprocessing_feature_column_options?: JSONStackDataTypes.DataSetTransform;
+  training_feature_column_options?: JSONStackDataTypes.DataSetTransform;
   use_preprocessing_on_trainning_data?: boolean;
   use_mock_dates_to_fit_trainning_data?: boolean;
   use_next_value_functions_for_training_data?: boolean;
@@ -63,8 +66,8 @@ export type ModelConfiguration = {
   training_progress_callback?: TrainingProgressCallback;
 
   prediction_options?: PredictModelConfig;
-  prediction_inputs?: ModelXDataTypes.Data;
-  trainingData?: ModelXDataTypes.Data;
+  prediction_inputs?: JSONStackDataTypes.Data;
+  trainingData?: JSONStackDataTypes.Data;
 
   retrain_forecast_model_with_predictions?: boolean;
   prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
@@ -76,21 +79,21 @@ export type ModelConfiguration = {
   prediction_timeseries_end_date?: Date | string;
   dimension?: Dimensions;
   entity?: Entity;
-  DataSet?: ModelXData.DataSet;
-  emptyObject?: ModelXDataTypes.Datum;
-  mockEncodedData?: ModelXDataTypes.Data;
+  DataSet?: JSONStackData.DataSet;
+  emptyObject?: JSONStackDataTypes.Datum;
+  mockEncodedData?: JSONStackDataTypes.Data;
   x_independent_features?: string[];
   y_dependent_labels?: string[];
   x_raw_independent_features?: string[];
   y_raw_dependent_labels?: string[];
-  testDataSet?: ModelXData.DataSet;
-  trainDataSet?: ModelXData.DataSet; 
-  x_indep_matrix_train?: ModelXDataTypes.Matrix;
-  x_indep_matrix_test?: ModelXDataTypes.Matrix;
-  y_dep_matrix_train?: ModelXDataTypes.Matrix;
-  y_dep_matrix_test?: ModelXDataTypes.Matrix;
-  Model?: ModelXModel.TensorScriptModelInterface;
-  training_options?: ModelXModelTypes.TensorScriptOptions;
+  testDataSet?: JSONStackData.DataSet;
+  trainDataSet?: JSONStackData.DataSet; 
+  x_indep_matrix_train?: JSONStackDataTypes.Matrix;
+  x_indep_matrix_test?: JSONStackDataTypes.Matrix;
+  y_dep_matrix_train?: JSONStackDataTypes.Matrix;
+  y_dep_matrix_test?: JSONStackDataTypes.Matrix;
+  Model?: JSONStackModel.TensorScriptModelInterface;
+  training_options?: JSONStackModelTypes.TensorScriptOptions;
   validate_training_data?: boolean;
   cross_validation_options?: CrossValidationOptions;
   debug?: boolean;
@@ -98,23 +101,23 @@ export type ModelConfiguration = {
   max_evaluation_outputs?: number;
 };
 export type ModelOptions = {
-  trainingData?: ModelXDataTypes.Data;
+  trainingData?: JSONStackDataTypes.Data;
 };
 export interface ModelContext  {
   config: ModelConfiguration;
   status: ModelStatus;
-  trainingData: ModelXDataTypes.Data;
+  trainingData: JSONStackDataTypes.Data;
   prediction_inputs_next_value_functions?: GeneratedFunctionDefinitionsList;
   training_data_filter_function_body?: string;
   dimension?: Dimensions;
   entity?: Entity;
-  DataSet?: ModelXData.DataSet;
+  DataSet?: JSONStackData.DataSet;
 };
 
 export interface timeseriesCalculation{
   (options:{
     dimension?: Dimensions;
-    DataSetData?: ModelXDataTypes.Datum;
+    DataSetData?: JSONStackDataTypes.Datum;
     timeseries_date_format?: string;
     timeseries_date_feature?: string;  
   }): TimeseriesDimension;
@@ -123,25 +126,25 @@ export type ModelTrainningOptions = {
   cross_validate_training_data?: boolean;
   use_next_value_functions_for_training_data?: boolean;
   use_mock_dates_to_fit_trainning_data?: boolean;
-  trainingData?: ModelXDataTypes.Data;
+  trainingData?: JSONStackDataTypes.Data;
   fixPredictionDates?: boolean;
-  prediction_inputs?: ModelXDataTypes.Data;
+  prediction_inputs?: JSONStackDataTypes.Data;
   getPredictionInputPromise?: GetPredicitonData;
   retrain?: boolean;
 };
 export type retrainTimeseriesModel = {
-  inputMatrix?: ModelXModelTypes.Matrix;
-  predictionMatrix?: ModelXModelTypes.Matrix;
+  inputMatrix?: JSONStackModelTypes.Matrix;
+  predictionMatrix?: JSONStackModelTypes.Matrix;
   fitOptions?: { [index: string]: any; };
 };
 export const modelMap = {
-  'ai-fast-forecast': ModelXModel.LSTMTimeSeries,
-  'ai-forecast': ModelXModel.LSTMMultivariateTimeSeries,
-  'ai-timeseries-regression-forecast': ModelXModel.MultipleLinearRegression,
-  'ai-linear-regression': ModelXModel.MultipleLinearRegression,
-  'ai-regression': ModelXModel.DeepLearningRegression,
-  'ai-classification': ModelXModel.DeepLearningClassification,
-  'ai-logistic-classification': ModelXModel.LogisticRegression,
+  'ai-fast-forecast': JSONStackModel.LSTMTimeSeries,
+  'ai-forecast': JSONStackModel.LSTMMultivariateTimeSeries,
+  'ai-timeseries-regression-forecast': JSONStackModel.MultipleLinearRegression,
+  'ai-linear-regression': JSONStackModel.MultipleLinearRegression,
+  'ai-regression': JSONStackModel.DeepLearningRegression,
+  'ai-classification': JSONStackModel.DeepLearningClassification,
+  'ai-logistic-classification': JSONStackModel.LogisticRegression,
 };
 export const modelCategoryMap = {
   [ModelTypes.FAST_FORECAST]: ModelCategories.FORECAST,
@@ -167,7 +170,7 @@ export type GeneratedFunctionDefinitionsList = GeneratedStatefulFunctionObject[]
 export type GeneratedStatefulFunctionState = any;
 export type GeneratedStatefulFunctionProps = {
   Luxon: any;
-  ModelXData: any;
+  JSONStackData: any;
 };
 export type GeneratedStatefulFunctionObject = {
   variable_name: string;
@@ -187,27 +190,27 @@ export type SumPreviousRowsOptions = {
   offset: number;
 };
 export type SumPreviousRowContext = {
-  data: ModelXDataTypes.Data,
-  DataSet: ModelXData.DataSet,
+  data: JSONStackDataTypes.Data,
+  DataSet: JSONStackData.DataSet,
   offset: number,
   reverseTransform?: boolean,
   debug?: boolean;
 };
 export type ForecastPredictionNextValueState = {
-  lastDataRow?: ModelXDataTypes.Datum;
+  lastDataRow?: JSONStackDataTypes.Datum;
   forecastDate?: Date;
   forecastDates?: Date[];
   forecastPredictionIndex?: number;
   sumPreviousRows?: sumPreviousRows;
-  data: ModelXDataTypes.Data;
-  DataSet: ModelXDataTypes.DataSet;
+  data: JSONStackDataTypes.Data;
+  DataSet: JSONStackDataTypes.DataSet;
   existingDatasetObjectIndex: number;
   reverseTransform?: boolean;
   isOpen?: (...args:any[])=>BooleanAnswer;
   isOutlier?: (...args:any[])=>BooleanAnswer;
   parsedDate?: ParsedDate;
-  rawInputPredictionObject?: ModelXDataTypes.Datum;
-  unscaledLastForecastedValue?: ModelXDataTypes.Datum;
+  rawInputPredictionObject?: JSONStackDataTypes.Datum;
+  unscaledLastForecastedValue?: JSONStackDataTypes.Datum;
 };
 export type ForecastHelperNextValueData = {
   date?: Date;
@@ -219,7 +222,7 @@ export type ForecastHelperNextValueData = {
   forecast_entity_title?: string;
   forecast_entity_name?: string;
   forecast_entity_id?: string;
-} & ModelXDataTypes.Datum;
+} & JSONStackDataTypes.Datum;
 export type TimeseriesDimension = {
   dimension: Dimensions;
   dateFormat?: string;
@@ -229,20 +232,20 @@ export type PredictModelOptions = {
   includeInputs?: boolean;
   includeEvaluation?: boolean;
   predictionOptions?: PredictionOptions;
-  prediction_inputs?: ModelXDataTypes.Data;
+  prediction_inputs?: JSONStackDataTypes.Data;
   retrain?: boolean;
   getPredictionInputPromise?: GetPredicitonData;
 };
 export type EvaluateModelOptions = {
-  x_indep_matrix_test?: ModelXDataTypes.Matrix;
-  y_dep_matrix_test?: ModelXDataTypes.Matrix;
+  x_indep_matrix_test?: JSONStackDataTypes.Matrix;
+  y_dep_matrix_test?: JSONStackDataTypes.Matrix;
   predictionOptions?: PredictionOptions;
   retrain?: boolean;
 };
 export type EvaluationAccuracyOptions = {
   dependent_feature_label?: string;
-  estimatesDescaled?: ModelXDataTypes.Data;
-  actualsDescaled?: ModelXDataTypes.Data;
+  estimatesDescaled?: JSONStackDataTypes.Data;
+  actualsDescaled?: JSONStackDataTypes.Data;
 }
 
 export type PredictModelConfig = {
@@ -251,17 +254,17 @@ export type PredictModelConfig = {
 
 export type ClassificationEvaluation = {
   accuracy: number;
-  matrix: ModelXDataTypes.Matrix;
+  matrix: JSONStackDataTypes.Matrix;
   labels: string[];
-  actuals: ModelXDataTypes.Vector;
-  estimates: ModelXDataTypes.Vector;
+  actuals: JSONStackDataTypes.Vector;
+  estimates: JSONStackDataTypes.Vector;
 }
 export type RegressionEvaluation = {
   standardError: number;
   rSquared: number;
   adjustedRSquared: number;
-  actuals: ModelXDataTypes.Vector;
-  estimates: ModelXDataTypes.Vector;
+  actuals: JSONStackDataTypes.Vector;
+  estimates: JSONStackDataTypes.Vector;
   meanForecastError: number;
   meanAbsoluteDeviation: number;
   trackingSignal: number;
@@ -282,7 +285,7 @@ export type EvaluateRegressionModel = {
 
 export type ValidateTimeseriesDataOptions = {
   fixPredictionDates?: boolean;
-  prediction_inputs?: ModelXDataTypes.Data;
+  prediction_inputs?: JSONStackDataTypes.Data;
   getPredictionInputPromise?: GetPredicitonData;
   predictionOptions?: PredictionOptions;
   set_forecast_dates_for_predictions?:boolean;
@@ -293,13 +296,13 @@ export type PredictionOptions = {
 }
 
 export interface GetPredicitonData{
-  ({ }): Promise<ModelXDataTypes.Data>;
+  ({ }): Promise<JSONStackDataTypes.Data>;
 }
 /**
  * returns a Datum used in next forecast prediction input
  */
-export type ForecastPredictionInputNextValueFunction = (state: ForecastPredictionNextValueState) => ModelXDataTypes.Datum;
-export type DataFilterFunction = (datum:ModelXDataTypes.Datum, datumIndex:number) => boolean;
+export type ForecastPredictionInputNextValueFunction = (state: ForecastPredictionNextValueState) => JSONStackDataTypes.Datum;
+export type DataFilterFunction = (datum:JSONStackDataTypes.Datum, datumIndex:number) => boolean;
 
 /**
  * Takes an object that describes a function to be created from a function body string
@@ -359,8 +362,8 @@ export function sumPreviousRows(this: SumPreviousRowContext, options: SumPreviou
 export class ModelX implements ModelContext {
   config: ModelConfiguration;
   status: ModelStatus;
-  trainingData: ModelXDataTypes.Data;
-  removedFilterdtrainingData: ModelXDataTypes.Data;
+  trainingData: JSONStackDataTypes.Data;
+  removedFilterdtrainingData: JSONStackDataTypes.Data;
   use_empty_objects: boolean;
   use_preprocessing_on_trainning_data: boolean;
   use_next_value_functions_for_training_data: boolean;
@@ -370,26 +373,26 @@ export class ModelX implements ModelContext {
   y_dependent_labels: string[];
   x_raw_independent_features: string[];
   y_raw_dependent_labels: string[];
-  original_data_test:ModelXDataTypes.Data;
-  original_data_train: ModelXDataTypes.Data;
-  testDataSet: ModelXData.DataSet;
-  trainDataSet: ModelXData.DataSet; 
+  original_data_test:JSONStackDataTypes.Data;
+  original_data_train: JSONStackDataTypes.Data;
+  testDataSet: JSONStackData.DataSet;
+  trainDataSet: JSONStackData.DataSet; 
 
-  prediction_inputs?: ModelXDataTypes.Data;
+  prediction_inputs?: JSONStackDataTypes.Data;
   prediction_options?: PredictModelConfig;
 
-  x_indep_matrix_train: ModelXDataTypes.Matrix;
-  x_indep_matrix_test: ModelXDataTypes.Matrix;
-  y_dep_matrix_train: ModelXDataTypes.Matrix;
-  y_dep_matrix_test: ModelXDataTypes.Matrix;
-  Model: ModelXModel.TensorScriptModelInterface | ModelXModel.LSTMTimeSeries;
-  training_options: ModelXModelTypes.TensorScriptOptions;
+  x_indep_matrix_train: JSONStackDataTypes.Matrix;
+  x_indep_matrix_test: JSONStackDataTypes.Matrix;
+  y_dep_matrix_train: JSONStackDataTypes.Matrix;
+  y_dep_matrix_test: JSONStackDataTypes.Matrix;
+  Model: JSONStackModel.TensorScriptModelInterface | JSONStackModel.LSTMTimeSeries;
+  training_options: JSONStackModelTypes.TensorScriptOptions;
   cross_validation_options: CrossValidationOptions;
   training_size_values?: number;
   training_model_loss?: number;
 
-  preprocessing_feature_column_options: ModelXDataTypes.DataSetTransform;
-  training_feature_column_options: ModelXDataTypes.DataSetTransform;
+  preprocessing_feature_column_options: JSONStackDataTypes.DataSetTransform;
+  training_feature_column_options: JSONStackDataTypes.DataSetTransform;
   training_data_filter_function_body?: string;
   training_data_filter_function?: DataFilterFunction;
   training_progress_callback: TrainingProgressCallback;
@@ -404,11 +407,13 @@ export class ModelX implements ModelContext {
   prediction_timeseries_end_date?: Date | string;
   dimension?: Dimensions;
   entity?: Entity;
-  DataSet: ModelXData.DataSet;
+  DataSet: JSONStackData.DataSet;
   forecastDates: Date[];
-  emptyObject: ModelXDataTypes.Datum;
-  mockEncodedData: ModelXDataTypes.Data;
+  emptyObject: JSONStackDataTypes.Datum;
+  mockEncodedData: JSONStackDataTypes.Data;
   debug: boolean;
+  tf: any;
+  scikit: any;
 
   auto_assign_features?: boolean;
   independent_variables?: string[];
@@ -445,10 +450,10 @@ export class ModelX implements ModelContext {
     this.training_data_filter_function = configuration.training_data_filter_function;
     this.trainingData = configuration.trainingData || [];
     this.removedFilterdtrainingData = [];
-    this.DataSet = configuration.DataSet || new ModelXData.DataSet();
+    this.DataSet = configuration.DataSet || new JSONStackData.DataSet();
     this.max_evaluation_outputs = configuration.max_evaluation_outputs || 5;
-    this.testDataSet = configuration.testDataSet || new ModelXData.DataSet();
-    this.trainDataSet = configuration.trainDataSet || new ModelXData.DataSet();
+    this.testDataSet = configuration.testDataSet || new JSONStackData.DataSet();
+    this.trainDataSet = configuration.trainDataSet || new JSONStackData.DataSet();
     this.x_indep_matrix_train = configuration.x_indep_matrix_train || [];
     this.x_indep_matrix_test = configuration.x_indep_matrix_test || [];
     this.y_dep_matrix_train = configuration.y_dep_matrix_train || [];
@@ -545,7 +550,13 @@ export class ModelX implements ModelContext {
     this.prediction_timeseries_end_date = configuration.prediction_timeseries_end_date;
     this.prediction_timeseries_dimension_feature = configuration.prediction_timeseries_dimension_feature || 'dimension';
     this.prediction_inputs_next_value_functions = configuration.prediction_inputs_next_value_functions || configuration.next_value_functions || [];
-    this.Model = configuration.Model || new ModelXModel.TensorScriptModelInterface();
+    this.tf = getBackend();
+    this.scikit = getScikit();
+    this.scikit.setBackend(this.tf);
+    JSONStackModel.setBackend(this.tf);
+    JSONStackModel.setScikit(this.scikit);
+
+    this.Model = configuration.Model || new JSONStackModel.TensorScriptModelInterface();
     this.original_data_test = [];
     this.original_data_train = [];
     this.forecastDates = [];
@@ -555,13 +566,13 @@ export class ModelX implements ModelContext {
   /**
    * Attempts to automatically figure out the time dimension of each date feature (hourly, daily, etc) and the format of the date property (e.g. JS Date Object, or ISO String, etc) from the dataset data
    */
-  static calcTimeseriesDimension(options: { dimension?: Dimensions; DataSetData?: ModelXDataTypes.Datum; timeseries_date_format?: string; timeseries_date_feature?: string;  } = {}): TimeseriesDimension {
+  static calcTimeseriesDimension(options: { dimension?: Dimensions; DataSetData?: JSONStackDataTypes.Datum; timeseries_date_format?: string; timeseries_date_feature?: string;  } = {}): TimeseriesDimension {
     let timeseriesDataSetDateFormat = options.timeseries_date_format || this.prediction_timeseries_date_format;
     //@ts-ignore
     let timeseriesForecastDimension = options.dimension || this.dimension;
     let timeseriesDateFeature = options.timeseries_date_feature || this.prediction_timeseries_date_feature;
     //@ts-ignore
-    let DataSetData:ModelXDataTypes.Datum = options.DataSetData || this.DataSet && this.DataSet.data ||[];
+    let DataSetData:JSONStackDataTypes.Datum = options.DataSetData || this.DataSet && this.DataSet.data ||[];
     if (timeseriesForecastDimension && timeseriesDataSetDateFormat) {
       this.dimension = timeseriesForecastDimension;
       return {
@@ -667,15 +678,15 @@ export class ModelX implements ModelContext {
       // })
       train = this.DataSet.data.slice(0, train_size);
     } else {
-      // : {train:ModelXDataTypes.Data,test:ModelXDataTypes.Data}
-      const testTrainSplit = ModelXData.cross_validation.train_test_split(this.DataSet.data, this.cross_validation_options) as {train:ModelXDataTypes.Data,test:ModelXDataTypes.Data};
+      // : {train:JSONStackDataTypes.Data,test:JSONStackDataTypes.Data}
+      const testTrainSplit = JSONStackData.cross_validation.train_test_split(this.DataSet.data, this.cross_validation_options) as {train:JSONStackDataTypes.Data,test:JSONStackDataTypes.Data};
       train = testTrainSplit.train;
       test = testTrainSplit.test;
     }
     return { test, train, };
   }
   
-  validateTrainingData({ cross_validate_training_data, inputMatrix, }: { cross_validate_training_data?: boolean; inputMatrix?: ModelXDataTypes.Matrix; } = {
+  validateTrainingData({ cross_validate_training_data, inputMatrix, }: { cross_validate_training_data?: boolean; inputMatrix?: JSONStackDataTypes.Matrix; } = {
     inputMatrix:undefined,
   }) {
     const checkValidationData = (inputMatrix) ? inputMatrix : this.x_indep_matrix_train;
@@ -702,7 +713,7 @@ export class ModelX implements ModelContext {
   }
   
   async getTrainingData(options: {
-    trainingData?: ModelXDataTypes.Data;
+    trainingData?: JSONStackDataTypes.Data;
     retrain?: boolean;
     getDataPromise?: GetPredicitonData;
   } = {}) {
@@ -731,7 +742,7 @@ export class ModelX implements ModelContext {
       // trainingData,
     } = options;
    
-    const props = { Luxon, ModelXData, };
+    const props = { Luxon, JSONStackData, };
     const nextValueFunctions = this.prediction_inputs_next_value_functions.reduce((functionsObject:GeneratedStatefulFunctions, func:GeneratedStatefulFunctionObject) => {
       functionsObject[func.variable_name] = getGeneratedStatefulFunction({
         ...func,
@@ -927,7 +938,7 @@ export class ModelX implements ModelContext {
       //ensure prediction input dates are dates
       if (raw_prediction_inputs.length) {
         if (raw_prediction_inputs[ 0 ][ this.prediction_timeseries_date_feature ] instanceof Date === false) {
-          raw_prediction_inputs = raw_prediction_inputs.map((raw_input:ModelXDataTypes.Datum) => {
+          raw_prediction_inputs = raw_prediction_inputs.map((raw_input:JSONStackDataTypes.Datum) => {
             return Object.assign({}, raw_input, {
               [ this.prediction_timeseries_date_feature ]: getLuxonDateTime({
                 dateObject: raw_input[ this.prediction_timeseries_date_feature ],
@@ -939,13 +950,13 @@ export class ModelX implements ModelContext {
         }
         const firstRawInputDate = raw_prediction_inputs[ 0 ][ this.prediction_timeseries_date_feature ];
         const firstForecastDate = forecastDates[ 0 ];
-        let raw_prediction_input_dates = raw_prediction_inputs.map((raw_input:ModelXDataTypes.Datum) => raw_input[ this.prediction_timeseries_date_feature ]);
+        let raw_prediction_input_dates = raw_prediction_inputs.map((raw_input:JSONStackDataTypes.Datum) => raw_input[ this.prediction_timeseries_date_feature ]);
         if (fixPredictionDates && firstForecastDate > firstRawInputDate) {
           // console.log('FIX INPUTS');
           const matchingInputIndex = raw_prediction_input_dates.findIndex((inputPredictionDate:Date) => inputPredictionDate.valueOf() === firstForecastDate.valueOf());
           // const updated_raw_prediction_input_dates = raw_prediction_input_dates.slice(matchingInputIndex);
           raw_prediction_inputs = raw_prediction_inputs.slice(matchingInputIndex);
-          raw_prediction_input_dates = raw_prediction_inputs.map((raw_input:ModelXDataTypes.Datum) => raw_input[ this.prediction_timeseries_date_feature ]);
+          raw_prediction_input_dates = raw_prediction_inputs.map((raw_input:JSONStackDataTypes.Datum) => raw_input[ this.prediction_timeseries_date_feature ]);
 
           // console.log({
           //   matchingInputIndex,
@@ -982,7 +993,7 @@ export class ModelX implements ModelContext {
     const use_mock_dates = use_mock_dates_to_fit_trainning_data || this.config.use_mock_dates_to_fit_trainning_data;
     let trainingData = options.trainingData || this.trainingData || [];
     // if (!Array.isArray(trainingData) || !trainingData.length) trainingData = [];
-    trainingData = new Array().concat(trainingData) as ModelXDataTypes.Data;
+    trainingData = new Array().concat(trainingData) as JSONStackDataTypes.Data;
     // const use_next_val_functions = (typeof this.use_next_value_functions_for_training_data !== 'undefined')
     //   ? this.use_next_value_functions_for_training_data
     //   : use_next_value_functions_for_training_data
@@ -1007,7 +1018,7 @@ export class ModelX implements ModelContext {
       }));
     }
     // console.log('after',{ trainingData });
-    this.DataSet = new ModelXData.DataSet(trainingData);
+    this.DataSet = new JSONStackData.DataSet(trainingData);
 
     // console.log('this.auto_assign_features', this.auto_assign_features);
     // console.log('before this.x_raw_independent_features', this.x_raw_independent_features);
@@ -1064,7 +1075,7 @@ export class ModelX implements ModelContext {
             unscaledLastForecastedValue: trainingData[dataIndex - 1],
             // data: this.DataSet.data.splice(forecastDateFirstDataSetDateIndex, 0, forecasts),
             data: trainingData,
-            DataSet: this.DataSet||new ModelXData.DataSet(),
+            DataSet: this.DataSet||new JSONStackData.DataSet(),
             lastDataRow: trainingData[trainingData.length - 1],
             reverseTransform: false,
           })
@@ -1093,7 +1104,7 @@ export class ModelX implements ModelContext {
       // console.log('trainModel trainingData[trainingData.length-1]', trainingData[trainingData.length-1]);
       // console.log('trainModel trainingData.length', trainingData.length);
       // console.log('trainModel this.forecastDates', this.forecastDates);
-      this.DataSet = new ModelXData.DataSet(trainingData);
+      this.DataSet = new JSONStackData.DataSet(trainingData);
     }
 
     // console.log('this.preprocessingColumnOptions', this.preprocessingColumnOptions);
@@ -1157,8 +1168,8 @@ export class ModelX implements ModelContext {
       //   configurable: false,
         
       // })
-      this.testDataSet = new ModelXData.DataSet(test);
-      this.trainDataSet = new ModelXData.DataSet(train);
+      this.testDataSet = new JSONStackData.DataSet(test);
+      this.trainDataSet = new JSONStackData.DataSet(train);
       this.x_indep_matrix_train = this.trainDataSet.columnMatrix(this.x_independent_features);
       this.x_indep_matrix_test = this.testDataSet.columnMatrix(this.x_independent_features);
       this.y_dep_matrix_train = this.trainDataSet.columnMatrix(this.y_dependent_labels);
@@ -1201,7 +1212,7 @@ export class ModelX implements ModelContext {
     this.status.lastTrained = new Date();
     return this;
   }
-  async predictModel(options:PredictModelOptions | ModelXDataTypes.Data = {}) {
+  async predictModel(options:PredictModelOptions | JSONStackDataTypes.Data = {}) {
     if(Array.isArray(options)) {
       const PredictionOptions:PredictModelOptions = {
         prediction_inputs: options
@@ -1227,7 +1238,7 @@ export class ModelX implements ModelContext {
     // console.log({trainingstatus, raw_prediction_inputs})
     if (includeEvaluation) {
       let { test, train, } = this.getCrosstrainingData();
-      const testDataSet = new ModelXDataTypes.DataSet(test);
+      const testDataSet = new JSONStackDataTypes.DataSet(test);
       const x_indep_matrix_test = testDataSet.columnMatrix(this.x_independent_features);
       const y_dep_matrix_test = testDataSet.columnMatrix(this.y_dependent_labels);
       const evaluationOptions = Object.assign({}, options, {
@@ -1331,7 +1342,7 @@ export class ModelX implements ModelContext {
     const x_matrix = x_timeseries;
     const y_matrix = y_timeseries;
     let yShape;
-    this.Model as ModelXModel.LSTMTimeSeries;
+    this.Model as JSONStackModel.LSTMTimeSeries;
     //_samples, _timeSteps, _features
     const timeseriesShape = (typeof this.Model.getTimeseriesShape === 'function')
       ? this.Model.getTimeseriesShape(x_matrix)
@@ -1471,8 +1482,8 @@ export class ModelX implements ModelContext {
   }
   evaluateClassificationAccuracy(options:EvaluationAccuracyOptions = {}) {
     const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
-    const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
-    const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+    const estimates = JSONStackData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+    const actuals = JSONStackData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
     const CM = ConfusionMatrix.fromLabels(actuals, estimates);
     const accuracy = CM.getAccuracy();
 
@@ -1485,11 +1496,11 @@ export class ModelX implements ModelContext {
   }
   evaluateRegressionAccuracy(options:EvaluationAccuracyOptions = {}):RegressionEvaluation {
     const { dependent_feature_label, estimatesDescaled, actualsDescaled, } = options;
-    const estimates = ModelXData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
-    const actuals = ModelXData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
-    const standardError = ModelXData.util.standardError(actuals, estimates);
-    const rSquared = ModelXData.util.rSquared(actuals, estimates);
-    const adjustedRSquared = ModelXData.util.adjustedRSquared({
+    const estimates = JSONStackData.DataSet.columnArray(dependent_feature_label, { data: estimatesDescaled, });
+    const actuals = JSONStackData.DataSet.columnArray(dependent_feature_label, { data: actualsDescaled, });
+    const standardError = JSONStackData.util.standardError(actuals, estimates);
+    const rSquared = JSONStackData.util.rSquared(actuals, estimates);
+    const adjustedRSquared = JSONStackData.util.adjustedRSquared({
       actuals,
       estimates,
       rSquared,
@@ -1497,9 +1508,9 @@ export class ModelX implements ModelContext {
       independentVariables: this.x_independent_features.length,
     });
     const hasZeroActual = Boolean(actuals.filter(a => a === 0 || isNaN(a)).length);
-    const originalMeanAbsolutePercentageError = ModelXData.util.meanAbsolutePercentageError(actuals, estimates);
-    const MAD = ModelXData.util.meanAbsoluteDeviation(actuals, estimates);
-    const MEAN = ModelXData.util.mean(actuals);
+    const originalMeanAbsolutePercentageError = JSONStackData.util.meanAbsolutePercentageError(actuals, estimates);
+    const MAD = JSONStackData.util.meanAbsoluteDeviation(actuals, estimates);
+    const MEAN = JSONStackData.util.mean(actuals);
     let metric = 'meanAbsolutePercentageError';
     let reason = 'Actuals do not contain Zero values';
     if (hasZeroActual) {
@@ -1513,10 +1524,10 @@ export class ModelX implements ModelContext {
 
     return {
       standardError, rSquared, adjustedRSquared, actuals, estimates,
-      meanForecastError: ModelXData.util.meanForecastError(actuals, estimates),
-      meanAbsoluteDeviation: ModelXData.util.meanAbsoluteDeviation(actuals, estimates),
-      trackingSignal: ModelXData.util.trackingSignal(actuals, estimates),
-      meanSquaredError: ModelXData.util.meanSquaredError(actuals, estimates),
+      meanForecastError: JSONStackData.util.meanForecastError(actuals, estimates),
+      meanAbsoluteDeviation: JSONStackData.util.meanAbsoluteDeviation(actuals, estimates),
+      trackingSignal: JSONStackData.util.trackingSignal(actuals, estimates),
+      meanSquaredError: JSONStackData.util.meanSquaredError(actuals, estimates),
       meanAbsolutePercentageError: errorPercentage,
       accuracyPercentage,
       metric,

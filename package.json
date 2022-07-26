@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@jsonstack/data": "2.0.0",
-    "@jsonstack/model": "3.0.2",
+    "@jsonstack/model": "^3.0.3",
     "flat": "^5.0.2",
     "ml-confusion-matrix": "^0.4.0",
     "outlier": "0.0.1",

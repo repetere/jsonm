@@ -50,7 +50,15 @@ $ npm i @jsonstack/jsonm
 
 ### Basic Usage
 ```typescript
-import { getModel } from '@jsonstack/jsonm';
+import * as tf from '@tensorflow/tfjs-node';
+import * as scikit from 'scikitjs';
+import { getModel, setBackend, setScikit, } from '@jsonstack/jsonm';
+
+//set scikitjs and set tensorflow
+scikit.setBackend(tf);
+setScikit(scikit);
+setBackend(tf);
+
 //Iris Dataset e.g from https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv
 const type = 'ai-classification';
 const dataset = [

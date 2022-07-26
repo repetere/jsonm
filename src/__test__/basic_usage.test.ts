@@ -5,6 +5,15 @@ import { ModelTypes } from '../model';
 import { toBeWithinRange, } from '../jest.test';
 expect.extend({ toBeWithinRange });
 
+import { setBackend } from '../tensorflow_singleton';
+import {setScikit} from '../scikitjs_singleton';
+import * as scikit from 'scikitjs';
+import * as tf from '@tensorflow/tfjs-node';
+
+setBackend(tf);
+scikit.setBackend(tf);
+setScikit(scikit);
+
 describe('basic jsonm examples',()=>{
   it('should classify iris flowers',async()=>{
     const inputs = ['sepal_length_cm','sepal_width_cm','petal_length_cm','petal_width_cm', ];

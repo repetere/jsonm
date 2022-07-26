@@ -4,6 +4,15 @@ import { JML, } from '../jsonm';
 import { toBeWithinRange, } from '../jest.test';
 expect.extend({ toBeWithinRange });
 
+import { setBackend } from '../tensorflow_singleton';
+import {setScikit} from '../scikitjs_singleton';
+import * as scikit from 'scikitjs';
+import * as tf from '@tensorflow/tfjs-node';
+
+setBackend(tf);
+scikit.setBackend(tf);
+setScikit(scikit);
+
 describe('basic jsonm examples',()=>{
   it('should handle basic linear regressions', async()=>{
     const inputs = ['height',];

@@ -1,8 +1,8 @@
 
 import { DateTime, } from 'luxon';
 import { Dimensions, } from './constants';
-import * as ModelXData from '@jsonstack/data/src/index';
-import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+// import * as JSONStackData from '@jsonstack/data/src/index';
+import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
 export type UniqueDateOptions = {
   start: string;
   end: string;
@@ -288,7 +288,7 @@ export const dimensionDates = {
   [Dimensions.MINUTELY]: getUniqueMinutes,
   [Dimensions.SECONDLY]: getUniqueSeconds,
 };
-export function getEncodedFeatures({ DataSet, features = [], }: { DataSet: ModelXDataTypes.DataSet, features?: string[] }) {
+export function getEncodedFeatures({ DataSet, features = [], }: { DataSet: JSONStackDataTypes.DataSet, features?: string[] }) {
   if (DataSet.encoders.size) {
     const featuresCopy = new Array().concat(features);
     const encodedFeatures = [];
@@ -318,15 +318,15 @@ export type AutoFeature = {
 export type AutoFeatureAutoAssignmentOptions = {
   independent_variables?: string[];
   dependent_variables?: string[];
-  datum?: ModelXDataTypes.Datum;
+  datum?: JSONStackDataTypes.Datum;
   input_independent_features?: AutoFeature[];
   output_dependent_features?: AutoFeature[];
-  training_feature_column_options?: ModelXDataTypes.DataSetTransform;
-  preprocessing_feature_column_options?: ModelXDataTypes.DataSetTransform;
+  training_feature_column_options?: JSONStackDataTypes.DataSetTransform;
+  preprocessing_feature_column_options?: JSONStackDataTypes.DataSetTransform;
   features?: AutoFeature[];
 };
 
-export function getAutoFeatures({ variables, datum }: { variables: string[]; datum: ModelXDataTypes.Datum; }): AutoFeature[]{
+export function getAutoFeatures({ variables, datum }: { variables: string[]; datum: JSONStackDataTypes.Datum; }): AutoFeature[]{
   return variables.map(variable => { 
     const autofeature = {
       feature_field_name: variable,

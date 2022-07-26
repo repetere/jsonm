@@ -1,4 +1,4 @@
-import * as ModelXDataTypes from '@jsonstack/data/src/DataSet';
+import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
 // ts-node -O {\"module\":\"commonjs\"}  src/util.ts
 import * as features from './features';
 import { getParsedDate, } from './constants';
@@ -36,7 +36,7 @@ export function getDatum(customDate?: Date, customTransation: { amount?: number;
 export function getData(items: number) {
   return generateNumberRange(0, items-1).map(()=>getDatum());
 }
-export const timeseriesSort = (a: ModelXDataTypes.Datum, b: ModelXDataTypes.Datum) => a.date.valueOf() - b.date.valueOf();
+export const timeseriesSort = (a: JSONStackDataTypes.Datum, b: JSONStackDataTypes.Datum) => a.date.valueOf() - b.date.valueOf();
 
 export function getMockTimeseries() {
   const timeseriesData = [

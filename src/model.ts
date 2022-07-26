@@ -1,6 +1,6 @@
-import * as JSONStackData from '@jsonstack/data/src/index';
+import * as JSONStackData from '@jsonstack/data';
 import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
-import * as JSONStackModel from '@jsonstack/model/src/index';
+import * as JSONStackModel from '@jsonstack/model';
 import * as JSONStackModelTypes from '@jsonstack/model/src/model_interface';
 import Promisie from 'promisie';
 import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
@@ -8,6 +8,9 @@ import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeatu
 import * as Luxon from 'luxon';
 import flatten from 'flat';
 import { default as ConfusionMatrix, }from 'ml-confusion-matrix';
+import { getBackend } from './tensorflow_singleton';
+import { getScikit } from './scikitjs_singleton';
+
 
 export enum ModelTypes {
   FAST_FORECAST = 'ai-fast-forecast',
@@ -409,6 +412,8 @@ export class ModelX implements ModelContext {
   emptyObject: JSONStackDataTypes.Datum;
   mockEncodedData: JSONStackDataTypes.Data;
   debug: boolean;
+  tf: any;
+  scikit: any;
 
   auto_assign_features?: boolean;
   independent_variables?: string[];
@@ -545,6 +550,12 @@ export class ModelX implements ModelContext {
     this.prediction_timeseries_end_date = configuration.prediction_timeseries_end_date;
     this.prediction_timeseries_dimension_feature = configuration.prediction_timeseries_dimension_feature || 'dimension';
     this.prediction_inputs_next_value_functions = configuration.prediction_inputs_next_value_functions || configuration.next_value_functions || [];
+    this.tf = getBackend();
+    this.scikit = getScikit();
+    this.scikit.setBackend(this.tf);
+    JSONStackModel.setBackend(this.tf);
+    JSONStackModel.setScikit(this.scikit);
+
     this.Model = configuration.Model || new JSONStackModel.TensorScriptModelInterface();
     this.original_data_test = [];
     this.original_data_train = [];

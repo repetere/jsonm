@@ -1,9 +1,17 @@
 import { ModelX, ModelTypes, EvaluateRegressionModel, EvaluateClassificationModel, } from './model';
 import  { Dimensions, getIsOutlier, mockDates } from './constants';
-import { DataSet, csv, } from '@jsonstack/data/src/index';
+import { DataSet, csv, } from '@jsonstack/data';
 import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
 import path from 'path';
 
+import { setBackend } from './tensorflow_singleton';
+import {setScikit} from './scikitjs_singleton';
+import * as scikit from 'scikitjs';
+import * as tf from '@tensorflow/tfjs-node';
+
+setBackend(tf);
+scikit.setBackend(tf);
+setScikit(scikit);
 
 describe('ModelX', () => {
   describe('async predictModel', () => {

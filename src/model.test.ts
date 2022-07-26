@@ -1,7 +1,16 @@
 import { ModelX, ModelTypes, getGeneratedStatefulFunction, sumPreviousRows, } from './model';
 import  { Dimensions, getIsOutlier, mockDates } from './constants';
-import { DataSet, } from '@jsonstack/data/src/index';
+import { DataSet, } from '@jsonstack/data';
 import { Faker, getData, getDatum, timeseriesSort, getMockClassification, getMockRegression, getMockTimeseries, } from './util';
+import { setBackend } from './tensorflow_singleton';
+import {setScikit} from './scikitjs_singleton';
+import * as scikit from 'scikitjs';
+import * as tf from '@tensorflow/tfjs-node';
+
+setBackend(tf);
+scikit.setBackend(tf);
+setScikit(scikit);
+
 
 describe('Generated Functions', () => {
   describe('getGeneratedStatefulFunction', () => {

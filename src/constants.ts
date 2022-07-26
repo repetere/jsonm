@@ -1,5 +1,5 @@
 import * as JSONStackData from '@jsonstack/data/src/DataSet';
-import { DateTime, DateTimeJSOptions, DateObject, } from 'luxon';
+import { DateTime, DateTimeJSOptions, DateObjectUnits, } from 'luxon';
 import Outlier from 'outlier';
 
 export enum Dimensions {
@@ -18,7 +18,7 @@ export enum BooleanAnswer {
   TRUE = 1,
 }
 
-export interface ParsedDate extends DateObject{
+export interface ParsedDate extends DateObjectUnits{
   hour?: number;
   minute?: number;
   week?: number; //weekNumber

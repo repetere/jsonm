@@ -24,8 +24,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "node_modules/@jsonstack/model/**/*.ts",
-    "node_modules/@jsonstack/data/**/*.ts", 
+    // "node_modules/@jsonstack/model/**/*.ts",
+    // "node_modules/@jsonstack/data/**/*.ts", 
 
     // "src/**/*.tsx",
     // "manual/media/legacy/model-backup-test.ts", 

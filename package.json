@@ -43,8 +43,8 @@
     "coverage": "coveralls"
   },
   "dependencies": {
-    "@jsonstack/data": "^2.0.0",
-    "@jsonstack/model": "^3.0.1",
+    "@jsonstack/data": "2.0.0",
+    "@jsonstack/model": "3.0.2",
     "flat": "^5.0.2",
     "ml-confusion-matrix": "^0.4.0",
     "outlier": "0.0.1",

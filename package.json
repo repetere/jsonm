@@ -45,13 +45,13 @@
   "dependencies": {
     "flat": "^5.0.2",
     "ml-confusion-matrix": "^0.4.0",
+    "@jsonstack/data": "^2.0.0",
     "outlier": "0.0.1",
     "promisie": "^3.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
-    "@jsonstack/data": "^2.0.0",
     "@jsonstack/model": "^3.0.1",
     "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-commonjs": "^20.0.0",

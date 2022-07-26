@@ -5,6 +5,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "node_modules/scikitjs/src/**/*.ts"
+    "node_modules/scikitjs/src/**/*.ts",
+    "node_modules/@jsonstack/data/dist/esm/**/*.ts"
   ],
 }

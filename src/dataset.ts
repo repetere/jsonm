@@ -1,7 +1,7 @@
 import { Data, } from '@jsonstack/data/src/DataSet';
 import { CSVOptions, loadCSV, loadTSV, } from '@jsonstack/data/src/csv';
 import { getFirstDataset, } from './transforms'
-import Promisie from 'promisie';
+import Promisie from 'promisie/src/index';
 import axios from 'axios';
 
 export type DataSets = { [index: string]: Data; };

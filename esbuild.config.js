@@ -1,5 +1,11 @@
 import esbuild from "esbuild";
 import { nodeBuiltIns } from "esbuild-node-builtins";
+import alias from 'esbuild-plugin-alias';
+import path from 'path'
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 // import GlobalsPlugin from "esbuild-plugin-globals";
 
 const watch = (process.argv.includes('-w') || process.argv.includes('-watch'))
@@ -11,7 +17,10 @@ const watch = (process.argv.includes('-w') || process.argv.includes('-watch'))
   : false;
 const globalName = 'JSONM';
 const entryPoints = ['src/index.ts'];
-const webPlugins = [nodeBuiltIns()];
+const webPlugins = [nodeBuiltIns(),   alias({
+  '@jsonstack/data': path.resolve(__dirname, 'node_modules/@jsonstack/data/dist/esm/index.js'),
+  '@jsonstack/model': path.resolve(__dirname, 'node_modules/@jsonstack/model/dist/esm/index.js'),
+}),];
 const webCorePlugins = webPlugins.concat([
   // GlobalsPlugin({
   //   react: "React",
@@ -19,7 +28,10 @@ const webCorePlugins = webPlugins.concat([
   // })
 ],
 );
-const serverPlugins = [];
+const serverPlugins = [  alias({
+  // '@jsonstack/data': '@jsonstack/data/dist/esm',
+  // '@jsonstack/model': '@jsonstack/model/dist/esm',
+})];
 const serverExternals = [
   "@jsonstack/data",
   "@jsonstack/model",
@@ -35,6 +47,7 @@ const serverExternals = [
   'http',
   'https',
   'axios',
+  'stemmer',
   'node-fetch',
   "csvtojson",
   "js-grid-search-lite",
@@ -134,8 +147,8 @@ void async function main(){
     });
 
     console.log({
-      browserBuild,
       browserMinifiedBuild,
+      browserBuild,
       browserLegacyBuild, 
       browserLegacyMinifiedBuild,
       cjsBuild, 

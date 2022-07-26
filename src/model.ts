@@ -2,7 +2,7 @@ import * as JSONStackData from '@jsonstack/data';
 import * as JSONStackDataTypes from '@jsonstack/data/src/DataSet';
 import * as JSONStackModel from '@jsonstack/model';
 import * as JSONStackModelTypes from '@jsonstack/model/src/model_interface';
-import Promisie from 'promisie';
+import Promisie from 'promisie/src/index';
 import { ISOOptions, durationToDimensionProperty, BooleanAnswer, getOpenHour, getIsOutlier, Dimensions, Entity, ParsedDate, getLuxonDateTime, dimensionDurations, flattenDelimiter, addMockDataToDataSet, removeMockDataFromDataSet, training_on_progress, TrainingProgressCallback, getParsedDate, timeProperty, getLocalParsedDate, removeEvaluationData, } from './constants';
 import { dimensionDates, getEncodedFeatures, autoAssignFeatureColumns, AutoFeature, } from './features';
 import * as Luxon from 'luxon';

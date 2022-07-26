@@ -1,3 +1,21 @@
+# [2.0.0](https://github.com/repetere/jsonm/compare/v1.1.0...v2.0.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* moving jsonstack-data to dependencies ([771101a](https://github.com/repetere/jsonm/commit/771101a4aef10915e5bf9670bbeb7faf6ca0d647))
+* pulling out scikit and tensorflow ([fe8a123](https://github.com/repetere/jsonm/commit/fe8a1239c7b26e92b56d846935e52ed5ae6ebb5f))
+* reference to dependencies ([0411116](https://github.com/repetere/jsonm/commit/0411116a8029968fdcff998bbab6cbd6d057c93f))
+* updated jsonstack-model ([290120e](https://github.com/repetere/jsonm/commit/290120e949ba86a6d1084d16d061b0638b662950))
+* updated jsonstack-model ([0b13cfc](https://github.com/repetere/jsonm/commit/0b13cfc4f651ffa51350916b6603be9e754bf5b2))
+* updating dependencies ([c1070a1](https://github.com/repetere/jsonm/commit/c1070a1e8e9cb464c6dddac056ab1da7f3c0f866))
+
+
+### Features
+
+* added auto splitting datasets into training and prediction data ([0afba45](https://github.com/repetere/jsonm/commit/0afba45d2bc4c09300e037a5f9cde5ce3bd3e598))
+* migrated builds to esbuild ([664d58e](https://github.com/repetere/jsonm/commit/664d58e73340850027c42da66c3e8bd98d61e151))
+
 # [1.1.0](https://github.com/repetere/jsonm/compare/v1.0.4...v1.1.0) (2021-04-22)
 
 

@@ -64,7 +64,7 @@
 </ol>
 <h2><a name="dataset">1. Static Training Data </a></h2>
 <p>The most straightforward way of defining your training data, is to assign your model training data directly to the <code>dataset</code> property. When using static data, the <code>dataset</code> property expects to be an array of JSON objects.</p>
-<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">const</span> JML = {
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
@@ -74,32 +74,32 @@
     {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
   ],
 };
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h2><a name="getdataset">2. Using JDS JSON Data </a></h2>
 <p>Another way to set the training data for your model is to use JDS JSON in your <code>dataset</code> property. When <code>getModel</code> is called with <code>JML</code> and the <code>dataset</code> property is not an array of JSON objects, the <code>dataset</code> property is passed to the <code>getDataSet</code> function.</p>
 <p>The <code>getDataSet</code> method expects to be called with an JDS (JSON DataSet) formatted Object.</p>
 <h3><a name="jds">2.1 JDS </a></h3>
 <p>JDS Objects are defined as:</p>
-<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> JDS = {
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> <span class="hljs-variable constant_">JDS</span> = {
   name?: <span class="hljs-built_in">string</span>;
   id?: <span class="hljs-built_in">string</span>;
-  reducer?: Reducer;
+  reducer?: <span class="hljs-title class_">Reducer</span>;
   pre_transform?: <span class="hljs-built_in">string</span> | genericFunction;
   post_transform?: <span class="hljs-built_in">string</span> | genericFunction;
-  data?: Data;
-  _data_static?: Data;
+  data?: <span class="hljs-title class_">Data</span>;
+  _data_static?: <span class="hljs-title class_">Data</span>;
   _data_url?: <span class="hljs-built_in">string</span>;
   _data_csv?: <span class="hljs-built_in">string</span>;
   _data_tsv?: <span class="hljs-built_in">string</span>;
-  _data_csv_options?: CSVOptions;
+  _data_csv_options?: <span class="hljs-title class_">CSVOptions</span>;
   _data_promise?: genericFunction;
 }
 </code></pre>
 <h3><a name="static-data">2.2 JSON Training Data </a></h3>
 <p>The most simple use case would be just defining static data using JDS <code>data</code> or <code>_static_data</code></p>
 <pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
-<span class="hljs-keyword">const</span> JDS = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JDS</span> = {
   <span class="hljs-attr">data</span>:[ <span class="hljs-comment">//define static data</span>
     {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
     {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
@@ -107,7 +107,7 @@
   ]
 };
 
-<span class="hljs-keyword">const</span> JDS2 = {
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">JDS2</span> = {
   <span class="hljs-attr">_data_static</span>:[ <span class="hljs-comment">//define static data</span>
     {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
     {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
@@ -115,30 +115,30 @@
   ]
 };
 
-<span class="hljs-keyword">const</span> JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
-  <span class="hljs-attr">dataset</span>: JDS || JDS2 || <span class="hljs-keyword">await</span> getDataSet(JDS || JDS2 )
+  <span class="hljs-attr">dataset</span>: <span class="hljs-variable constant_">JDS</span> || <span class="hljs-title class_">JDS2</span> || <span class="hljs-keyword">await</span> <span class="hljs-title function_">getDataSet</span>(<span class="hljs-variable constant_">JDS</span> || <span class="hljs-title class_">JDS2</span> )
 };
 
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h3><a name="data-dynamic">2.3 Dynamic Training Data </a></h3>
 <p>The primary use case for defining your training data with JDS JSON is because you need to fetch, combine and transform data from one or multiple sources.</p>
 <h4><a name="data-url">2.3.1 Fetching JSON from a URL </a></h4>
 <p>JSONM can be used to fetch JSON from a remote location by defining <code>_data_url</code></p>
 <pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
-<span class="hljs-keyword">const</span> JDS = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JDS</span> = {
    <span class="hljs-attr">_data_url</span>: <span class="hljs-string">'https://jsonplaceholder.typicode.com/posts'</span>
 };
 
 
-<span class="hljs-keyword">const</span> JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
-  <span class="hljs-attr">dataset</span>: JDS
+  <span class="hljs-attr">dataset</span>: <span class="hljs-variable constant_">JDS</span>
   <span class="hljs-comment">/* resolves to:
     [
       {
@@ -157,21 +157,21 @@
   */</span>
 };
 
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h4><a name="data-csv">2.3.2 Fetching JSON from CSV/TSV from a URL </a></h4>
 <p>JSONM can be used to fetch JSON from a remote CSV/TSV location by defining <code>_data_csv</code> or <code>_data_tsv</code>. Both TSVs and CSVs will accept additional loading options that are defined on <code>_data_csv_options</code></p>
 <pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
-<span class="hljs-keyword">const</span> JDS = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JDS</span> = {
   <span class="hljs-attr">_data_csv</span>:<span class="hljs-string">'https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv'</span>,
   <span class="hljs-attr">_data_csv_options</span>:{} <span class="hljs-comment">//options passed to csvtojson module</span>
 };
 
-<span class="hljs-keyword">const</span> JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
-  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-attr">dataset</span>: <span class="hljs-variable constant_">JDS</span> 
   <span class="hljs-comment">/* resolves to:
     [
       {
@@ -182,14 +182,14 @@
   */</span>
 };
 
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h4><a name="data-promise">2.3.3 Fetching JSON from a custom JavaScript Promise </a></h4>
 <p>JSONM can be used to fetch JSON from any asynchronus function of Promise  by defining <code>_data_promise</code>. This allows for JSONM to load data from user defined functions.</p>
 <pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
-<span class="hljs-keyword">const</span> JDS = {
-  <span class="hljs-attr">_data_promise</span>:<span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve,reject</span>)=&gt;</span>{
-    resolve([ 
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JDS</span> = {
+  <span class="hljs-attr">_data_promise</span>:<span class="hljs-keyword">new</span> <span class="hljs-title class_">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve,reject</span>)=&gt;</span>{
+    <span class="hljs-title function_">resolve</span>([ 
       {<span class="hljs-attr">x</span>:<span class="hljs-number">1</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">2</span>,},
       {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">4</span>,},
       {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">6</span>,},
@@ -197,11 +197,11 @@
   })
 };
 
-<span class="hljs-keyword">const</span> JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
-  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-attr">dataset</span>: <span class="hljs-variable constant_">JDS</span> 
   <span class="hljs-comment">/* resolves to:
     [ //define static data
       {x:1,y:2,},
@@ -211,35 +211,35 @@
   */</span>
 };
 
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h2><a name="data-reducer">3. Combining Multiple Data Sources</a></h2>
 <p>JSONM can resolve multiple datasets objects into training data by using a reducer function. Reducer functions can pipe output from one function as the input to another function by defining multiple functions.</p>
 <p>Reducers iterate over the JDS JSON objects defined in the <code>reducer.datasets</code> property. Reducers can be infinately nested for even more flexibility.</p>
 <p>Reducer functions can be defined as either a string of an asynchronous function body that returns the data you want, or an asychronous function.</p>
-<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> reducerFunction = <span class="hljs-function">(<span class="hljs-params">datasetData:DataSets</span>) =&gt;</span> <span class="hljs-built_in">Promise</span>&lt;Data&gt;;
+<pre><code class="hljs language-TypeScript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> reducerFunction = <span class="hljs-function">(<span class="hljs-params">datasetData:DataSets</span>) =&gt;</span> <span class="hljs-title class_">Promise</span>&lt;<span class="hljs-title class_">Data</span>&gt;;
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> Reducer = {
-  <span class="hljs-attr">reducer_function</span>: <span class="hljs-built_in">string</span> | reducerFunction | <span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">string</span>|reducerFunction&gt;;
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> <span class="hljs-title class_">Reducer</span> = {
+  <span class="hljs-attr">reducer_function</span>: <span class="hljs-built_in">string</span> | reducerFunction | <span class="hljs-title class_">Array</span>&lt;<span class="hljs-built_in">string</span>|reducerFunction&gt;;
   name?: <span class="hljs-built_in">string</span>;
   context?: <span class="hljs-built_in">any</span>;
-  datasets: <span class="hljs-built_in">Array</span>&lt;JDS|Data&gt;;
+  <span class="hljs-attr">datasets</span>: <span class="hljs-title class_">Array</span>&lt;<span class="hljs-variable constant_">JDS</span>|<span class="hljs-title class_">Data</span>&gt;;
 }
 </code></pre>
 <p>Reducers are a super powerful and flexible way to combine data from multiple sources. In order to reference datasets in your reducer functions, you can either explicitly set a name for the dataset or <code>dataset_${index}</code> name will be assigned automatically. Reducers can be used in the following way:</p>
 <pre><code class="hljs language-TypeScript"><span class="hljs-keyword">import</span> { getModel, getDataSet} <span class="hljs-keyword">from</span> <span class="hljs-string">'@jsonstack/jsonm'</span>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">combineDataSets</span>(<span class="hljs-params">datasets</span>)</span>{
-  <span class="hljs-keyword">return</span> datasets.firstDS.map(<span class="hljs-function">(<span class="hljs-params">datum,i</span>)=&gt;</span> {
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">combineDataSets</span>(<span class="hljs-params">datasets</span>){
+  <span class="hljs-keyword">return</span> datasets.<span class="hljs-property">firstDS</span>.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">datum,i</span>)=&gt;</span> {
     <span class="hljs-keyword">return</span> {
       ...datum,
-      ...datasets.secondDS[i],
-      <span class="hljs-attr">combined_x</span>: datum.x+datasets.secondDS[i].x2,
-      <span class="hljs-attr">combined_y</span>: datum.y+datasets.secondDS[i].y2,
+      ...datasets.<span class="hljs-property">secondDS</span>[i],
+      <span class="hljs-attr">combined_x</span>: datum.<span class="hljs-property">x</span>+datasets.<span class="hljs-property">secondDS</span>[i].<span class="hljs-property">x2</span>,
+      <span class="hljs-attr">combined_y</span>: datum.<span class="hljs-property">y</span>+datasets.<span class="hljs-property">secondDS</span>[i].<span class="hljs-property">y2</span>,
     }
   })
 }
-<span class="hljs-keyword">const</span> JDS = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JDS</span> = {
   <span class="hljs-attr">reducer</span>:{
     <span class="hljs-attr">reducer_function</span>: combineDataSets,
     <span class="hljs-attr">datasets</span>:[
@@ -254,20 +254,20 @@
       {
         <span class="hljs-attr">name</span>:<span class="hljs-string">'secondDS'</span>,
         <span class="hljs-attr">data</span>:[
-          {<span class="hljs-attr">x</span>:<span class="hljs-number">10</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">20</span>,},
-          {<span class="hljs-attr">x</span>:<span class="hljs-number">20</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">40</span>,},
-          {<span class="hljs-attr">x</span>:<span class="hljs-number">30</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">60</span>,},
+          {<span class="hljs-attr">x2</span>:<span class="hljs-number">10</span>,<span class="hljs-attr">y2</span>:<span class="hljs-number">20</span>,},
+          {<span class="hljs-attr">x2</span>:<span class="hljs-number">20</span>,<span class="hljs-attr">y2</span>:<span class="hljs-number">40</span>,},
+          {<span class="hljs-attr">x2</span>:<span class="hljs-number">30</span>,<span class="hljs-attr">y2</span>:<span class="hljs-number">60</span>,},
         ],
       }
     ]
   }
 };
 
-<span class="hljs-keyword">const</span> JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-keyword">type</span>, <span class="hljs-comment">// required, e.g. 'regression'</span>
   inputs, <span class="hljs-comment">// required, e.g. ['x']</span>
   outputs, <span class="hljs-comment">// required, e.g. ['y']</span>
-  <span class="hljs-attr">dataset</span>: JDS 
+  <span class="hljs-attr">dataset</span>: <span class="hljs-variable constant_">JDS</span> 
   <span class="hljs-comment">/* resolves to:
       { x:1, y:2, x2:10, y:20, combined_x:11, combined_y:22, },
       { x:2, y:4, x2:20, y:40, combined_x:22, combined_y:44, },
@@ -276,7 +276,7 @@
   */</span>
 };
 
-<span class="hljs-keyword">const</span> Model = <span class="hljs-keyword">await</span> getModel(JML); 
+<span class="hljs-keyword">const</span> <span class="hljs-title class_">Model</span> = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(<span class="hljs-variable constant_">JML</span>); 
 </code></pre>
 <h2>Next: <a href="https://repetere.github.io/jsonm/manual/feature-engineering/index.html">Feature Engineering</a></h2>
 <hr>

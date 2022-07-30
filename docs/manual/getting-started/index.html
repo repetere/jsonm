@@ -51,10 +51,10 @@
 
 <span class="hljs-keyword">const</span> inputs = [<span class="hljs-string">'height'</span>,];
 <span class="hljs-keyword">const</span> outputs = [ <span class="hljs-string">'weight'</span>,];
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">on_progress</span>(<span class="hljs-params">{ completion_percentage, loss, epoch, status, }</span>)</span>{ 
-  <span class="hljs-built_in">console</span>.log({ completion_percentage, loss, epoch, status, })
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">on_progress</span>(<span class="hljs-params">{ completion_percentage, loss, epoch, status, }</span>){ 
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>({ completion_percentage, loss, epoch, status, })
 }
-<span class="hljs-keyword">const</span> exampleJSON: JML = {
+<span class="hljs-keyword">const</span> <span class="hljs-attr">exampleJSON</span>: <span class="hljs-variable constant_">JML</span> = {
   <span class="hljs-attr">type</span>: <span class="hljs-string">'regression'</span>,
   inputs,
   outputs,
@@ -72,9 +72,9 @@
     {<span class="hljs-attr">height</span>:<span class="hljs-number">75</span>, <span class="hljs-attr">weight</span>:<span class="hljs-number">210</span>},
   ]
 }
-<span class="hljs-keyword">const</span> simpleModel = <span class="hljs-keyword">await</span> getModel(exampleJSON); 
-<span class="hljs-keyword">await</span> simpleModel.trainModel()
-<span class="hljs-keyword">const</span> predictions = <span class="hljs-keyword">await</span> simpleModel.predictModel( 
+<span class="hljs-keyword">const</span> simpleModel = <span class="hljs-keyword">await</span> <span class="hljs-title function_">getModel</span>(exampleJSON); 
+<span class="hljs-keyword">await</span> simpleModel.<span class="hljs-title function_">trainModel</span>()
+<span class="hljs-keyword">const</span> predictions = <span class="hljs-keyword">await</span> simpleModel.<span class="hljs-title function_">predictModel</span>( 
   [
     { <span class="hljs-attr">height</span>: <span class="hljs-number">60</span>, },
     { <span class="hljs-attr">height</span>: <span class="hljs-number">71</span>, },

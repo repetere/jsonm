@@ -1,4 +1,6 @@
+import * as sk from 'scikitjs';
 let scikit = null;
+scikit = sk;
 export function setScikit(scikitInput) {
     scikit = scikitInput;
 }

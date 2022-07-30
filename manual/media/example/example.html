@@ -4,8 +4,15 @@
     <script>
     // const natural={}
     </script>
-    <script src="https://unpkg.com/@modelx/data@1.1.0/dist/index.umd.js"></script>
-    <script src="../../../dist/index.web.js"></script>
+    <script src="https://unpkg.com/@jsonstack/data@2.0.1/dist/web/index.js"></script>
+    <script src="https://unpkg.com/@jsonstack/model@3.0.3/dist/web/index.js"></script>
+    <script src="../../../dist/web/index.js"></script>
+    <script src="https://unpkg.com/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <!-- <script src="https://unpkg.com/scikitjs@1.24.0/dist/web/index.min.js"></script> -->
+    <script>
+      // JSONM.setScikit(scikit);
+      JSONM.setBackend(tf);
+    </script>
     <style type="text/css">
     .result{
       border:1px solid black;
@@ -55,7 +62,7 @@ const dependentVariables = [
           const csvtest1DOM= setLoadingDom('#csvtest1');
           const trainingDataLabel = document.querySelector('.classification_data_status');
           trainingDataLabel.value = 'loading';
-          let irisData = await ModelXData.csv.loadCSVURI('https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv');
+          let irisData = await JSONStackData.csv.loadCSVURI('https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv');
           trainingDataLabel.value = 'loaded';
           // updateLoadingDom(csvtest1DOM,{ data:'loaded', });
           const independent_variables = [
@@ -190,7 +197,7 @@ const dependentVariables = [
 
     </pre>
     <pre id='csvtest2' class="result"></pre>
-    <h3>ModelXData.DataSet.selectColumns</h3>
+    <h3>JSONStackData.DataSet.selectColumns</h3>
     <pre>
       const cols = ['Age', 'Salary', ];
       const selectedCols = CSVDataSet.selectColumns(cols);

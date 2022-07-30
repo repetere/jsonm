@@ -43,18 +43,19 @@
     "coverage": "coveralls"
   },
   "dependencies": {
-    "@jsonstack/data": "2.0.0",
-    "@jsonstack/model": "^3.0.3",
-    "@tensorflow/tfjs": "^3.19.0",
-    "flat": "^5.0.2",
-    "ml-confusion-matrix": "^0.4.0",
+    "@jsonstack/data": "^2.0.1",
+    "@jsonstack/model": "3.0.3",
+    "@tensorflow/tfjs": "3.19.0",
+    "flat": "5.0.2",
+    "ml-confusion-matrix": "0.4.0",
     "outlier": "0.0.1",
-    "promisie": "^3.0.1"
+    "promisie": "3.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
     "@faker-js/faker": "^7.3.0",
+    "@geut/esbuild-plugin-brode": "^2.0.1",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",

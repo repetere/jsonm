@@ -1,5 +1,6 @@
 import esbuild from "esbuild";
 import { nodeBuiltIns } from "esbuild-node-builtins";
+import brode from '@geut/esbuild-plugin-brode'
 import alias from 'esbuild-plugin-alias';
 import path from 'path'
 import { dirname } from 'path';
@@ -20,7 +21,7 @@ const entryPoints = ['src/index.ts'];
 const webPlugins = [nodeBuiltIns(),   alias({
   '@jsonstack/data': path.resolve(__dirname, 'node_modules/@jsonstack/data/dist/esm/index.js'),
   '@jsonstack/model': path.resolve(__dirname, 'node_modules/@jsonstack/model/dist/esm/index.js'),
-}),];
+}), brode()];
 const webCorePlugins = webPlugins.concat([
   // GlobalsPlugin({
   //   react: "React",

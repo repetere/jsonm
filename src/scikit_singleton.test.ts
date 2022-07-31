@@ -3,6 +3,7 @@ import { getScikit, setScikit, } from "./scikitjs_singleton";
 describe('tensorflow singleton',()=>{
   describe('getScikit',()=>{
     it('should throw an error if tensorflow has not been set',()=>{
+      setScikit(null)
       expect(getScikit.bind(null)).toThrowError(/Looks like you are/);
     });
   });

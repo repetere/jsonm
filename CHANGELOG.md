@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/repetere/jsonm/compare/v2.0.0...v2.1.0) (2022-07-31)
+
+
+### Features
+
+* fixed browser build with updated dependencies ([6250745](https://github.com/repetere/jsonm/commit/6250745728cc96f81507774b2f3558cadc3dacbb))
+
 # [2.0.0](https://github.com/repetere/jsonm/compare/v1.1.0...v2.0.0) (2022-07-26)
 
 

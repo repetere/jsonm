@@ -54,7 +54,6 @@ import * as tf from '@tensorflow/tfjs-node';
 import { getModel, setBackend, } from '@jsonstack/jsonm';
 
 //set tensorflow
-scikit.setBackend(tf);
 setBackend(tf);
 
 //Iris Dataset e.g from https://raw.githubusercontent.com/repetere/modelx-model/master/src/test/mock/data/iris_data.csv

@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/repetere/jsonm/compare/v2.1.0...v2.2.0) (2022-07-31)
+
+
+### Features
+
+* adding support to generate models from google sheets ([4da3694](https://github.com/repetere/jsonm/commit/4da369451688971cfdd9ba3f3b16a6e3f5f2135c))
+
 # [2.1.0](https://github.com/repetere/jsonm/compare/v2.0.0...v2.1.0) (2022-07-31)
 
 

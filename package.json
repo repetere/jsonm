@@ -1,6 +1,6 @@
 {
   "name": "@jsonstack/jsonm",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Construct AI & ML models with JSON using Typescript & Tensorflow",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

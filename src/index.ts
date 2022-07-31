@@ -10,6 +10,9 @@ export {
   getModel,
   getModelFromJSONM,
   getModelTrainingOptions,
+  splitTrainingPredictionData,
+  getInputsOutputsFromDataset,
+  getSpreadsheetDataset,
 } from './jsonm'
 export {
   getDataSet,

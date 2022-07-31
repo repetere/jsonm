@@ -64,6 +64,7 @@ describe('JSONM',()=>{
   })
   describe('splitTrainingPredictionData',()=>{
     it('should handle empty inputs', async()=>{
+      // deepcode ignore MissingArgument/test: used in jest
       const {trainingData,predictionData} = await splitTrainingPredictionData();
       expect(trainingData).toMatchObject([]);
       expect(predictionData).toMatchObject([]);

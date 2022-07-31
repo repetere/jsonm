@@ -129,7 +129,7 @@ export type TrainingProgressUpdate = {
     loss: number
   };
   status: string;
-  defaultLog?: boolean;
+  defaultLog?: boolean|any;
 }
 
 export function training_on_progress({ completion_percentage, loss, epoch, status, logs, defaultLog=true }:TrainingProgressUpdate):void {

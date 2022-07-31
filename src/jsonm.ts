@@ -1,5 +1,5 @@
 import { ModelX, ModelContext, ModelTypes, ModelConfiguration, } from './model';
-import { Data, Datum, } from '@jsonstack/data';
+import { Data, Datum, DataSet, util as DataSetUtil } from '@jsonstack/data';
 import { TrainingProgressCallback, } from './constants';
 
 import { JDS, getDataSet, } from './dataset';
@@ -38,6 +38,31 @@ export type ModelDataOptions = {
   inputs: string[];
   outputs: string[];
   data: JDS | Data;
+  on_progress?:TrainingProgressCallback,
+}
+
+export type getSpreadsheetDatasetOptions={
+  on_progress?:TrainingProgressCallback,
+  columnLabels?:string[]
+}
+
+export type columnStat ={
+  label: string,
+  labelValues: any[],
+  dataType:string,
+  mean?: number,
+  min?:number,
+  max?:number,
+  values:number
+}
+
+export type getInputsOutputsFromDatasetOptions ={
+  dataset:Data,
+  labels:string[],
+  inputs?:string[],
+  outputs?:string[],
+  forceStats?:boolean,
+  on_progress?:TrainingProgressCallback,
 }
 
 export async function getModelFromJSONM(jml?: JML): Promise<ModelX> {
@@ -60,23 +85,6 @@ export async function getModelFromJSONM(jml?: JML): Promise<ModelX> {
 
 export const getModel = getModelFromJSONM;
 
-/**
- * Splits into training and prediction data
- * @param options.inputs - list of inputs
- * @param options.outputs - list of outputs
- * @param options.data - data to split into training and prediction data
- * @returns two objects (trainingData and predictionData)
- */
-export async function splitTrainingPredictionData(options?:ModelDataOptions): Promise<{trainingData:Data, predictionData: Data}>{
-  const dataset = await getDataSet(options?.data);
-  const {trainingData, predictionData} = dataset.reduce((result,datum)=>{
-    if(options?.outputs?.filter((output)=>datum[output]===undefined || datum[output]===null
-    ).length) result.predictionData.push(datum);
-    else result.trainingData.push(datum);
-    return result;
-  },{trainingData:[],predictionData:[],})
-  return {trainingData,predictionData}
-}
 
 export function getModelTrainingOptions({ accuracy_target }: { accuracy_target?: number;} ={}) {
   return {
@@ -119,5 +127,170 @@ export function getModelOptions(jml?:JML,datum?:Datum){
   return {
     ...defaultModelOptions,
     ...jml?.model_options,
+  }
+}
+
+/**
+ * Splits into training and prediction data
+ * @param options.inputs - list of inputs
+ * @param options.outputs - list of outputs
+ * @param options.data - data to split into training and prediction data
+ * @returns two objects (trainingData and predictionData)
+ */
+ export async function splitTrainingPredictionData(options?:ModelDataOptions): Promise<{trainingData:Data, predictionData: Data}>{
+  if(typeof options?.on_progress==='function') options.on_progress({
+    status: 'preprocessing',
+    loss: undefined,
+    completion_percentage: undefined,
+    epoch: undefined,
+    logs: undefined,
+    defaultLog: {
+      detail: 'generating training data'
+    }
+  }) 
+  const dataset = await getDataSet(options?.data);
+  const {trainingData, predictionData} = dataset.reduce((result,datum)=>{
+    if(options?.outputs?.filter((output)=> isEmpty(datum[output])
+    ).length) result.predictionData.push(datum);
+    else result.trainingData.push(datum);
+    return result;
+  },{trainingData:[],predictionData:[],})
+  return {trainingData,predictionData}
+}
+
+
+/**
+ * function that tests for empty values
+ * @param val 
+ * @returns {boolean}
+ */
+export function isEmpty(val):boolean{
+  return val === undefined || val === null || val==='';
+}
+
+/**
+ * returns inputs and outputs from json data and labels by iterating through the data, if there are rows with missing values it assumes that those are output columns
+ * e.g.,
+ * labels = ['col1','col2','col3','col4','col5']
+ * dataset = [ 
+ *   {col1:1, col2:2, col3:3, col4:4, col5: 5}, 
+ *   {col1:10, col2:20, col3:30, col4:undefined, col5: undefined}, 
+ * ]
+ * 
+ * it will assume
+ * inputs=['col1','col2','col3']
+ * outputs=['col4','col5']
+ * 
+ * if forcestats is set, it will run stats on each column like  mean, min, max
+ * @param param0 
+ * @returns 
+ */
+
+export function getInputsOutputsFromDataset({dataset, labels, inputs=[],outputs=[], forceStats=false, on_progress}:getInputsOutputsFromDatasetOptions){
+  if(typeof on_progress==='function') on_progress({
+    status: 'preprocessing',
+    loss: undefined,
+    completion_percentage: undefined,
+    epoch: undefined,
+    logs: undefined,
+    defaultLog: {
+      detail: 'configuring inputs and outputs'
+    }
+  }) 
+  if(inputs?.length && outputs?.length && forceStats===false){
+    return {
+      inputs,
+      outputs,
+      columns: undefined
+    }
+  } else{
+      const columns:columnStat[] = labels.reduce((stats:columnStat[],label)=>{
+        const labelValues = DataSet.columnArray(label,{
+          data: dataset,
+          filter: val=> !isEmpty(val)
+        });
+        const dataType = typeof labelValues[0];
+        const mean = dataType==='number'?DataSetUtil.mean(labelValues):undefined;
+        const min = DataSetUtil.min(labelValues);
+        const max = DataSetUtil.max(labelValues);
+        stats.push({
+          label,
+          labelValues,
+          dataType,
+          mean,
+          min,
+          max,
+          values: labelValues.length
+        });
+        return stats;
+      },[]);
+      const maxColumnValue = columns.sort((a,b)=>b.values-a.values)[0].values;
+      const [derivedInputs,derivedOutputs]:[string[],string[]] = columns.reduce((result,columnStat)=>{
+        
+        if(columnStat.values<maxColumnValue) result[1].push(columnStat.label);
+        else result[0].push(columnStat.label);
+        result[0]//inputs
+        result[1]//outputs
+        return result;
+      },[[],[]] as [string[],string[]]);
+      // console.log({columns,inputs,outputs})
+      return {
+        columns,
+        inputs:derivedInputs,
+        outputs:derivedOutputs,
+      };  
+  }
+}
+
+/**
+ * takes data from a spreadsheet and return an object for preprocessing. The input data usually includes the header, e.g., 
+ * [
+ *  ['col1','col2','col3'],
+ *  [1,  2,  3,  ]
+ *  [10, 20, 30, ]
+ * ] 
+ * 
+ * and returns
+ * 
+ * {
+ *  labels:[ 'col1', 'col2', 'col3', ],
+ *  vectors: [ [1,2,3], [10,20,30], ]
+ *  dataset: [ {col1: 1, col2: 2, col3: 3,}, {col1: 10, col2: 20, col3: 30}, ] 
+ * }
+ * @param data 
+ * @returns {{vectors:number[][],labels:string[],dataset:object[]}}
+ */
+export function getSpreadsheetDataset(data, options?:getSpreadsheetDatasetOptions){
+  if(typeof options?.on_progress==='function') options.on_progress({
+    status: 'preprocessing',
+    loss: undefined,
+    completion_percentage: undefined,
+    epoch: undefined,
+    logs: undefined,
+    defaultLog: {
+      detail: 'converting spreadsheet data into json dataset'
+    }
+  }) 
+  let derivedLabels:string[]=[];
+  let labelsAsFirstRow = options?.columnLabels
+    ? false 
+    : true;
+  const vectors = data.concat([]);
+
+  if(data?.length>0 && !options?.columnLabels &&(typeof data[0][0] === typeof data[1][0])){ 
+    labelsAsFirstRow = false;
+    derivedLabels = data[0].reduce((result,item,index)=>{
+      result.push(`column_${index+1}`)
+      return result;
+    },[]);
+  } else if(!options?.columnLabels) derivedLabels = vectors?.splice(0,1)[0] as string[];
+  
+  const labels = options?.columnLabels || derivedLabels;
+  const dataset = DataSet.reverseColumnMatrix({labels,vectors});
+  return {
+    vectors,
+    labels,
+    dataset,
+    labelsAsFirstRow,
   }
 }

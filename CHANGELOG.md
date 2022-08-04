@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/repetere/jsonm/compare/v2.2.0...v2.2.1) (2022-08-04)
+
+
+### Bug Fixes
+
+* added getModel validation with no inputs/outputs ([411010b](https://github.com/repetere/jsonm/commit/411010b43b66035059dc42b315fe47e79587004d))
+
 # [2.2.0](https://github.com/repetere/jsonm/compare/v2.1.0...v2.2.0) (2022-07-31)
 
 

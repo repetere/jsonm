@@ -5,7 +5,7 @@ import * as JSONM from './index';
 import { ModelTypes } from './model';
 import { toBeWithinRange, } from './jest.test';
 expect.extend({ toBeWithinRange });
-import {autoMLdata} from './__test__/mock_automl_data'
+import {autoMLdata, autoMLdataSM, autoMLdataTNE} from './__test__/mock_automl_data'
 import { Data } from '@jsonstack/data/src/DataSet';
 import { setBackend } from './tensorflow_singleton';
 import * as tf from '@tensorflow/tfjs-node';
@@ -66,8 +66,7 @@ describe('AutoML Sheets Test',()=>{
     });
   })
   describe('mock end to end example',()=>{
-
-    it('should run a basic test from spreadsheet data',async ()=>{
+    it('should run a basic test from spreadsheet with no prediction data',async ()=>{
       const on_progress = ({ 
         completion_percentage, 
         loss,
@@ -82,7 +81,7 @@ describe('AutoML Sheets Test',()=>{
       // const labels = vectors?.splice(0,1)[0] as string[];
       // const dataset = JSONM.Data.DataSet.reverseColumnMatrix({labels,vectors});\
       //@ts-ignore
-      const{vectors,labels,dataset}=getSpreadsheetDataset(autoMLdata?.data,{on_progress});
+      const{vectors,labels,dataset}=getSpreadsheetDataset(autoMLdataSM?.data,{on_progress});
       //@ts-ignore
       const {columns,inputs,outputs} = JSONM.getInputsOutputsFromDataset({dataset,labels, on_progress});
       const {trainingData,predictionData} = await splitTrainingPredictionData({
@@ -90,7 +89,44 @@ describe('AutoML Sheets Test',()=>{
         outputs,
         data: dataset,
       });
-      // console.log({trainingData,predictionData});
+      try{
+        const SpreadsheetModel = await getModel({
+          type:'prediction',
+          inputs,
+          outputs,
+          dataset:trainingData,
+          //@ts-ignore
+          on_progress,
+        });
+        await SpreadsheetModel.trainModel();
+      } catch(e){
+        expect(e).toBeInstanceOf(RangeError)
+      }
+    },30000)
+    it('should run a basic test from spreadsheet with small prediction data',async ()=>{
+      const on_progress = ({ 
+        completion_percentage, 
+        loss,
+        epoch, 
+        logs, 
+        status, 
+        defaultLog, 
+      }:TrainingProgressUpdate)=>{
+        if(status!=='training') console.log({status,defaultLog})
+      }
+      // const vectors = autoMLdata?.data.concat([]);
+      // const labels = vectors?.splice(0,1)[0] as string[];
+      // const dataset = JSONM.Data.DataSet.reverseColumnMatrix({labels,vectors});\
+      //@ts-ignore
+      const{vectors,labels,dataset}=getSpreadsheetDataset(autoMLdataTNE?.data,{on_progress});
+      //@ts-ignore
+      const {columns,inputs,outputs} = JSONM.getInputsOutputsFromDataset({dataset,labels, on_progress});
+      const {trainingData,predictionData} = await splitTrainingPredictionData({
+        inputs,
+        outputs,
+        data: dataset,
+      });
+      console.log({trainingData,predictionData})
       const SpreadsheetModel = await getModel({
         type:'prediction',
         inputs,
@@ -100,8 +136,43 @@ describe('AutoML Sheets Test',()=>{
         on_progress,
       });
       await SpreadsheetModel.trainModel();
+    },30000)
+  // describe('mock end to end example',()=>{
+  //   it('should run a basic test from spreadsheet data',async ()=>{
+  //     const on_progress = ({ 
+  //       completion_percentage, 
+  //       loss,
+  //       epoch, 
+  //       logs, 
+  //       status, 
+  //       defaultLog, 
+  //     }:TrainingProgressUpdate)=>{
+  //       if(status!=='training') console.log({status,defaultLog})
+  //     }
+  //     // const vectors = autoMLdata?.data.concat([]);
+  //     // const labels = vectors?.splice(0,1)[0] as string[];
+  //     // const dataset = JSONM.Data.DataSet.reverseColumnMatrix({labels,vectors});\
+  //     //@ts-ignore
+  //     const{vectors,labels,dataset}=getSpreadsheetDataset(autoMLdata?.data,{on_progress});
+  //     //@ts-ignore
+  //     const {columns,inputs,outputs} = JSONM.getInputsOutputsFromDataset({dataset,labels, on_progress});
+  //     const {trainingData,predictionData} = await splitTrainingPredictionData({
+  //       inputs,
+  //       outputs,
+  //       data: dataset,
+  //     });
+  //     // console.log({trainingData,predictionData});
+  //     const SpreadsheetModel = await getModel({
+  //       type:'prediction',
+  //       inputs,
+  //       outputs,
+  //       dataset:trainingData,
+  //       //@ts-ignore
+  //       on_progress,
+  //     });
+  //     await SpreadsheetModel.trainModel();
   
 
-    },30000)
+  //   },30000)
   })
 });

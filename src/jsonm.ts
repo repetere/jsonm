@@ -69,6 +69,8 @@ export async function getModelFromJSONM(jml?: JML): Promise<ModelX> {
   const trainingData = Array.isArray(jml.dataset)
     ? jml.dataset
     : await getDataSet(jml.dataset);
+  if(jml.outputs.length<1) throw new RangeError('Every model requires at least one output')
+  if(jml.inputs.length<1) throw new RangeError('Every model requires at least one input')
 
   return new ModelX({
     trainingData,
@@ -149,10 +151,10 @@ export function getModelOptions(jml?:JML,datum?:Datum){
     }
   }) 
   const dataset = await getDataSet(options?.data);
-  const {trainingData, predictionData} = dataset.reduce((result,datum)=>{
+  const {trainingData, predictionData} = dataset.reduce((result,datum,idx)=>{
     if(options?.outputs?.filter((output)=> isEmpty(datum[output])
-    ).length) result.predictionData.push(datum);
-    else result.trainingData.push(datum);
+    ).length) result.predictionData.push({...datum,__original_dataset_index: idx});
+    else result.trainingData.push({...datum,__original_dataset_index: idx});
     return result;
   },{trainingData:[],predictionData:[],})
   return {trainingData,predictionData}

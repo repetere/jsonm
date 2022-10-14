@@ -63,7 +63,7 @@
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@tensorflow/tfjs-converter": "^3.19.0",
     "@tensorflow/tfjs-core": "^3.19.0",
-    "@tensorflow/tfjs-node": "^3.19.0",
+    "@tensorflow/tfjs-node": "^4.0.0",
     "@types/flat": "5.0.2",
     "@types/jest": "^28.1.6",
     "@types/lodash.range": "^3.2.7",

@@ -57,7 +57,7 @@
     "@faker-js/faker": "^8.0.1",
     "@geut/esbuild-plugin-brode": "^2.0.1",
     "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/commit-analyzer": "^10.0.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/npm": "^10.0.1",
     "@semantic-release/release-notes-generator": "^11.0.1",

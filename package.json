@@ -52,7 +52,7 @@
     "promisie": "3.0.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
+    "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^17.0.3",
     "@faker-js/faker": "^8.0.1",
     "@geut/esbuild-plugin-brode": "^2.0.1",

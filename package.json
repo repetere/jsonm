@@ -47,7 +47,7 @@
     "@jsonstack/model": "3.0.3",
     "@tensorflow/tfjs": "^4.0.0",
     "flat": "5.0.2",
-    "ml-confusion-matrix": "0.4.0",
+    "ml-confusion-matrix": "2.0.0",
     "outlier": "0.0.1",
     "promisie": "3.0.1"
   },
